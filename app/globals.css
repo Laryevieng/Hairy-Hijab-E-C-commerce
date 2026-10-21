@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Token warna Hairy Hijab (§12.2) */
+  --ivory: #F7F3EE;
+  --sand: #D9C7B4;
+  --taupe: #A18A78;
+  --gold: #B69A62;
+  --gold-deep: #7A6535;
+  --espresso: #3B3028;
+  --success: #2F6B4F;
+  --danger: #9B2C2C;
+  --warning: #8A5A00;
+
+  /* Pemetaan variabel shadcn/ui (§12.2) — tanpa mode gelap pada MVP (§12.1) */
+  --background: #F7F3EE;
+  --foreground: #3B3028;
+  --card: #F7F3EE;
+  --card-foreground: #3B3028;
+  --popover: #F7F3EE;
+  --popover-foreground: #3B3028;
+  --primary: #3B3028;
+  --primary-foreground: #F7F3EE;
+  --secondary: #D9C7B4;
+  --secondary-foreground: #3B3028;
+  --muted: #D9C7B4;
+  --muted-foreground: #3B3028;
+  --accent: #D9C7B4;
+  --accent-foreground: #3B3028;
+  --destructive: #9B2C2C;
+  --destructive-foreground: #F7F3EE;
+  --border: #D9C7B4;
+  --input: #D9C7B4;
+  --ring: #7A6535;
+  --radius: 0.375rem;
 }
 
 @theme inline {
+  /* Token warna merek */
+  --color-ivory: var(--ivory);
+  --color-sand: var(--sand);
+  --color-taupe: var(--taupe);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-espresso: var(--espresso);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+
+  /* Token warna semantik & shadcn/ui */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+
+  /* Tipografi (§12.3) */
+  --font-serif: var(--font-heading), Georgia, serif;
+  --font-heading: var(--font-heading), Georgia, serif;
+  --font-sans: var(--font-body), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body), system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading), Georgia, serif;
+  }
 }
