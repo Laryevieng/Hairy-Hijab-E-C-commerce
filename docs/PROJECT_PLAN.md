@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 1 — Design System dan Layout
-Task berikutnya      : P1-01
-Prompt aktif         : 06 → MENUNGGU persetujuan; prompt berikutnya: 07 (lihat Lampiran E)
-Task terakhir selesai: P0-08
+Task berikutnya      : P1-03
+Prompt aktif         : 07 → MENUNGGU persetujuan; prompt berikutnya: 08 (lihat Lampiran E)
+Task terakhir selesai: P1-02
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-21 oleh Gemini 4 Argon
+Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -158,7 +158,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Gemini 4 Argon
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
-| 1 | Design System dan Layout | 5 | 0 |
+| 1 | Design System dan Layout | 5 | 2 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
@@ -1834,11 +1834,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 
 ### Fase 1 — Design System dan Layout (paralel dengan Fase 2)
 
-- [ ] **P1-01 · Token dan font** `S` · butuh: P0-03
+- [x] **P1-01 · Token dan font** `S` · butuh: P0-03
   - **Kerjakan:** Terapkan token §12.2 di `app/globals.css`; muat font §12.3 di `app/layout.tsx`; latar `ivory`, teks `espresso`.
   - **Selesai jika:** Warna dan font tampil sesuai; rasio kontras teks utama dan tombol utama dihitung dan dicatat di Handoff Log (≥ 4,5:1).
 
-- [ ] **P1-02 · shadcn/ui dasar** `M` · butuh: P0-04, P1-01
+- [x] **P1-02 · shadcn/ui dasar** `M` · butuh: P0-04, P1-01
   - **Kerjakan:** `npx shadcn@latest init` (netral; sesuaikan variabel dengan pemetaan §12.2), lalu `add`: `button input label textarea select checkbox radio-group dialog sheet dropdown-menu badge table tabs skeleton separator sonner form`.
   - **Selesai jika:** Komponen ada di `components/ui`; contoh Button dan Input tampil dengan warna token; halaman uji dihapus; build lulus.
 
@@ -2530,6 +2530,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Vite 8 menampilkan peringatan informasi tentang `configLoader: 'native'` untuk file `.ts` di repo CommonJS (tidak memengaruhi jalannya tes).
 - Langkah berikutnya: kerjakan **P1-01** (`app/globals.css` token warna §12.2 dan `app/layout.tsx` font §12.3) serta **P1-02** (shadcn/ui dasar) sesuai Prompt 07.
 
+### [2026-10-21 21:15] — Gemini 3.8 Flash High — SELESAI
+- Task: P1-01 (Token dan font), P1-02 (shadcn/ui dasar) — Percobaan 2
+- Ringkasan: Melanjutkan Prompt 07 dari sesi sebelumnya yang terputus paksa (quota reached) setelah instalasi shadcn/ui dan pengujian selesai. P1-01 sudah di-commit sebelumnya (`ead0622`). P1-02 menginisialisasi shadcn/ui (`components.json`, style `new-york`, base `neutral`, mapping CSS variables §12.2) dan menambahkan 17 komponen dasar ke `components/ui/` (`badge`, `button`, `checkbox`, `dialog`, `dropdown-menu`, `form`, `input`, `label`, `radio-group`, `select`, `separator`, `sheet`, `skeleton`, `sonner`, `table`, `tabs`, `textarea`). Menghitung rasio kontras WCAG 2.1 untuk token warna: teks utama (`espresso` di atas `ivory`) = 11.60:1 (lulus AA/AAA ≥ 4.5:1); tombol utama (`ivory` di atas `espresso`) = 11.60:1 (lulus AA/AAA ≥ 4.5:1); teks aksen `gold-deep` di atas `ivory` = 5.08:1 (lulus AA ≥ 4.5:1); teks aksen `gold` di atas `espresso` = 4.75:1 (lulus AA ≥ 4.5:1). Mengonfirmasi larangan teks `gold` di atas `ivory` (2.44:1) dan `taupe` di atas `ivory` (2.96:1) karena di bawah 4.5:1. Tes unit `tests/unit/ui-primitives.test.tsx` memverifikasi Button dan Input terintegrasi dengan kelas token. Halaman uji bersih.
+- File dibuat/diubah: `components.json` (baru), `components/ui/*.tsx` (17 komponen baru), `tests/unit/ui-primitives.test.tsx` (baru), `package.json` & `package-lock.json` (+`radix-ui`), `docs/PROJECT_PLAN.md` (diperbarui §1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 4 file / 19 tes) · G2 build sebelumnya ✔
+- Commit: `feat(P1-02): init shadcn/ui dan komponen dasar`
+- Asumsi / keputusan baru: —
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P1-03** (Layout toko: `app/(store)/layout.tsx`, `SiteHeader`, `SiteFooter`, `AnnouncementBar`, `MobileNavigation`, mock categories) sesuai Prompt 08.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2547,8 +2557,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 03 | 0 | P0-02, P0-03 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
 | 04 | 0 | P0-04, P0-07 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
 | 05 | 0 | P0-05 | 3 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2 selesai & commit oleh sesi sebelumnya namun terputus di sisi klien. Percobaan 3: verifikasi ulang semua file P0-05 + perbaikan `formatRupiah` (`Rp 125.000` dengan spasi ASCII sesuai D-04 & P0-08), `formatDateID` (`20 Okt 2026` sesuai §12.1), dan lazy getter `publicEnv`. Gate lint & typecheck ✔. Semua kriteria LULUS. |
-| 06 | 0 | P0-08 | 1 | MENUNGGU | 2026-10-21 | Gemini 4 Argon | `vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, `tests/setup.ts` dibuat. Chromium Playwright (`chromium-1248`) terpasang. 3 file tes unit (`format.test.ts`, `slug.test.ts`, `phone.test.ts` — 17 tes) hijau ✔. `npx playwright test --list` (2 tes) ✔. Gate G2 (`lint`, `typecheck`, `test`, `build`) LULUS ✔. Tag `v0.0.0` dibuat. |
-| 07 | 1 | P1-01, P1-02 | 0 | BELUM | | | |
+| 06 | 0 | P0-08 | 1 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | `vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, `tests/setup.ts` dibuat. Chromium Playwright (`chromium-1248`) terpasang. 3 file tes unit (`format.test.ts`, `slug.test.ts`, `phone.test.ts` — 17 tes) hijau ✔. `npx playwright test --list` (2 tes) ✔. Gate G2 (`lint`, `typecheck`, `test`, `build`) LULUS ✔. Tag `v0.0.0` dibuat. |
+| 07 | 1 | P1-01, P1-02 | 2 | MENUNGGU | 2026-10-21 | Gemini 3.8 Flash High | P1-01 di-commit di `ead0622`. P1-02: 17 komponen shadcn/ui di `components/ui/`, `radix-ui` terpasang. Rasio kontras teks utama & tombol utama 11.60:1 (lulus WCAG AA ≥ 4.5:1). Tes unit `ui-primitives` (Button & Input) ✔. Gate G1 (lint, typecheck, test 19 tes) ✔. |
 | 08 | 1 | P1-03 | 0 | BELUM | | | |
 | 09 | 1 | P1-04 | 0 | BELUM | | | |
 | 10 | 1 | P1-05 | 0 | BELUM | | | |
@@ -2606,3 +2616,4 @@ Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masa
 - P04 #1 [2026-10-21] GAGAL — API Quota Reached saat npm install dependensi runtime. Agen terputus paksa sebelum dependensi terinstal dan sebelum plan diperbarui (Lampiran E masih BELUM). Penyebab: lingkungan (kuota model habis).
 - P05 #1 [2026-10-21] GAGAL — API Quota Reached saat membaca dokumen. Agen terputus paksa sebelum ada file kode yang diubah. Penyebab: lingkungan (kuota model habis).
 - P05 #2 [2026-10-21] GAGAL — Sesi sebelumnya berhasil membuat file dan commit `0ece2e7`, tetapi terputus/diulang oleh pemilik sebagai percobaan ulang. Analisis akar masalah (wajib percobaan ke-3): (1) lingkungan — kuota/koneksi sesi terputus saat pelaporan akhir; (2) kode — pada percobaan 2, `formatRupiah(125000)` memakai `style: 'currency'` yang menghasilkan `"Rp\u00a0125.000"`/`"Rp125.000"` alih-alih `"Rp 125.000"` (spasi biasa) yang diminta D-04 dan tes P0-08, serta `publicEnv` dievaluasi eager saat import sebelum `.env.local` ada. Diperbaiki pada percobaan 3; teks plan sudah jelas dan tidak perlu diubah.
+- P07 #1 [2026-10-21] GAGAL — API Quota Reached setelah pengujian kode sukses, sebelum commit. Penyebab: lingkungan (kuota model habis).
