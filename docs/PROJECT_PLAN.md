@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 0 — Audit dan Fondasi Repo
-Task berikutnya      : P0-06
-Prompt aktif         : 01 → MENUNGGU persetujuan; prompt berikutnya: 02 (lihat Lampiran E)
-Task terakhir selesai: P0-01
+Task berikutnya      : P0-02
+Prompt aktif         : 02 → MENUNGGU persetujuan; prompt berikutnya: 03 (lihat Lampiran E)
+Task terakhir selesai: P0-06
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
@@ -157,7 +157,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
 
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
-| 0 | Audit dan Fondasi Repo | 8 | 1 |
+| 0 | Audit dan Fondasi Repo | 8 | 2 |
 | 1 | Design System dan Layout | 5 | 0 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
@@ -1817,7 +1817,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [ ] e. `types/action.ts` (§10.4); `config/site.ts`; `config/regions.ts` (daftar provinsi Indonesia terkini sesuai sumber resmi; catat sumbernya); `config/order-status.ts` (label Indonesia §9.3–9.4).
   - **Selesai jika:** `npx tsc --noEmit` lulus; `git check-ignore .env.local` mencetak path; tidak ada secret di file yang dikomit.
 
-- [ ] **P0-06 · AGENTS.md, CLAUDE.md, lokasi plan** `S` · butuh: P0-01
+- [x] **P0-06 · AGENTS.md, CLAUDE.md, lokasi plan** `S` · butuh: P0-01
   - **Kerjakan:** Tambahkan blok Lampiran A di **bawah** isi `AGENTS.md` bawaan (jangan menghapusnya). Buat `CLAUDE.md` berisi satu baris `@AGENTS.md`. Pindahkan dokumen ini ke `docs/PROJECT_PLAN.md` di dalam repo Git (`git mv` bila sudah terlacak), hapus salinan lama agar hanya ada satu versi, dan perbarui path di `AGENTS.md`.
   - **Selesai jika:** `AGENTS.md` memuat blok Hairy Hijab dan isi bawaan utuh; `docs/PROJECT_PLAN.md` ada sebagai satu-satunya salinan; commit dibuat.
 
@@ -2468,6 +2468,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: (1) Plan menyebut `postcss.config.mjs` + `@tailwindcss/postcss` untuk Tailwind, tapi scaffold `create-next-app` Next.js 16 menggunakan `@tailwindcss/turbopack` di `next.config.ts`; P0-03 harus memverifikasi apakah `next build` masih memerlukan PostCSS atau cukup Turbopack. (2) Handoff Log lama menyebut "Tailwind tampaknya belum terpasang" — sudah dikoreksi di §3.1 observasi.
 - Langkah berikutnya: kerjakan **P0-06** (AGENTS.md, CLAUDE.md, lokasi plan) sesuai prompt 02.
 
+### [2026-10-21 11:23] — Claude Opus 4.6 (Thinking) — SELESAI
+- Task: P0-06 (AGENTS.md, CLAUDE.md, lokasi plan)
+- Ringkasan: (1) Menambahkan blok Lampiran A (Hairy Hijab project rules) di bawah isi bawaan `AGENTS.md` — isi bawaan Next.js tetap utuh. (2) Membuat `CLAUDE.md` berisi satu baris `@AGENTS.md`. (3) Memindahkan `Project_Plan_Hairy_Hijab_v2.md` ke `docs/PROJECT_PLAN.md` via `git mv`; file lama sudah tidak ada. (4) Menandai prompt 01 sebagai DISETUJUI di Lampiran E. Percobaan 1 gagal karena API quota reached sebelum commit; percobaan 2 melanjutkan dan commit berhasil.
+- File dibuat/diubah: `AGENTS.md` (diubah), `CLAUDE.md` (baru), `docs/PROJECT_PLAN.md` (dipindah dari root + diubah §1, §15, Lampiran D, Lampiran E)
+- Gate: tidak berlaku (tidak ada perubahan kode). `git status` hanya menunjukkan file dokumen.
+- Commit: `chore(P0-06): AGENTS.md, CLAUDE.md, pindah plan ke docs/`
+- Asumsi / keputusan baru: —
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P0-02** (bersihkan scaffold) dan **P0-03** (Tailwind CSS) sesuai prompt 03.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2480,8 +2490,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 
 | Prompt | Fase | Task | Percobaan | Status | Tanggal | Agent/Model | Ringkasan hasil / alasan gagal |
 |---|:-:|---|---:|---|---|---|---|
-| 01 | 0 | P0-01 | 1 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Tabel §3.1 terisi dari fakta. Node 24.21.0 ≥ 20.9 ✔. Next.js 16.4.2 ✔. Tailwind 4.3.3 sudah ada (selisih: via Turbopack, bukan PostCSS). Semua kriteria LULUS. |
-| 02 | 0 | P0-06 | 0 | BELUM | | | |
+| 01 | 0 | P0-01 | 1 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Tabel §3.1 terisi dari fakta. Node 24.21.0 ≥ 20.9 ✔. Next.js 16.4.2 ✔. Tailwind 4.3.3 sudah ada (selisih: via Turbopack, bukan PostCSS). Semua kriteria LULUS. |
+| 02 | 0 | P0-06 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
 | 03 | 0 | P0-02, P0-03 | 0 | BELUM | | | |
 | 04 | 0 | P0-04, P0-07 | 0 | BELUM | | | |
 | 05 | 0 | P0-05 | 0 | BELUM | | | |
@@ -2539,3 +2549,4 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masalah (kode / plan / lingkungan)`. Percobaan ke-3 atau lebih wajib memuat analisis akar masalah dan usul perbaikan teks plan sebelum kode diubah.
 
 *(belum ada)*
+- P02 #1 [2026-10-21] GAGAL — API Quota Reached sebelum commit. Semua file sudah diubah/dibuat (AGENTS.md, CLAUDE.md, git mv plan) tapi sesi terputus paksa sebelum `git commit`. Penyebab: lingkungan (kuota model habis).
