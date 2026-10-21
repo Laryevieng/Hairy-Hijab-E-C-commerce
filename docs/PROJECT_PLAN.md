@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 1 — Design System dan Layout
-Task berikutnya      : P1-04
-Prompt aktif         : 08 → MENUNGGU persetujuan; prompt berikutnya: 09 (lihat Lampiran E)
-Task terakhir selesai: P1-03
+Task berikutnya      : P1-05
+Prompt aktif         : 09 → MENUNGGU persetujuan; prompt berikutnya: 10 (lihat Lampiran E)
+Task terakhir selesai: P1-04
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
@@ -158,7 +158,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
-| 1 | Design System dan Layout | 5 | 3 |
+| 1 | Design System dan Layout | 5 | 4 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
@@ -1846,7 +1846,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Grup `app/(store)/layout.tsx`; `SiteHeader` (wordmark, navigasi 8 kategori + Sale, tombol cari, ikon keranjang dengan badge placeholder, ikon akun), `MobileNavigation` (Sheet), `SiteFooter` (tautan §8.1, kontak dari `config/site.ts`), `AnnouncementBar`. Data kategori sementara dari `lib/mock/categories.ts` (dihapus di P4-04).
   - **Selesai jika:** Responsif 320–1440 px; dapat dioperasikan keyboard; build lulus; tanpa error konsol.
 
-- [ ] **P1-04 · Komponen presentasional** `M` · butuh: P1-02
+- [x] **P1-04 · Komponen presentasional** `M` · butuh: P1-02
   - **Kerjakan:** `ProductCard`, `ProductGrid`, `CategoryCard`, `PriceDisplay` (harga coret + persen hemat), `StockBadge`, `EmptyState`, `LoadingState`, `ErrorState`. Tipe `ProductListItem` di `types/domain.ts`; data dummy di `lib/mock/products.ts` (sementara).
   - **Selesai jika:** Grid 2/3/4 kolom benar; tes unit untuk persentase hemat `PriceDisplay`; build lulus.
 
@@ -2550,6 +2550,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P1-04** (Komponen presentasional: `ProductCard`, `ProductGrid`, `CategoryCard`, `PriceDisplay`, `StockBadge`, `EmptyState`, `LoadingState`, `ErrorState`, data dummy `lib/mock/products.ts`) sesuai Prompt 09.
 
+### [2026-10-21 23:25] — Gemini 3.8 Flash High — SELESAI
+- Task: P1-04 (Komponen presentasional)
+- Ringkasan: Mengimplementasikan 8 komponen presentasional: `ProductCard`, `ProductGrid` (responsif 2/3/4 kolom), `CategoryCard`, `PriceDisplay` (harga coret + perhitungan integer persen diskon `Math.round((compare - price) / compare * 100)`), `StockBadge` (Sold Out, Sisa X item, Tersedia), `EmptyState`, `LoadingState` (skeleton grid dan list), dan `ErrorState` (pesan kesalahan + tombol aksi coba lagi). Tipe domain `ProductListItem`, `ProductColorOption`, dan `CategoryListItem` didefinisikan di `types/domain.ts`. Data tiruan 8 produk dibuat di `lib/mock/products.ts`. Placeholder SVG produk lokal dibuat di `public/images/placeholders/product-placeholder.svg`. Halaman dev preview visual dibuat di `app/(store)/dev-preview/page.tsx` (akan dihapus pada Prompt 10). Hook auto-cleanup Testing Library ditambahkan ke `tests/setup.ts`. Pengujian unit di `tests/unit/price-display.test.tsx` (5 tes) dan `tests/unit/presentational.test.tsx` (12 tes) mencakup seluruh komponen presentasional dan kalkulasi diskon.
+- File dibuat/diubah: `types/domain.ts` (baru), `lib/mock/products.ts` (baru), `public/images/placeholders/product-placeholder.svg` (baru), `components/product/price-display.tsx` (baru), `components/product/stock-badge.tsx` (baru), `components/product/product-card.tsx` (baru), `components/product/product-grid.tsx` (baru), `components/product/index.ts` (baru), `components/category/category-card.tsx` (baru), `components/category/index.ts` (baru), `components/common/empty-state.tsx` (baru), `components/common/loading-state.tsx` (baru), `components/common/error-state.tsx` (baru), `components/common/index.ts` (baru), `app/(store)/dev-preview/page.tsx` (baru - dev preview), `tests/setup.ts` (auto-cleanup), `tests/unit/price-display.test.tsx` (baru), `tests/unit/presentational.test.tsx` (baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 7 file / 40 tes)
+- Commit: `feat(P1-04): komponen presentasional dan data dummy produk`
+- Asumsi / keputusan baru: Struktur modular `components/product/`, `components/category/`, dan `components/common/` sesuai §10.2; dev-preview dibuat khusus pengujian visual dan dijadwalkan hapus pada prompt 10.
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P1-05** (Beranda statis: Hero, grid 8 kategori, bagian Produk Terbaru mock, not-found.tsx, error.tsx, hapus dev-preview) sesuai Prompt 10.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2569,8 +2579,9 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 05 | 0 | P0-05 | 3 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2 selesai & commit oleh sesi sebelumnya namun terputus di sisi klien. Percobaan 3: verifikasi ulang semua file P0-05 + perbaikan `formatRupiah` (`Rp 125.000` dengan spasi ASCII sesuai D-04 & P0-08), `formatDateID` (`20 Okt 2026` sesuai §12.1), dan lazy getter `publicEnv`. Gate lint & typecheck ✔. Semua kriteria LULUS. |
 | 06 | 0 | P0-08 | 1 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | `vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, `tests/setup.ts` dibuat. Chromium Playwright (`chromium-1248`) terpasang. 3 file tes unit (`format.test.ts`, `slug.test.ts`, `phone.test.ts` — 17 tes) hijau ✔. `npx playwright test --list` (2 tes) ✔. Gate G2 (`lint`, `typecheck`, `test`, `build`) LULUS ✔. Tag `v0.0.0` dibuat. |
 | 07 | 1 | P1-01, P1-02 | 2 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | P1-01 di-commit di `ead0622`. P1-02: 17 komponen shadcn/ui di `components/ui/`, `radix-ui` terpasang. Rasio kontras teks utama & tombol utama 11.60:1 (lulus WCAG AA ≥ 4.5:1). Tes unit `ui-primitives` (Button & Input) ✔. Gate G1 (lint, typecheck, test 19 tes) ✔. |
-| 08 | 1 | P1-03 | 1 | MENUNGGU | 2026-10-21 | Gemini 3.8 Flash High | Layout toko: app/(store)/layout.tsx, AnnouncementBar, SiteHeader, MainNavigation, MobileNavigation (Sheet), SiteFooter, lib/mock/categories.ts (8 kategori §6.1). Tes unit layout lulus (23 tes total). Gate G1 & G2 LULUS. |
-| 09 | 1 | P1-04 | 0 | BELUM | | | |
+| 08 | 1 | P1-03 | 1 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | Layout toko: app/(store)/layout.tsx, AnnouncementBar, SiteHeader, MainNavigation, MobileNavigation (Sheet), SiteFooter, lib/mock/categories.ts (8 kategori §6.1). Tes unit layout lulus (23 tes total). Gate G1 & G2 LULUS. Disetujui via /1allclear pada prompt 09. |
+| 09 | 1 | P1-04 | 1 | MENUNGGU | 2026-10-21 | Gemini 3.8 Flash High | Komponen presentasional (ProductCard, ProductGrid, CategoryCard, PriceDisplay, StockBadge, EmptyState, LoadingState, ErrorState). Formula diskon PriceDisplay integer lulus tes unit. Grid 2/3/4 kolom terverifikasi. Halaman visual di app/(store)/dev-preview. Gate G1 lulus (40 tes). |
+| 10 | 1 | P1-05 | 0 | BELUM | | | |
 | 10 | 1 | P1-05 | 0 | BELUM | | | |
 | 11 | 2 | P2-00, P2-01 | 0 | BELUM | | | |
 | 12 | 2 | P2-02, P2-03 | 0 | BELUM | | | |
