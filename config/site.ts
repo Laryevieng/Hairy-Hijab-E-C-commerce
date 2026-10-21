@@ -7,4 +7,11 @@ export const siteConfig = {
   locale: 'id-ID',
   currency: 'IDR',
   timezone: 'Asia/Jakarta',
+  contact: {
+    phone: '081234567890', // TODO(owner): nomor telepon/WhatsApp resmi toko
+    whatsappFormatted: '+62 812-3456-7890',
+    email: 'halo@hairyhijab.com', // TODO(owner): alamat email resmi toko
+    address: 'Jakarta, Indonesia', // TODO(owner): alamat operasional toko
+    hours: 'Senin – Sabtu, 09.00 – 17.00 WIB',
+  },
 } as const

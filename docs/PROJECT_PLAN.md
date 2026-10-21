@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 1 — Design System dan Layout
-Task berikutnya      : P1-03
-Prompt aktif         : 07 → MENUNGGU persetujuan; prompt berikutnya: 08 (lihat Lampiran E)
-Task terakhir selesai: P1-02
+Task berikutnya      : P1-04
+Prompt aktif         : 08 → MENUNGGU persetujuan; prompt berikutnya: 09 (lihat Lampiran E)
+Task terakhir selesai: P1-03
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
@@ -158,7 +158,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
-| 1 | Design System dan Layout | 5 | 2 |
+| 1 | Design System dan Layout | 5 | 3 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
@@ -1842,7 +1842,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `npx shadcn@latest init` (netral; sesuaikan variabel dengan pemetaan §12.2), lalu `add`: `button input label textarea select checkbox radio-group dialog sheet dropdown-menu badge table tabs skeleton separator sonner form`.
   - **Selesai jika:** Komponen ada di `components/ui`; contoh Button dan Input tampil dengan warna token; halaman uji dihapus; build lulus.
 
-- [ ] **P1-03 · Layout toko** `M` · butuh: P1-02
+- [x] **P1-03 · Layout toko** `M` · butuh: P1-02
   - **Kerjakan:** Grup `app/(store)/layout.tsx`; `SiteHeader` (wordmark, navigasi 8 kategori + Sale, tombol cari, ikon keranjang dengan badge placeholder, ikon akun), `MobileNavigation` (Sheet), `SiteFooter` (tautan §8.1, kontak dari `config/site.ts`), `AnnouncementBar`. Data kategori sementara dari `lib/mock/categories.ts` (dihapus di P4-04).
   - **Selesai jika:** Responsif 320–1440 px; dapat dioperasikan keyboard; build lulus; tanpa error konsol.
 
@@ -2540,6 +2540,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P1-03** (Layout toko: `app/(store)/layout.tsx`, `SiteHeader`, `SiteFooter`, `AnnouncementBar`, `MobileNavigation`, mock categories) sesuai Prompt 08.
 
+### [2026-10-21 22:50] — Gemini 3.8 Flash High — SELESAI
+- Task: P1-03 (Layout toko: header, navigasi, footer)
+- Ringkasan: Mengimplementasikan grup rute `app/(store)/layout.tsx`, memindahkan `app/page.tsx` ke `app/(store)/page.tsx` dilengkapi skip link aksesibilitas. Membuat `AnnouncementBar` (`components/layout/announcement-bar.tsx`), `MainNavigation` (`components/layout/main-navigation.tsx`), `MobileNavigation` (`components/layout/mobile-navigation.tsx` menggunakan Sheet), `SiteHeader` (`components/layout/site-header.tsx`), dan `SiteFooter` (`components/layout/site-footer.tsx`). Data 8 kategori sementara dibuat di `lib/mock/categories.ts` (§6.1). Kontak toko ditambahkan di `config/site.ts`. Tes unit `tests/unit/layout.test.tsx` (4 tes) memverifikasi rendering semantik, navigasi 8 kategori + Sale, banner, header actions, dan seluruh tautan §8.1.
+- File dibuat/diubah: `lib/mock/categories.ts` (baru), `components/layout/announcement-bar.tsx` (baru), `components/layout/main-navigation.tsx` (baru), `components/layout/mobile-navigation.tsx` (baru), `components/layout/site-header.tsx` (baru), `components/layout/site-footer.tsx` (baru), `components/layout/index.ts` (baru), `app/(store)/layout.tsx` (baru), `app/(store)/page.tsx` (dipindah dari root + disesuaikan), `config/site.ts` (kontak ditambahkan), `tests/unit/layout.test.tsx` (baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 5 file / 23 tes) · G2 build ✔
+- Commit: `feat(P1-03): layout toko, header, navigasi, dan footer`
+- Asumsi / keputusan baru: —
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P1-04** (Komponen presentasional: `ProductCard`, `ProductGrid`, `CategoryCard`, `PriceDisplay`, `StockBadge`, `EmptyState`, `LoadingState`, `ErrorState`, data dummy `lib/mock/products.ts`) sesuai Prompt 09.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2558,8 +2568,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 04 | 0 | P0-04, P0-07 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
 | 05 | 0 | P0-05 | 3 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2 selesai & commit oleh sesi sebelumnya namun terputus di sisi klien. Percobaan 3: verifikasi ulang semua file P0-05 + perbaikan `formatRupiah` (`Rp 125.000` dengan spasi ASCII sesuai D-04 & P0-08), `formatDateID` (`20 Okt 2026` sesuai §12.1), dan lazy getter `publicEnv`. Gate lint & typecheck ✔. Semua kriteria LULUS. |
 | 06 | 0 | P0-08 | 1 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | `vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, `tests/setup.ts` dibuat. Chromium Playwright (`chromium-1248`) terpasang. 3 file tes unit (`format.test.ts`, `slug.test.ts`, `phone.test.ts` — 17 tes) hijau ✔. `npx playwright test --list` (2 tes) ✔. Gate G2 (`lint`, `typecheck`, `test`, `build`) LULUS ✔. Tag `v0.0.0` dibuat. |
-| 07 | 1 | P1-01, P1-02 | 2 | MENUNGGU | 2026-10-21 | Gemini 3.8 Flash High | P1-01 di-commit di `ead0622`. P1-02: 17 komponen shadcn/ui di `components/ui/`, `radix-ui` terpasang. Rasio kontras teks utama & tombol utama 11.60:1 (lulus WCAG AA ≥ 4.5:1). Tes unit `ui-primitives` (Button & Input) ✔. Gate G1 (lint, typecheck, test 19 tes) ✔. |
-| 08 | 1 | P1-03 | 0 | BELUM | | | |
+| 07 | 1 | P1-01, P1-02 | 2 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | P1-01 di-commit di `ead0622`. P1-02: 17 komponen shadcn/ui di `components/ui/`, `radix-ui` terpasang. Rasio kontras teks utama & tombol utama 11.60:1 (lulus WCAG AA ≥ 4.5:1). Tes unit `ui-primitives` (Button & Input) ✔. Gate G1 (lint, typecheck, test 19 tes) ✔. |
+| 08 | 1 | P1-03 | 1 | MENUNGGU | 2026-10-21 | Gemini 3.8 Flash High | Layout toko: app/(store)/layout.tsx, AnnouncementBar, SiteHeader, MainNavigation, MobileNavigation (Sheet), SiteFooter, lib/mock/categories.ts (8 kategori §6.1). Tes unit layout lulus (23 tes total). Gate G1 & G2 LULUS. |
 | 09 | 1 | P1-04 | 0 | BELUM | | | |
 | 10 | 1 | P1-05 | 0 | BELUM | | | |
 | 11 | 2 | P2-00, P2-01 | 0 | BELUM | | | |
