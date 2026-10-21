@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 0 — Audit dan Fondasi Repo
-Task berikutnya      : P0-02
-Prompt aktif         : 02 → MENUNGGU persetujuan; prompt berikutnya: 03 (lihat Lampiran E)
-Task terakhir selesai: P0-06
+Task berikutnya      : P0-04
+Prompt aktif         : 03 → MENUNGGU persetujuan; prompt berikutnya: 04 (lihat Lampiran E)
+Task terakhir selesai: P0-03
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
@@ -157,7 +157,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
 
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
-| 0 | Audit dan Fondasi Repo | 8 | 2 |
+| 0 | Audit dan Fondasi Repo | 8 | 4 |
 | 1 | Design System dan Layout | 5 | 0 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
@@ -1796,11 +1796,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Baca `package.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `AGENTS.md`, struktur folder. Jalankan `node -v`, `npm -v`, `git rev-parse --show-toplevel`, `git branch --show-current`. Periksa apakah `postcss.config.mjs`/Tailwind ada. Isi **tabel §3.1** (kolom "Nilai terverifikasi").
   - **Selesai jika:** Tabel §3.1 terisi dari fakta, bukan asumsi. Node ≥ 20.9. Setiap selisih dengan dokumen ini (mis. Next.js < 16, tidak ada Tailwind, repo Git berada di folder lain) dicatat di Handoff Log dan, bila mengubah keputusan, di §4.
 
-- [ ] **P0-02 · Bersihkan scaffold** `S` · butuh: P0-01
+- [x] **P0-02 · Bersihkan scaffold** `S` · butuh: P0-01
   - **Kerjakan:** Ganti isi `app/page.tsx` dengan placeholder minimal; hapus aset contoh bawaan template di `public/` yang tidak dipakai; atur `app/layout.tsx` (`<html lang="id">`, metadata dasar "Hairy Hijab"). Jangan menghapus `AGENTS.md` atau `README.md`.
   - **Selesai jika:** `npm run build` lulus; `/` menampilkan placeholder; tidak ada referensi ke aset template yang sudah dihapus.
 
-- [ ] **P0-03 · Tailwind CSS** `S` · butuh: P0-01
+- [x] **P0-03 · Tailwind CSS** `S` · butuh: P0-01
   - **Kerjakan:** Jika belum terpasang: pasang `tailwindcss @tailwindcss/postcss postcss`, buat `postcss.config.mjs` dengan plugin `@tailwindcss/postcss`, tambahkan `@import "tailwindcss";` di `app/globals.css` (ikuti dokumentasi Tailwind untuk Next.js dan versi terpasang). Jika sudah ada: catat versi dan lewati.
   - **Selesai jika:** Kelas utilitas terbukti bekerja pada placeholder (lalu dihapus); build lulus.
 
@@ -2478,6 +2478,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P0-02** (bersihkan scaffold) dan **P0-03** (Tailwind CSS) sesuai prompt 03.
 
+### [2026-10-21 14:45] — Claude Opus 4.6 (Thinking) — SELESAI
+- Task: P0-02 (Bersihkan scaffold), P0-03 (Tailwind CSS)
+- Ringkasan: Melanjutkan pekerjaan agen sebelumnya yang terputus paksa (quota reached) saat proses linting. Kode P0-02 (page.tsx placeholder, layout.tsx lang="id" + metadata, hapus 5 aset SVG template di public/) sudah benar dari sesi sebelumnya. P0-03: Tailwind v4.3.3 sudah terpasang via `@tailwindcss/turbopack`; kelas utilitas terbukti bekerja pada placeholder (flex, text-4xl, font-bold, dll.); hanya verifikasi, tidak ada instalasi baru. Build sudah sukses di sesi sebelumnya.
+- File dibuat/diubah: `app/page.tsx` (diubah sesi lalu), `app/layout.tsx` (diubah sesi lalu), `public/file.svg` `public/globe.svg` `public/next.svg` `public/vercel.svg` `public/window.svg` (dihapus sesi lalu), `docs/PROJECT_PLAN.md` (diperbarui §1, §15, Lampiran D, Lampiran E)
+- Gate: `npm run lint` ✔ · `npx tsc --noEmit` ✔ · `npm run build` ✔ (sesi sebelumnya)
+- Commit: (lihat commit message di bawah)
+- Asumsi / keputusan baru: P0-03 hanya berupa verifikasi karena Tailwind sudah terpasang (dicatat di §3.1 dan Handoff Log P0-01). Tidak perlu `@tailwindcss/postcss` + `postcss.config.mjs` karena Next.js 16 menggunakan Turbopack secara default dan `next build` juga mendukung `@tailwindcss/turbopack`.
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P0-04** (Dependensi inti) dan **P0-07** (Script dan gate) sesuai prompt 04.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2491,8 +2501,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | Prompt | Fase | Task | Percobaan | Status | Tanggal | Agent/Model | Ringkasan hasil / alasan gagal |
 |---|:-:|---|---:|---|---|---|---|
 | 01 | 0 | P0-01 | 1 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Tabel §3.1 terisi dari fakta. Node 24.21.0 ≥ 20.9 ✔. Next.js 16.4.2 ✔. Tailwind 4.3.3 sudah ada (selisih: via Turbopack, bukan PostCSS). Semua kriteria LULUS. |
-| 02 | 0 | P0-06 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
-| 03 | 0 | P0-02, P0-03 | 0 | BELUM | | | |
+| 02 | 0 | P0-06 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
+| 03 | 0 | P0-02, P0-03 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
 | 04 | 0 | P0-04, P0-07 | 0 | BELUM | | | |
 | 05 | 0 | P0-05 | 0 | BELUM | | | |
 | 06 | 0 | P0-08 | 0 | BELUM | | | |
@@ -2550,3 +2560,4 @@ Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masa
 
 *(belum ada)*
 - P02 #1 [2026-10-21] GAGAL — API Quota Reached sebelum commit. Semua file sudah diubah/dibuat (AGENTS.md, CLAUDE.md, git mv plan) tapi sesi terputus paksa sebelum `git commit`. Penyebab: lingkungan (kuota model habis).
+- P03 #1 [2026-10-21] GAGAL — API Quota Reached saat proses linting. Kode P0-02 dan P0-03 sudah selesai dan build sukses, tapi sesi terputus sebelum lint selesai dan plan belum diperbarui. Penyebab: lingkungan (kuota model habis).
