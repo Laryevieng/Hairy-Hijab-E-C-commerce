@@ -2,40 +2,55 @@ import { z } from 'zod'
 
 /**
  * Variabel publik — bisa diakses di klien dan server.
- * Divalidasi saat modul pertama kali dimuat.
+ * Divalidasi eksplisit per properti `process.env.NEXT_PUBLIC_*` agar kompatibel
+ * dengan static replacement bundler Next.js.
  */
 const publicSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.url(),
+  NEXT_PUBLIC_SITE_URL: z.url().default('http://localhost:3000'),
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
 })
 
 /**
  * Variabel server — hanya diakses di kode server.
- * Divalidasi secara lazy saat `serverEnv()` dipanggil pertama kali.
+ * Divalidasi secara lazy saat `serverEnv()` dipanggil di server.
  */
 const serverSchema = z.object({
   SUPABASE_SECRET_KEY: z.string().min(1),
 })
 
-// --- Public env: validated eagerly at import time ---
+let _publicEnv: z.infer<typeof publicSchema> | null = null
 
-function validatePublicEnv() {
+export function getPublicEnv(): z.infer<typeof publicSchema> {
+  if (_publicEnv) return _publicEnv
+
   const result = publicSchema.safeParse({
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_SITE_URL:
+      process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   })
   if (!result.success) {
     throw new Error(
-      `❌ Invalid public environment variables:\n${JSON.stringify(result.error.issues, null, 2)}`
+      `Invalid public environment variables:\n${JSON.stringify(result.error.issues, null, 2)}`
     )
   }
-  return result.data
+  _publicEnv = result.data
+  return _publicEnv
 }
 
-export const publicEnv = validatePublicEnv()
+export const publicEnv: z.infer<typeof publicSchema> = {
+  get NEXT_PUBLIC_SITE_URL() {
+    return getPublicEnv().NEXT_PUBLIC_SITE_URL
+  },
+  get NEXT_PUBLIC_SUPABASE_URL() {
+    return getPublicEnv().NEXT_PUBLIC_SUPABASE_URL
+  },
+  get NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY() {
+    return getPublicEnv().NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  },
+}
 
 // --- Server env: validated lazily on first access ---
 

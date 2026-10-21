@@ -150,7 +150,7 @@ Prompt aktif         : 05 → MENUNGGU persetujuan; prompt berikutnya: 06 (lihat
 Task terakhir selesai: P0-05
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
+Terakhir diperbarui  : 2026-10-21 oleh Gemini 4 Argon
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -2509,6 +2509,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P0-08** (Vitest dan Playwright — tes unit untuk utils) sesuai prompt 06.
 
+### [2026-10-21 15:55] — Gemini 4 Argon — SELESAI
+- Task: P0-05 (Struktur dasar, env, utilitas — verifikasi ulang & penyempurnaan Percobaan 3)
+- Ringkasan: Melakukan verifikasi menyeluruh atas hasil P0-05 (a–e) dan menyempurnakan dua detail implementasi agar 100% sesuai spesifikasi plan: (1) `lib/utils/format.ts`: `formatRupiah(125000)` kini menghasilkan `'Rp 125.000'` (dengan spasi ASCII biasa sesuai D-04, §12.1, dan ekspektasi tes unit P0-08) serta `formatDateID` memakai bulan singkat `'20 Okt 2026'` sesuai §12.1; (2) `lib/env.ts`: `publicEnv` memvalidasi properti `process.env.NEXT_PUBLIC_*` secara eksplisit melalui getter/`getPublicEnv()` sehingga aman diimpor sebelum `.env.local` dibuat pada P2-00.
+- File dibuat/diubah: `lib/env.ts` (diubah), `lib/utils/format.ts` (diubah), `docs/PROJECT_PLAN.md` (§1, Lampiran D, Lampiran E)
+- Gate: `npm run lint` ✔ · `npm run typecheck` ✔ · `git check-ignore .env.local` ✔
+- Commit: `feat(P0-05): sesuaikan formatRupiah, formatDateID, dan evaluasi lazy publicEnv`
+- Asumsi / keputusan baru: —
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P0-08** (`vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, dan tes unit utilitas) sesuai Prompt 06.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2525,7 +2535,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 02 | 0 | P0-06 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
 | 03 | 0 | P0-02, P0-03 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
 | 04 | 0 | P0-04, P0-07 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
-| 05 | 0 | P0-05 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2: semua sub-task selesai. Alias @/* ✔. .env.example ✔. .gitignore ✔. lib/env.ts (Zod 4) ✔. lib/utils/{cn,format,slug,phone}.ts ✔. types/action.ts ✔. config/{site,regions,order-status}.ts ✔. npx tsc --noEmit ✔. git check-ignore .env.local ✔. Tidak ada secret di file. Semua kriteria LULUS. |
+| 05 | 0 | P0-05 | 3 | MENUNGGU | 2026-10-21 | Gemini 4 Argon | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2 selesai & commit oleh sesi sebelumnya namun terputus di sisi klien. Percobaan 3: verifikasi ulang semua file P0-05 + perbaikan `formatRupiah` (`Rp 125.000` dengan spasi ASCII sesuai D-04 & P0-08), `formatDateID` (`20 Okt 2026` sesuai §12.1), dan lazy getter `publicEnv`. Gate lint & typecheck ✔. Semua kriteria LULUS. |
 | 06 | 0 | P0-08 | 0 | BELUM | | | |
 | 07 | 1 | P1-01, P1-02 | 0 | BELUM | | | |
 | 08 | 1 | P1-03 | 0 | BELUM | | | |
@@ -2584,3 +2594,4 @@ Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masa
 - P03 #1 [2026-10-21] GAGAL — API Quota Reached saat proses linting. Kode P0-02 dan P0-03 sudah selesai dan build sukses, tapi sesi terputus sebelum lint selesai dan plan belum diperbarui. Penyebab: lingkungan (kuota model habis).
 - P04 #1 [2026-10-21] GAGAL — API Quota Reached saat npm install dependensi runtime. Agen terputus paksa sebelum dependensi terinstal dan sebelum plan diperbarui (Lampiran E masih BELUM). Penyebab: lingkungan (kuota model habis).
 - P05 #1 [2026-10-21] GAGAL — API Quota Reached saat membaca dokumen. Agen terputus paksa sebelum ada file kode yang diubah. Penyebab: lingkungan (kuota model habis).
+- P05 #2 [2026-10-21] GAGAL — Sesi sebelumnya berhasil membuat file dan commit `0ece2e7`, tetapi terputus/diulang oleh pemilik sebagai percobaan ulang. Analisis akar masalah (wajib percobaan ke-3): (1) lingkungan — kuota/koneksi sesi terputus saat pelaporan akhir; (2) kode — pada percobaan 2, `formatRupiah(125000)` memakai `style: 'currency'` yang menghasilkan `"Rp\u00a0125.000"`/`"Rp125.000"` alih-alih `"Rp 125.000"` (spasi biasa) yang diminta D-04 dan tes P0-08, serta `publicEnv` dievaluasi eager saat import sebelum `.env.local` ada. Diperbaiki pada percobaan 3; teks plan sudah jelas dan tidak perlu diubah.
