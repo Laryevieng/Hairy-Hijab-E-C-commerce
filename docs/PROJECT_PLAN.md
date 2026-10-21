@@ -144,10 +144,10 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 0 — Audit dan Fondasi Repo
-Task berikutnya      : P0-08
-Prompt aktif         : 05 → MENUNGGU persetujuan; prompt berikutnya: 06 (lihat Lampiran E)
-Task terakhir selesai: P0-05
+Fase aktif           : Fase 1 — Design System dan Layout
+Task berikutnya      : P1-01
+Prompt aktif         : 06 → MENUNGGU persetujuan; prompt berikutnya: 07 (lihat Lampiran E)
+Task terakhir selesai: P0-08
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Gemini 4 Argon
@@ -157,7 +157,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Gemini 4 Argon
 
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
-| 0 | Audit dan Fondasi Repo | 8 | 7 |
+| 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 0 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
@@ -307,6 +307,7 @@ Status: **LOCKED** = jangan diubah tanpa persetujuan pemilik. **DEFAULT** = dipi
 | D-23 | shadcn/ui dipakai untuk komponen dasar. | LOCKED | — |
 | D-24 | Satu halaman pesanan kanonik: `/orders/[orderNumber]`, dapat diakses pemilik pesanan (sesi) atau pemegang token. `/account/orders` hanya daftar yang menautkan ke sana. | LOCKED | — |
 | D-25 | Pesanan yang sudah kedaluwarsa tetapi dibayar belakangan ditangani manual (hubungi pelanggan / refund). Fitur "buka kembali pesanan" = tahap 2. | DEFAULT | Tambah fungsi `reopen_order`. |
+| D-26 | `vite` dan `@testing-library/dom` ditambahkan ke `devDependencies` karena merupakan `peerDependencies` wajib dari `vitest@5`, `@vitejs/plugin-react@6`, `@testing-library/react@16`, dan `@testing-library/jest-dom@7` yang terlewat saat P0-04 memakai `--legacy-peer-deps`. | LOCKED | — |
 
 ---
 
@@ -1825,7 +1826,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Tambahkan scripts: `typecheck` (`tsc --noEmit`), `test` (`vitest run`), `test:rls` (`vitest run --config vitest.rls.config.ts`), `test:e2e` (`playwright test`), `db:types` (`supabase gen types typescript --linked > types/database.types.ts`). Tambahkan `.nvmrc` atau `engines` sesuai Node terverifikasi.
   - **Selesai jika:** `npm run typecheck` dan `npm run lint` lulus; script lain terdaftar (boleh belum berfungsi sampai P0-08/P2).
 
-- [ ] **P0-08 · Vitest dan Playwright** `M` · butuh: P0-05, P0-07
+- [x] **P0-08 · Vitest dan Playwright** `M` · butuh: P0-05, P0-07
   - **Kerjakan:** `vitest.config.ts` (jsdom, alias `@`, setup jest-dom, `exclude` memuat `tests/security/**` dan `tests/e2e/**`); `vitest.rls.config.ts` (environment node, hanya `tests/security/**`, memuat `.env.local` lewat `dotenv`); `playwright.config.ts` (webServer `npm run dev`, baseURL `http://localhost:3000`, proyek `chromium` dan emulasi ponsel); jalankan `npx playwright install chromium`. Tulis tes unit untuk `formatRupiah` (mis. `125000` → `Rp 125.000`), `slugify`, `normalizePhoneID` (`0812-3456-7890`, `+62 812…`, `812…`, nomor tidak valid), `buildWhatsAppLink`.
   - **Selesai jika:** `npm run test` hijau dengan ≥ 3 file tes; `npx playwright test --list` berjalan tanpa error; G2 lulus.
 
@@ -2519,6 +2520,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P0-08** (`vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, dan tes unit utilitas) sesuai Prompt 06.
 
+### [2026-10-21 16:20] — Gemini 4 Argon — SELESAI
+- Task: P0-08 (Vitest dan Playwright) — Akhir Fase 0
+- Ringkasan: Membuat `vitest.config.ts` (jsdom, alias `@`, setup jest-dom, exclude `tests/security/**` dan `tests/e2e/**`), `vitest.rls.config.ts` (node, hanya `tests/security/**`, memuat `.env.local` via `dotenv`), `playwright.config.ts` (`webServer` `npm run dev`, `baseURL` `http://localhost:3000`, proyek `chromium` dan `mobile-chromium` Pixel 5), serta `tests/setup.ts`. Memasang `vite` dan `@testing-library/dom` di `devDependencies` (peerDependency wajib yang terlewat saat `--legacy-peer-deps` di P0-04; dicatat di D-26). Mengunduh Chromium via `npx playwright install chromium` (terverifikasi `chromium-1248`). Menulis 3 file tes unit (`tests/unit/format.test.ts`, `tests/unit/slug.test.ts`, `tests/unit/phone.test.ts` — 17 tes lulus) dan 1 file smoke E2E (`tests/e2e/smoke.spec.ts` — 2 tes terdaftar di `npx playwright test --list`). Seluruh Fase 0 (8/8 task) selesai dan diberi tag `v0.0.0`.
+- File dibuat/diubah: `vitest.config.ts` (baru), `vitest.rls.config.ts` (baru), `playwright.config.ts` (baru), `tests/setup.ts` (baru), `tests/unit/format.test.ts` (baru), `tests/unit/slug.test.ts` (baru), `tests/unit/phone.test.ts` (baru), `tests/e2e/smoke.spec.ts` (baru), `package.json` & `package-lock.json` (+`vite`, `@testing-library/dom`), `docs/PROJECT_PLAN.md` (§1, §4 D-26, §15, Lampiran D, Lampiran E)
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 3 file / 17 tes) · G2 ✔ (`npm run build` ✔) · `npx playwright test --list` ✔ (2 tes dalam 1 file)
+- Commit: `test(P0-08): konfigurasi Vitest, Playwright, dan tes unit utilitas` + tag `v0.0.0`
+- Asumsi / keputusan baru: D-26 — penambahan eksplisit `vite` dan `@testing-library/dom` sebagai `devDependencies` karena merupakan `peerDependencies` wajib dari `vitest@5` dan `@testing-library/{react,jest-dom}` yang tidak ikut terpasang otomatis saat flag `--legacy-peer-deps` digunakan pada P0-04.
+- Masalah / utang teknis: Vite 8 menampilkan peringatan informasi tentang `configLoader: 'native'` untuk file `.ts` di repo CommonJS (tidak memengaruhi jalannya tes).
+- Langkah berikutnya: kerjakan **P1-01** (`app/globals.css` token warna §12.2 dan `app/layout.tsx` font §12.3) serta **P1-02** (shadcn/ui dasar) sesuai Prompt 07.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2535,8 +2546,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 02 | 0 | P0-06 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
 | 03 | 0 | P0-02, P0-03 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
 | 04 | 0 | P0-04, P0-07 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
-| 05 | 0 | P0-05 | 3 | MENUNGGU | 2026-10-21 | Gemini 4 Argon | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2 selesai & commit oleh sesi sebelumnya namun terputus di sisi klien. Percobaan 3: verifikasi ulang semua file P0-05 + perbaikan `formatRupiah` (`Rp 125.000` dengan spasi ASCII sesuai D-04 & P0-08), `formatDateID` (`20 Okt 2026` sesuai §12.1), dan lazy getter `publicEnv`. Gate lint & typecheck ✔. Semua kriteria LULUS. |
-| 06 | 0 | P0-08 | 0 | BELUM | | | |
+| 05 | 0 | P0-05 | 3 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2 selesai & commit oleh sesi sebelumnya namun terputus di sisi klien. Percobaan 3: verifikasi ulang semua file P0-05 + perbaikan `formatRupiah` (`Rp 125.000` dengan spasi ASCII sesuai D-04 & P0-08), `formatDateID` (`20 Okt 2026` sesuai §12.1), dan lazy getter `publicEnv`. Gate lint & typecheck ✔. Semua kriteria LULUS. |
+| 06 | 0 | P0-08 | 1 | MENUNGGU | 2026-10-21 | Gemini 4 Argon | `vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, `tests/setup.ts` dibuat. Chromium Playwright (`chromium-1248`) terpasang. 3 file tes unit (`format.test.ts`, `slug.test.ts`, `phone.test.ts` — 17 tes) hijau ✔. `npx playwright test --list` (2 tes) ✔. Gate G2 (`lint`, `typecheck`, `test`, `build`) LULUS ✔. Tag `v0.0.0` dibuat. |
 | 07 | 1 | P1-01, P1-02 | 0 | BELUM | | | |
 | 08 | 1 | P1-03 | 0 | BELUM | | | |
 | 09 | 1 | P1-04 | 0 | BELUM | | | |
