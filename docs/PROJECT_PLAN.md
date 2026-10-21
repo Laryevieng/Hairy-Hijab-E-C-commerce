@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 0 — Audit dan Fondasi Repo
-Task berikutnya      : P0-05
-Prompt aktif         : 04 → MENUNGGU persetujuan; prompt berikutnya: 05 (lihat Lampiran E)
-Task terakhir selesai: P0-07
+Task berikutnya      : P0-08
+Prompt aktif         : 05 → MENUNGGU persetujuan; prompt berikutnya: 06 (lihat Lampiran E)
+Task terakhir selesai: P0-05
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
@@ -157,7 +157,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
 
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
-| 0 | Audit dan Fondasi Repo | 8 | 6 |
+| 0 | Audit dan Fondasi Repo | 8 | 7 |
 | 1 | Design System dan Layout | 5 | 0 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
@@ -1808,13 +1808,13 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `npm install @supabase/supabase-js @supabase/ssr zod zustand react-hook-form @hookform/resolvers server-only clsx tailwind-merge class-variance-authority lucide-react sonner` dan `npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom jsdom @playwright/test @axe-core/playwright supabase dotenv`.
   - **Selesai jika:** Lockfile diperbarui; build lulus; tidak ada paket di luar whitelist §10.1; hasil `npm audit` (ringkas) dicatat.
 
-- [ ] **P0-05 · Struktur dasar, env, utilitas** `M` · butuh: P0-04
+- [x] **P0-05 · Struktur dasar, env, utilitas** `M` · butuh: P0-04
   - **Kerjakan:**
-    - [ ] a. Pastikan alias `@/*` → `./*` di `tsconfig.json`.
-    - [ ] b. Buat `.env.example` (§10.7); `.gitignore` mengabaikan `.env*` kecuali `.env.example`.
-    - [ ] c. `lib/env.ts` (Zod; variabel publik divalidasi eksplisit, variabel server divalidasi saat diakses di server).
-    - [ ] d. `lib/utils/cn.ts`, `format.ts` (`formatRupiah`, `formatDateID` zona Asia/Jakarta), `slug.ts` (`slugify`: huruf kecil, hapus diakritik, non-alfanumerik → `-`), `phone.ts` (`normalizePhoneID`, `buildWhatsAppLink`; aturan §14.3).
-    - [ ] e. `types/action.ts` (§10.4); `config/site.ts`; `config/regions.ts` (daftar provinsi Indonesia terkini sesuai sumber resmi; catat sumbernya); `config/order-status.ts` (label Indonesia §9.3–9.4).
+    - [x] a. Pastikan alias `@/*` → `./*` di `tsconfig.json`.
+    - [x] b. Buat `.env.example` (§10.7); `.gitignore` mengabaikan `.env*` kecuali `.env.example`.
+    - [x] c. `lib/env.ts` (Zod; variabel publik divalidasi eksplisit, variabel server divalidasi saat diakses di server).
+    - [x] d. `lib/utils/cn.ts`, `format.ts` (`formatRupiah`, `formatDateID` zona Asia/Jakarta), `slug.ts` (`slugify`: huruf kecil, hapus diakritik, non-alfanumerik → `-`), `phone.ts` (`normalizePhoneID`, `buildWhatsAppLink`; aturan §14.3).
+    - [x] e. `types/action.ts` (§10.4); `config/site.ts`; `config/regions.ts` (daftar provinsi Indonesia terkini sesuai sumber resmi; catat sumbernya); `config/order-status.ts` (label Indonesia §9.3–9.4).
   - **Selesai jika:** `npx tsc --noEmit` lulus; `git check-ignore .env.local` mencetak path; tidak ada secret di file yang dikomit.
 
 - [x] **P0-06 · AGENTS.md, CLAUDE.md, lokasi plan** `S` · butuh: P0-01
@@ -2499,6 +2499,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: (1) `--legacy-peer-deps` — pantau saat upgrade `@hookform/resolvers` atau `effect`. (2) `braces` vulnerability — menunggu fix upstream dari Next.js/eslint-config-next.
 - Langkah berikutnya: kerjakan **P0-05** (Struktur dasar, env, utilitas) sesuai prompt 05.
 
+### [2026-10-21 15:40] — Claude Opus 4.6 (Thinking) — SELESAI
+- Task: P0-05 (Struktur dasar, env, utilitas)
+- Ringkasan: Percobaan 2 (percobaan 1 gagal karena API Quota Reached saat membaca dokumen, belum ada file diubah). Semua sub-task selesai: (a) alias `@/*` sudah ada di tsconfig; (b) `.env.example` dibuat sesuai §10.7, `.gitignore` diperbarui agar mengecualikan `.env.example` dari ignore; (c) `lib/env.ts` dengan Zod 4 — validasi eager untuk variabel publik, lazy untuk variabel server; (d) `lib/utils/cn.ts` (clsx + twMerge), `format.ts` (formatRupiah, formatDateID, formatDateTimeID — timezone Asia/Jakarta), `slug.ts` (slugify NFD + strip diacritics), `phone.ts` (normalizePhoneID + buildWhatsAppLink sesuai §14.3); (e) `types/action.ts` (ActionResult §10.4), `config/site.ts`, `config/regions.ts` (38 provinsi Indonesia, sumber Kemendagri/BPS), `config/order-status.ts` (label §9.3–9.4).
+- File dibuat/diubah: `.env.example` (baru), `.gitignore` (diubah: +`!.env.example`), `lib/env.ts` (baru), `lib/utils/cn.ts` (baru), `lib/utils/format.ts` (baru), `lib/utils/slug.ts` (baru), `lib/utils/phone.ts` (baru), `types/action.ts` (baru), `config/site.ts` (baru), `config/regions.ts` (baru), `config/order-status.ts` (baru), `docs/PROJECT_PLAN.md` (diperbarui §1, §15, Lampiran D, Lampiran E)
+- Gate: `npm run lint` ✔ · `npm run typecheck` ✔
+- Commit: `feat(P0-05): struktur dasar, env, utilitas`
+- Asumsi / keputusan baru: Zod 4 (`z.url()`) mengembalikan string (bukan `URL` object) — diverifikasi langsung, cocok dengan kebutuhan env validation. `formatRupiah` menghasilkan "Rp125.000" (tanpa spasi antara Rp dan angka — perilaku bawaan `Intl.NumberFormat` id-ID); jika diperlukan spasi, dapat disesuaikan nanti.
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P0-08** (Vitest dan Playwright — tes unit untuk utils) sesuai prompt 06.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2514,8 +2524,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 01 | 0 | P0-01 | 1 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Tabel §3.1 terisi dari fakta. Node 24.21.0 ≥ 20.9 ✔. Next.js 16.4.2 ✔. Tailwind 4.3.3 sudah ada (selisih: via Turbopack, bukan PostCSS). Semua kriteria LULUS. |
 | 02 | 0 | P0-06 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
 | 03 | 0 | P0-02, P0-03 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
-| 04 | 0 | P0-04, P0-07 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
-| 05 | 0 | P0-05 | 0 | BELUM | | | |
+| 04 | 0 | P0-04, P0-07 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
+| 05 | 0 | P0-05 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat membaca dokumen). Percobaan 2: semua sub-task selesai. Alias @/* ✔. .env.example ✔. .gitignore ✔. lib/env.ts (Zod 4) ✔. lib/utils/{cn,format,slug,phone}.ts ✔. types/action.ts ✔. config/{site,regions,order-status}.ts ✔. npx tsc --noEmit ✔. git check-ignore .env.local ✔. Tidak ada secret di file. Semua kriteria LULUS. |
 | 06 | 0 | P0-08 | 0 | BELUM | | | |
 | 07 | 1 | P1-01, P1-02 | 0 | BELUM | | | |
 | 08 | 1 | P1-03 | 0 | BELUM | | | |
@@ -2573,3 +2583,4 @@ Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masa
 - P02 #1 [2026-10-21] GAGAL — API Quota Reached sebelum commit. Semua file sudah diubah/dibuat (AGENTS.md, CLAUDE.md, git mv plan) tapi sesi terputus paksa sebelum `git commit`. Penyebab: lingkungan (kuota model habis).
 - P03 #1 [2026-10-21] GAGAL — API Quota Reached saat proses linting. Kode P0-02 dan P0-03 sudah selesai dan build sukses, tapi sesi terputus sebelum lint selesai dan plan belum diperbarui. Penyebab: lingkungan (kuota model habis).
 - P04 #1 [2026-10-21] GAGAL — API Quota Reached saat npm install dependensi runtime. Agen terputus paksa sebelum dependensi terinstal dan sebelum plan diperbarui (Lampiran E masih BELUM). Penyebab: lingkungan (kuota model habis).
+- P05 #1 [2026-10-21] GAGAL — API Quota Reached saat membaca dokumen. Agen terputus paksa sebelum ada file kode yang diubah. Penyebab: lingkungan (kuota model habis).
