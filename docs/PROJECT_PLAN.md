@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 0 — Audit dan Fondasi Repo
-Task berikutnya      : P0-04
-Prompt aktif         : 03 → MENUNGGU persetujuan; prompt berikutnya: 04 (lihat Lampiran E)
-Task terakhir selesai: P0-03
+Task berikutnya      : P0-05
+Prompt aktif         : 04 → MENUNGGU persetujuan; prompt berikutnya: 05 (lihat Lampiran E)
+Task terakhir selesai: P0-07
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
@@ -157,7 +157,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Claude Opus 4.6 (Thinking)
 
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
-| 0 | Audit dan Fondasi Repo | 8 | 4 |
+| 0 | Audit dan Fondasi Repo | 8 | 6 |
 | 1 | Design System dan Layout | 5 | 0 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
@@ -1804,7 +1804,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Jika belum terpasang: pasang `tailwindcss @tailwindcss/postcss postcss`, buat `postcss.config.mjs` dengan plugin `@tailwindcss/postcss`, tambahkan `@import "tailwindcss";` di `app/globals.css` (ikuti dokumentasi Tailwind untuk Next.js dan versi terpasang). Jika sudah ada: catat versi dan lewati.
   - **Selesai jika:** Kelas utilitas terbukti bekerja pada placeholder (lalu dihapus); build lulus.
 
-- [ ] **P0-04 · Dependensi inti** `S` · butuh: P0-03
+- [x] **P0-04 · Dependensi inti** `S` · butuh: P0-03
   - **Kerjakan:** `npm install @supabase/supabase-js @supabase/ssr zod zustand react-hook-form @hookform/resolvers server-only clsx tailwind-merge class-variance-authority lucide-react sonner` dan `npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom jsdom @playwright/test @axe-core/playwright supabase dotenv`.
   - **Selesai jika:** Lockfile diperbarui; build lulus; tidak ada paket di luar whitelist §10.1; hasil `npm audit` (ringkas) dicatat.
 
@@ -1821,7 +1821,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Tambahkan blok Lampiran A di **bawah** isi `AGENTS.md` bawaan (jangan menghapusnya). Buat `CLAUDE.md` berisi satu baris `@AGENTS.md`. Pindahkan dokumen ini ke `docs/PROJECT_PLAN.md` di dalam repo Git (`git mv` bila sudah terlacak), hapus salinan lama agar hanya ada satu versi, dan perbarui path di `AGENTS.md`.
   - **Selesai jika:** `AGENTS.md` memuat blok Hairy Hijab dan isi bawaan utuh; `docs/PROJECT_PLAN.md` ada sebagai satu-satunya salinan; commit dibuat.
 
-- [ ] **P0-07 · Script dan gate** `S` · butuh: P0-04
+- [x] **P0-07 · Script dan gate** `S` · butuh: P0-04
   - **Kerjakan:** Tambahkan scripts: `typecheck` (`tsc --noEmit`), `test` (`vitest run`), `test:rls` (`vitest run --config vitest.rls.config.ts`), `test:e2e` (`playwright test`), `db:types` (`supabase gen types typescript --linked > types/database.types.ts`). Tambahkan `.nvmrc` atau `engines` sesuai Node terverifikasi.
   - **Selesai jika:** `npm run typecheck` dan `npm run lint` lulus; script lain terdaftar (boleh belum berfungsi sampai P0-08/P2).
 
@@ -2488,6 +2488,17 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P0-04** (Dependensi inti) dan **P0-07** (Script dan gate) sesuai prompt 04.
 
+### [2026-10-21 15:00] — Claude Opus 4.6 (Thinking) — SELESAI
+- Task: P0-04 (Dependensi inti), P0-07 (Script dan gate)
+- Ringkasan: Melanjutkan pekerjaan agen sebelumnya yang terputus paksa (quota reached) saat npm install. Dependensi belum terinstal sama sekali (package.json masih scaffold asli). Instalasi runtime deps (12 paket) dan dev deps (9 paket) berhasil dengan `--legacy-peer-deps` karena conflict peerOptional `effect` antara `@hookform/resolvers@6` dan `@typeschema/effect`. Menambahkan scripts: `typecheck`, `test`, `test:rls`, `test:e2e`, `db:types`. Membuat `.nvmrc` (24) dan menambahkan `engines.node >=20.9.0` di package.json.
+- File dibuat/diubah: `package.json` (diubah: dependencies, devDependencies, scripts, engines), `package-lock.json` (diperbarui npm), `.nvmrc` (baru), `docs/PROJECT_PLAN.md` (diperbarui §1, §15, Lampiran D, Lampiran E)
+- Gate: `npm run lint` ✔ · `npm run typecheck` ✔ · `npm run build` ✔ (G2 lulus)
+- Commit: `chore(P0-04, P0-07): dependensi inti dan script gate`
+- Asumsi / keputusan baru: `--legacy-peer-deps` digunakan karena `@hookform/resolvers@6` mempunyai peerOptional `effect@^4.0.0` yang conflict dengan `effect@3.22.3` yang diinstal oleh resolusi `@typeschema`. Ini peerOptional, bukan hard dependency, sehingga tidak berdampak pada fungsi. Dicatat untuk ditinjau saat upgrade.
+- npm audit: 5 high severity — semua dari `braces` (stack-exhaustion DoS) via rantai `eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch` → `braces`. Fix memerlukan downgrade `eslint-config-next` ke 14.x (breaking change). TIDAK dijalankan `npm audit fix --force`. Risiko rendah (DoS via pola regex sangat dalam, bukan eksploitasi jarak jauh pada aplikasi web).
+- Masalah / utang teknis: (1) `--legacy-peer-deps` — pantau saat upgrade `@hookform/resolvers` atau `effect`. (2) `braces` vulnerability — menunggu fix upstream dari Next.js/eslint-config-next.
+- Langkah berikutnya: kerjakan **P0-05** (Struktur dasar, env, utilitas) sesuai prompt 05.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2502,8 +2513,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 |---|:-:|---|---:|---|---|---|---|
 | 01 | 0 | P0-01 | 1 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Tabel §3.1 terisi dari fakta. Node 24.21.0 ≥ 20.9 ✔. Next.js 16.4.2 ✔. Tailwind 4.3.3 sudah ada (selisih: via Turbopack, bukan PostCSS). Semua kriteria LULUS. |
 | 02 | 0 | P0-06 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (quota reached sebelum commit). Percobaan 2: melanjutkan, commit berhasil. AGENTS.md ✔, CLAUDE.md ✔, docs/PROJECT_PLAN.md ✔. Semua kriteria LULUS. |
-| 03 | 0 | P0-02, P0-03 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
-| 04 | 0 | P0-04, P0-07 | 0 | BELUM | | | |
+| 03 | 0 | P0-02, P0-03 | 2 | DISETUJUI | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat proses linting). Percobaan 2: melanjutkan kode dari sesi sebelumnya, gate lulus, plan diperbarui. P0-02 ✔ (placeholder, lang="id", aset dihapus). P0-03 ✔ (Tailwind v4.3.3 sudah ada, hanya verifikasi). Semua kriteria LULUS. |
+| 04 | 0 | P0-04, P0-07 | 2 | MENUNGGU | 2026-10-21 | Claude Opus 4.6 (Thinking) | Percobaan 1 gagal (API Quota Reached saat npm install). Percobaan 2: melanjutkan dari awal (dependensi belum terinstal). Runtime + dev deps terpasang (--legacy-peer-deps karena peerOptional effect conflict). Scripts ditambahkan (typecheck, test, test:rls, test:e2e, db:types). .nvmrc + engines ≥20.9. npm audit: 5 high (braces via eslint-config-next, upstream). Gate G2 lulus. Semua kriteria P0-04 ✔, P0-07 ✔. |
 | 05 | 0 | P0-05 | 0 | BELUM | | | |
 | 06 | 0 | P0-08 | 0 | BELUM | | | |
 | 07 | 1 | P1-01, P1-02 | 0 | BELUM | | | |
@@ -2561,3 +2572,4 @@ Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masa
 *(belum ada)*
 - P02 #1 [2026-10-21] GAGAL — API Quota Reached sebelum commit. Semua file sudah diubah/dibuat (AGENTS.md, CLAUDE.md, git mv plan) tapi sesi terputus paksa sebelum `git commit`. Penyebab: lingkungan (kuota model habis).
 - P03 #1 [2026-10-21] GAGAL — API Quota Reached saat proses linting. Kode P0-02 dan P0-03 sudah selesai dan build sukses, tapi sesi terputus sebelum lint selesai dan plan belum diperbarui. Penyebab: lingkungan (kuota model habis).
+- P04 #1 [2026-10-21] GAGAL — API Quota Reached saat npm install dependensi runtime. Agen terputus paksa sebelum dependensi terinstal dan sebelum plan diperbarui (Lampiran E masih BELUM). Penyebab: lingkungan (kuota model habis).
