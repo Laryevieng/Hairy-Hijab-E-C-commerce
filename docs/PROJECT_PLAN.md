@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-10
-Prompt aktif         : 16 → WIP (P2-08 dan P2-09 selesai; P2-10 tersisa; lihat Lampiran E)
-Task terakhir selesai: P2-09
+Task berikutnya      : P2-11
+Prompt aktif         : 17 (lihat Lampiran E)
+Task terakhir selesai: P2-10
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-22 oleh Claude
+Terakhir diperbarui  : 2026-10-22 oleh GPT
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-22 oleh Claude
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 8 |
+| 2 | Database dan Keamanan | 13 | 11 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1901,7 +1901,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Migration `cron_expire_orders` (§11.9). Jika ekstensi tidak dapat diaktifkan lewat migration, catat dan minta pemilik mengaktifkannya di dashboard (Integrations → Cron) lalu jalankan `cron.schedule`.
   - **Selesai jika:** `select jobname, schedule from cron.job` menampilkan `expire-unpaid-orders` (diverifikasi pemilik atau tes).
 
-- [ ] **P2-10 · Data referensi dan contoh** `S` · butuh: P2-07
+- [x] **P2-10 · Data referensi dan contoh** `S` · butuh: P2-07
   - **Kerjakan:** Migration `reference_data` (§11.9: 8 kategori, `store_settings`, tarif default). Buat `supabase/dev/sample_products.sql` **[DEV ONLY]** berisi 4–6 produk contoh (lintas kategori, dengan varian, harga, stok, satu produk berharga coret, satu varian stok 0), dijalankan manual di project dev.
   - **Selesai jika:** 8 kategori ada; `store_settings` punya satu baris; contoh produk muncul di dev; tarif default ditandai `TODO(owner)`.
 
@@ -2639,10 +2639,30 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Ringkasan: Migration mengaktifkan `pg_cron` pada `pg_catalog` dan menjadwalkan `expire-unpaid-orders` setiap 15 menit untuk menjalankan `public.expire_unpaid_orders()`.
 - File dibuat/diubah: `supabase/migrations/20261022170100_cron_expire_orders.sql`, `docs/PROJECT_PLAN.md`.
 - Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · G2 ✔ (`npm run build` ✔) · `npx supabase db push` ✔ · verifikasi `cron.job` ✔ (`expire-unpaid-orders`, `*/15 * * * *`).
-- Commit: akan dicatat pada commit task berikutnya karena dokumentasi status prompt 16 masih berjalan.
+- Commit: `db(P2-09): jadwal cron kedaluwarsa`
 - Asumsi / keputusan baru: `pg_cron` dapat diaktifkan langsung melalui migration pada project dev; tidak perlu tindakan pemilik di Dashboard.
 - Masalah / utang teknis: Percobaan `npx supabase migration list` berikutnya gagal karena autentikasi temp-role CLI, tetapi `db push` dan query `cron.job` berhasil.
 - Langkah berikutnya: push migration `reference_data`, jalankan `supabase/dev/sample_products.sql` manual di dev, lalu verifikasi data.
+
+### [2026-10-22 23:50] — GPT — SELESAI
+- Task: P2-10 (data referensi dan contoh)
+- Ringkasan: Migration idempoten menambahkan delapan kategori §6.1, satu baris `store_settings`, dan tarif flat placeholder Rp 20.000 dengan komentar `TODO(owner)`. File [DEV ONLY] berisi lima produk di lima kategori dengan enam varian, satu harga coret dan satu stok nol; dijalankan manual pada project dev. Verifikasi database: 8 kategori, 1 settings, 5 produk contoh, 6 varian, harga coret Rp 60.000 atas harga Rp 50.000, stok nol 1, dan tarif `*` Rp 20.000.
+- File dibuat/diubah: `supabase/migrations/20261022170200_reference_data.sql`, `supabase/dev/sample_products.sql`, `docs/PROJECT_PLAN.md`.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · `npx supabase db push` ✔ (terakhir menyatakan remote up to date; migration reference telah diterapkan dan datanya diverifikasi).
+- Commit: `db(P2-10): data referensi dan contoh` (digabung dengan dokumentasi penutup prompt 16).
+- Asumsi / keputusan baru: Harga/nama/varian produk jelas diberi label data contoh dev saja, tidak merepresentasikan katalog atau klaim bisnis.
+- Masalah / utang teknis: `npx supabase migration list` gagal pada autentikasi temp-role setelah `db push` sukses; query data terpisah mengonfirmasi setiap kriteria.
+- Langkah berikutnya: mulai P2-11 sesuai Prompt 17.
+
+### [2026-10-22 23:55] — GPT — SELESAI
+- Task: P2-08, P2-09, P2-10; Prompt 16 percobaan 1
+- Ringkasan: Ketiga task selesai dan diverifikasi pada project dev. `pg_cron` aktif melalui migration, data contoh dijalankan manual di dev; seluruh checkbox task dicentang. §1 kini menunjuk P2-11 dan prompt 16 MENUNGGU persetujuan.
+- File dibuat/diubah: `supabase/migrations/20261022170000_storage.sql`, `supabase/migrations/20261022170100_cron_expire_orders.sql`, `supabase/migrations/20261022170200_reference_data.sql`, `supabase/dev/sample_products.sql`, `docs/PROJECT_PLAN.md`.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · `npm run build` ✔ · `npx supabase db push` ✔ (remote up to date).
+- Commit: storage `c52beb1`; cron `4c85d16`; reference data dan dokumentasi akhir dikomit setelah entri ini.
+- Asumsi / keputusan baru: Harga produk hanya fixture dev; ongkir Rp 20.000 adalah placeholder dan diberi `TODO(owner)`.
+- Masalah / utang teknis: `npx supabase migration list` gagal autentikasi temp-role setelah push sukses, dan query agregat sempat timeout. Verifikasi query individual serta hasil `db push` berhasil memastikan kriteria.
+- Langkah berikutnya: kerjakan P2-11 (tipe database dan konfigurasi Next.js) sesuai Prompt 17.
 
 ---
 
@@ -2671,7 +2691,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 13 | 2 | P2-04, P2-05 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0003 catalog (categories, products, product_variants, product_images + trigram index & RLS) dan 0004 commerce (shipping_rates, orders, order_items, order_status_history, payments, shipments, stock_movements + chk constraints & RLS) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 14. |
 | 14 | 2 | P2-06 | 2 | DISETUJUI | 2026-10-22 | Claude | Percobaan 1 terputus setelah migration 0005 ter-push sebelum commit/dokumentasi. Percobaan 2: tanpa push ulang, verifikasi DB (db lint bersih; RPC `create_order` → EMPTY_CART, `adjust_stock` & `mark_order_shipped` → FORBIDDEN), cocokkan SQL dengan §11.5/§11.6, Gate G1 + G2 lulus, dokumentasi & commit diselesaikan. Disetujui via /1allclear pada prompt 15 (2026-10-22). |
 | 15 | 2 | P2-07 | 1 | DISETUJUI | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. Disetujui via `/1allclear` pada prompt 16 (2026-10-22). |
-| 16 | 2 | P2-08, P2-09, P2-10 | 0 | BELUM | | | |
+| 16 | 2 | P2-08, P2-09, P2-10 | 1 | MENUNGGU | 2026-10-22 | GPT | Storage bucket publik/privat dengan batas MIME/ukuran valid; pg_cron job `expire-unpaid-orders` tiap 15 menit; migration referensi 8 kategori, store_settings, tarif default TODO(owner). Data contoh dev manual: 5 produk/6 varian, termasuk harga coret dan stok 0. G1 + build + db push lulus. `migration list` mengalami gagal autentikasi temp-role sesudah push; seluruh kriteria task diverifikasi langsung. |
 | 17 | 2 | P2-11 | 0 | BELUM | | | |
 | 18 | 2 | P2-12 | 0 | BELUM | | | |
 | 19 | 3 | P3-01, P3-02 | 0 | BELUM | | | |
