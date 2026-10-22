@@ -144,13 +144,13 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 1 — Design System dan Layout
-Task berikutnya      : P1-05
-Prompt aktif         : 09 → MENUNGGU persetujuan; prompt berikutnya: 10 (lihat Lampiran E)
-Task terakhir selesai: P1-04
+Fase aktif           : Fase 2 — Database dan Keamanan
+Task berikutnya      : P2-00
+Prompt aktif         : 10 → MENUNGGU persetujuan; prompt berikutnya: 11 (LANGKAH PEMILIK 1 / P2-00)
+Task terakhir selesai: P1-05
 Blocker aktif        : tidak ada
-Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
+Menunggu pemilik     : P2-00 (LANGKAH PEMILIK 1: project Supabase dev) sebelum P2-01 / Prompt 11
+Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -158,7 +158,7 @@ Terakhir diperbarui  : 2026-10-21 oleh Gemini 3.8 Flash High
 | Fase | Nama | Task | Selesai |
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
-| 1 | Design System dan Layout | 5 | 4 |
+| 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 0 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
@@ -1850,7 +1850,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `ProductCard`, `ProductGrid`, `CategoryCard`, `PriceDisplay` (harga coret + persen hemat), `StockBadge`, `EmptyState`, `LoadingState`, `ErrorState`. Tipe `ProductListItem` di `types/domain.ts`; data dummy di `lib/mock/products.ts` (sementara).
   - **Selesai jika:** Grid 2/3/4 kolom benar; tes unit untuk persentase hemat `PriceDisplay`; build lulus.
 
-- [ ] **P1-05 · Beranda statis** `M` · butuh: P1-03, P1-04
+- [x] **P1-05 · Beranda statis** `M` · butuh: P1-03, P1-04
   - **Kerjakan:** Hero (gambar placeholder di `public/images/placeholders/`), grid 8 kategori, bagian "Produk Terbaru" (mock), `not-found.tsx`, `error.tsx`.
   - **Selesai jika:** Sesuai arah desain §12.1 dan responsif; **tidak ada** klaim, testimoni, atau angka karangan; teks final ditandai `TODO(owner)`. G2 lulus.
 
@@ -2304,7 +2304,9 @@ Agent tidak boleh menunggu jawaban jika ada nilai default; pakai default dan cat
 | Q-15 | Paket Supabase produksi (backup/PITR) | Paket berbayar terendah | P11-01, P11-05 |
 | Q-16 | Kebijakan pesanan kedaluwarsa yang dibayar belakangan (D-25) | Hubungi pelanggan / refund manual | R-10 |
 
-**Daftar `TODO(owner)` yang ada di kode** (agent menambah satu baris setiap menaruh penanda): *(kosong)*
+**Daftar `TODO(owner)` yang ada di kode** (agent menambah satu baris setiap menaruh penanda):
+- `components/home/hero-banner.tsx`: Copywriting headline, subheadline, dan visual hero banner final ditentukan oleh pemilik.
+- `app/(store)/page.tsx`: Deskripsi bagian 8 kategori, produk terbaru, pilar komitmen nilai brand, dan banner CTA penutup beranda final ditentukan oleh pemilik.
 
 ---
 
@@ -2560,6 +2562,17 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P1-05** (Beranda statis: Hero, grid 8 kategori, bagian Produk Terbaru mock, not-found.tsx, error.tsx, hapus dev-preview) sesuai Prompt 10.
 
+### [2026-10-22 11:15] — Gemini 3.8 Flash High — SELESAI
+- Task: P1-05 (Beranda statis dan gerbang Fase 1)
+- Ringkasan: Mengimplementasikan beranda statis `app/(store)/page.tsx` lengkap dengan `HeroBanner` (`components/home/hero-banner.tsx`), visual placeholder SVG `public/images/placeholders/hero-placeholder.svg`, grid 8 kategori responsif menggunakan `CategoryCard`, bagian Produk Terbaru menggunakan `ProductGrid` dan data mock `MOCK_PRODUCTS`, pilar komitmen kualitas brand editorial tanpa klaim/testimoni karangan, dan banner ajakan belanja penutup. Membuat halaman `app/not-found.tsx` (404) dan boundary error `app/error.tsx` (client component dengan retry handler) dengan integrasi layout dan token desain §12.1. Menghapus halaman sementara `app/(store)/dev-preview`. Menambahkan pengujian unit komprehensif di `tests/unit/home-and-errors.test.tsx` (7 tes) yang memverifikasi hero, 8 kategori, grid produk terbaru, pilar komitmen, halaman 404, dan error boundary. Gate G2 (`lint`, `typecheck`, `test` 8 file / 47 tes, `build`) LULUS. Gerbang Fase 1 tercapai; tag `v0.1.0` dibuat.
+- File dibuat/diubah: `public/images/placeholders/hero-placeholder.svg` (baru), `components/home/hero-banner.tsx` (baru), `components/home/index.ts` (baru), `app/(store)/page.tsx` (diperbarui), `app/not-found.tsx` (baru), `app/error.tsx` (baru), `app/(store)/dev-preview` (dihapus), `tests/unit/home-and-errors.test.tsx` (baru), `docs/PROJECT_PLAN.md` (§1, §15, §19, Lampiran D, Lampiran E).
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes · `npm run build` ✔)
+- Commit: `feat(P1-05): beranda statis dan gerbang fase 1`
+- Tag: `v0.1.0`
+- Asumsi / keputusan baru: Komponen home diorganisasikan di `components/home/` sesuai §10.2; seluruh placeholder copywriting ditandai `TODO(owner)` dan dicatat di §19 tanpa membuat klaim palsu.
+- Masalah / utang teknis: —
+- Langkah berikutnya: Pemilik mengerjakan **LANGKAH PEMILIK 1 (P2-00: setup project Supabase dev)** sesuai panduan Prompt 11 / §15 P2-00 sebelum melanjutkan ke Prompt 11 (P2-01).
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2580,9 +2593,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 06 | 0 | P0-08 | 1 | DISETUJUI | 2026-10-21 | Gemini 4 Argon | `vitest.config.ts`, `vitest.rls.config.ts`, `playwright.config.ts`, `tests/setup.ts` dibuat. Chromium Playwright (`chromium-1248`) terpasang. 3 file tes unit (`format.test.ts`, `slug.test.ts`, `phone.test.ts` — 17 tes) hijau ✔. `npx playwright test --list` (2 tes) ✔. Gate G2 (`lint`, `typecheck`, `test`, `build`) LULUS ✔. Tag `v0.0.0` dibuat. |
 | 07 | 1 | P1-01, P1-02 | 2 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | P1-01 di-commit di `ead0622`. P1-02: 17 komponen shadcn/ui di `components/ui/`, `radix-ui` terpasang. Rasio kontras teks utama & tombol utama 11.60:1 (lulus WCAG AA ≥ 4.5:1). Tes unit `ui-primitives` (Button & Input) ✔. Gate G1 (lint, typecheck, test 19 tes) ✔. |
 | 08 | 1 | P1-03 | 1 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | Layout toko: app/(store)/layout.tsx, AnnouncementBar, SiteHeader, MainNavigation, MobileNavigation (Sheet), SiteFooter, lib/mock/categories.ts (8 kategori §6.1). Tes unit layout lulus (23 tes total). Gate G1 & G2 LULUS. Disetujui via /1allclear pada prompt 09. |
-| 09 | 1 | P1-04 | 1 | MENUNGGU | 2026-10-21 | Gemini 3.8 Flash High | Komponen presentasional (ProductCard, ProductGrid, CategoryCard, PriceDisplay, StockBadge, EmptyState, LoadingState, ErrorState). Formula diskon PriceDisplay integer lulus tes unit. Grid 2/3/4 kolom terverifikasi. Halaman visual di app/(store)/dev-preview. Gate G1 lulus (40 tes). |
-| 10 | 1 | P1-05 | 0 | BELUM | | | |
-| 10 | 1 | P1-05 | 0 | BELUM | | | |
+| 09 | 1 | P1-04 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Komponen presentasional (ProductCard, ProductGrid, CategoryCard, PriceDisplay, StockBadge, EmptyState, LoadingState, ErrorState). Formula diskon PriceDisplay integer lulus tes unit. Grid 2/3/4 kolom terverifikasi. Halaman visual di app/(store)/dev-preview. Gate G1 lulus (40 tes). Disetujui via /1allclear pada prompt 10. |
+| 10 | 1 | P1-05 | 2 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Beranda statis (HeroBanner, grid 8 kategori, Produk Terbaru mock, komitmen kualitas), not-found.tsx, error.tsx, hapus dev-preview. Gate G2 lulus (47 tes). Gerbang Fase 1 tuntas. |
 | 11 | 2 | P2-00, P2-01 | 0 | BELUM | | | |
 | 12 | 2 | P2-02, P2-03 | 0 | BELUM | | | |
 | 13 | 2 | P2-04, P2-05 | 0 | BELUM | | | |
@@ -2638,3 +2650,4 @@ Format satu baris: `- P07 #2 [2026-10-21] GAGAL — alasan singkat dan akar masa
 - P05 #1 [2026-10-21] GAGAL — API Quota Reached saat membaca dokumen. Agen terputus paksa sebelum ada file kode yang diubah. Penyebab: lingkungan (kuota model habis).
 - P05 #2 [2026-10-21] GAGAL — Sesi sebelumnya berhasil membuat file dan commit `0ece2e7`, tetapi terputus/diulang oleh pemilik sebagai percobaan ulang. Analisis akar masalah (wajib percobaan ke-3): (1) lingkungan — kuota/koneksi sesi terputus saat pelaporan akhir; (2) kode — pada percobaan 2, `formatRupiah(125000)` memakai `style: 'currency'` yang menghasilkan `"Rp\u00a0125.000"`/`"Rp125.000"` alih-alih `"Rp 125.000"` (spasi biasa) yang diminta D-04 dan tes P0-08, serta `publicEnv` dievaluasi eager saat import sebelum `.env.local` ada. Diperbaiki pada percobaan 3; teks plan sudah jelas dan tidak perlu diubah.
 - P07 #1 [2026-10-21] GAGAL — API Quota Reached setelah pengujian kode sukses, sebelum commit. Penyebab: lingkungan (kuota model habis).
+- P10 #1 [2026-10-22] GAGAL — API Quota Reached saat membaca file komponen beranda dan data mock. Belum ada file kode yang diubah. Penyebab: lingkungan (kuota model habis).
