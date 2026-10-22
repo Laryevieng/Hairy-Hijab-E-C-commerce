@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-02
-Prompt aktif         : 11 → MENUNGGU persetujuan; prompt berikutnya: 12 (lihat Lampiran E)
-Task terakhir selesai: P2-01
+Task berikutnya      : P2-04
+Prompt aktif         : 12 → MENUNGGU persetujuan; prompt berikutnya: 13 (lihat Lampiran E)
+Task terakhir selesai: P2-03
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 2 |
+| 2 | Database dan Keamanan | 13 | 4 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1866,11 +1866,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `npx supabase init` (menghasilkan `supabase/config.toml`); jangan menimpa file yang sudah ada.
   - **Selesai jika:** `supabase/` ada; `npx supabase migration list` berjalan terhadap project tertaut.
 
-- [ ] **P2-02 · Migration 0001 fondasi** `S` · butuh: P2-01
+- [x] **P2-02 · Migration 0001 fondasi** `S` · butuh: P2-01
   - **Kerjakan:** `npx supabase migration new foundation`; isi dengan SQL §11.3; `npx supabase db push`.
   - **Selesai jika:** Push berhasil tanpa error; enum, fungsi, dan `store_settings` ada di dashboard.
 
-- [ ] **P2-03 · Migration 0002 identity** `S` · butuh: P2-02
+- [x] **P2-03 · Migration 0002 identity** `S` · butuh: P2-02
   - **Kerjakan:** Migration `identity` berisi SQL §11.4 (0002). Tambahkan `alter table … enable row level security;` segera setelah setiap `create table` (sabuk pengaman; idempoten dengan 0006). Push.
   - **Selesai jika:** Push berhasil; trigger `on_auth_user_created` ada.
 
@@ -2583,6 +2583,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P2-02** (Migration 0001 fondasi) dan **P2-03** (Migration 0002 identity) sesuai Prompt 12.
 
+### [2026-10-22 20:15] — Gemini 3.8 Flash High — SELESAI
+- Task: P2-02 (Migration 0001 fondasi), P2-03 (Migration 0002 identity)
+- Ringkasan: Membuat migration `foundation` (`supabase/migrations/*_foundation.sql`) berisi ekstensi `pg_trgm` (schema `extensions`), 6 enum sistem (`staff_role`, `order_status`, `payment_status`, `payment_record_status`, `shipment_status`, `stock_movement_type`), fungsi `set_updated_at`, generator kode acak `random_code(p_length)`, dan tabel `store_settings` lengkap dengan trigger updated_at dan enable RLS. Melakukan `npx supabase db push` berhasil. Selanjutnya membuat migration `identity` (`supabase/migrations/*_identity.sql`) berisi tabel `profiles` (dengan trigger `on_auth_user_created`), tabel `staff_roles` (dengan fungsi otorisasi `is_staff()` dan `is_admin()`), dan tabel `addresses` (dengan indeks default unik dan trigger `enforce_single_default_address`), masing-masing diaktifkan RLS sebagai sabuk pengaman (§11.4). Melakukan `npx supabase db push` berhasil. `npx supabase migration list` mengonfirmasi kedua migration tersinkronisasi di lokal dan remote Supabase dev.
+- File dibuat/diubah: `supabase/migrations/20261022130109_foundation.sql` (baru), `supabase/migrations/20261022130156_identity.sql` (baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · `npx supabase db push` ✔
+- Commit: `db(P2-02, P2-03): migration 0001 fondasi dan 0002 identity`
+- Asumsi / keputusan baru: Sesuai instruksi §11.4 dan prompt 12, `alter table ... enable row level security;` ditambahkan pada setiap tabel yang dibuat.
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P2-04** (Migration 0003 catalog) dan **P2-05** (Migration 0004 commerce) sesuai Prompt 13.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2605,8 +2615,9 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 08 | 1 | P1-03 | 1 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | Layout toko: app/(store)/layout.tsx, AnnouncementBar, SiteHeader, MainNavigation, MobileNavigation (Sheet), SiteFooter, lib/mock/categories.ts (8 kategori §6.1). Tes unit layout lulus (23 tes total). Gate G1 & G2 LULUS. Disetujui via /1allclear pada prompt 09. |
 | 09 | 1 | P1-04 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Komponen presentasional (ProductCard, ProductGrid, CategoryCard, PriceDisplay, StockBadge, EmptyState, LoadingState, ErrorState). Formula diskon PriceDisplay integer lulus tes unit. Grid 2/3/4 kolom terverifikasi. Halaman visual di app/(store)/dev-preview. Gate G1 lulus (40 tes). Disetujui via /1allclear pada prompt 10. |
 | 10 | 1 | P1-05 | 2 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Beranda statis (HeroBanner, grid 8 kategori, Produk Terbaru mock, komitmen kualitas), not-found.tsx, error.tsx, hapus dev-preview. Gate G2 lulus (47 tes). Gerbang Fase 1 tuntas. Disetujui via /1allclear pada prompt 11. |
-| 11 | 2 | P2-00, P2-01 | 1 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Verifikasi P2-00 (.env.local ada & 4 variabel Supabase/site terisi, project hairy-hijab-dev ter-link). P2-01: supabase/config.toml ada, migration list terhubung ke database dev. Gate G1 lulus. |
-| 12 | 2 | P2-02, P2-03 | 0 | BELUM | | | |
+| 11 | 2 | P2-00, P2-01 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Verifikasi P2-00 (.env.local ada & 4 variabel Supabase/site terisi, project hairy-hijab-dev ter-link). P2-01: supabase/config.toml ada, migration list terhubung ke database dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 12. |
+| 12 | 2 | P2-02, P2-03 | 1 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Migration 0001 fondasi (store_settings, enum, ekstensi, fungsi) dan 0002 identity (profiles, staff_roles, addresses, triggers, RLS enabled) berhasil di-push ke Supabase dev. Gate G1 lulus. |
+| 13 | 2 | P2-04, P2-05 | 0 | BELUM | | | |
 | 13 | 2 | P2-04, P2-05 | 0 | BELUM | | | |
 | 14 | 2 | P2-06 | 0 | BELUM | | | |
 | 15 | 2 | P2-07 | 0 | BELUM | | | |
