@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-09
-Prompt aktif         : 16 → WIP (P2-08 selesai; P2-09 dan P2-10 tersisa; lihat Lampiran E)
-Task terakhir selesai: P2-08
+Task berikutnya      : P2-10
+Prompt aktif         : 16 → WIP (P2-08 dan P2-09 selesai; P2-10 tersisa; lihat Lampiran E)
+Task terakhir selesai: P2-09
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-22 oleh Claude
@@ -1897,7 +1897,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Migration `storage` berisi SQL §11.8. Push.
   - **Selesai jika:** Dua bucket ada dengan batas ukuran dan MIME yang benar; `product-images` publik, `payment-proofs` privat.
 
-- [ ] **P2-09 · Migration 0008 cron** `S` · butuh: P2-07
+- [x] **P2-09 · Migration 0008 cron** `S` · butuh: P2-07
   - **Kerjakan:** Migration `cron_expire_orders` (§11.9). Jika ekstensi tidak dapat diaktifkan lewat migration, catat dan minta pemilik mengaktifkannya di dashboard (Integrations → Cron) lalu jalankan `cron.schedule`.
   - **Selesai jika:** `select jobname, schedule from cron.job` menampilkan `expire-unpaid-orders` (diverifikasi pemilik atau tes).
 
@@ -2624,6 +2624,26 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Baris matriks §11.10 untuk pelanggan/staf/admin belum diuji (butuh pengguna uji; P2-12).
 - Langkah berikutnya: kerjakan **P2-08** (Migration 0007 storage, §11.8) sesuai Prompt 16.
 
+### [2026-10-22 23:20] — GPT — SELESAI
+- Task: P2-08 (Migration 0007 storage)
+- Ringkasan: Migration storage membuat bucket `product-images` publik dengan batas 2 MiB dan MIME JPEG/PNG/WebP, serta `payment-proofs` privat dengan batas 5 MiB dan MIME yang sama. Policy mengikuti §11.8: admin dapat mengelola gambar produk dan staf dapat membaca bukti transfer.
+- File dibuat/diubah: `supabase/migrations/20261022170000_storage.sql`, `docs/PROJECT_PLAN.md`.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · G2 ✔ (`npm run build` ✔) · `npx supabase db push` ✔
+- Commit: `db(P2-08): migration storage`
+- Asumsi / keputusan baru: Tidak ada.
+- Masalah / utang teknis: Verifikasi visual bucket dilakukan melalui query Supabase; tidak ada masalah.
+- Langkah berikutnya: buat dan push `supabase/migrations/20261022170100_cron_expire_orders.sql`, lalu verifikasi `cron.job`.
+
+### [2026-10-22 23:25] — GPT — SELESAI
+- Task: P2-09 (Migration 0008 cron)
+- Ringkasan: Migration mengaktifkan `pg_cron` pada `pg_catalog` dan menjadwalkan `expire-unpaid-orders` setiap 15 menit untuk menjalankan `public.expire_unpaid_orders()`.
+- File dibuat/diubah: `supabase/migrations/20261022170100_cron_expire_orders.sql`, `docs/PROJECT_PLAN.md`.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · G2 ✔ (`npm run build` ✔) · `npx supabase db push` ✔ · verifikasi `cron.job` ✔ (`expire-unpaid-orders`, `*/15 * * * *`).
+- Commit: akan dicatat pada commit task berikutnya karena dokumentasi status prompt 16 masih berjalan.
+- Asumsi / keputusan baru: `pg_cron` dapat diaktifkan langsung melalui migration pada project dev; tidak perlu tindakan pemilik di Dashboard.
+- Masalah / utang teknis: Percobaan `npx supabase migration list` berikutnya gagal karena autentikasi temp-role CLI, tetapi `db push` dan query `cron.job` berhasil.
+- Langkah berikutnya: push migration `reference_data`, jalankan `supabase/dev/sample_products.sql` manual di dev, lalu verifikasi data.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2650,7 +2670,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 12 | 2 | P2-02, P2-03 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0001 fondasi (store_settings, enum, ekstensi, fungsi) dan 0002 identity (profiles, staff_roles, addresses, triggers, RLS enabled) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 13. |
 | 13 | 2 | P2-04, P2-05 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0003 catalog (categories, products, product_variants, product_images + trigram index & RLS) dan 0004 commerce (shipping_rates, orders, order_items, order_status_history, payments, shipments, stock_movements + chk constraints & RLS) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 14. |
 | 14 | 2 | P2-06 | 2 | DISETUJUI | 2026-10-22 | Claude | Percobaan 1 terputus setelah migration 0005 ter-push sebelum commit/dokumentasi. Percobaan 2: tanpa push ulang, verifikasi DB (db lint bersih; RPC `create_order` → EMPTY_CART, `adjust_stock` & `mark_order_shipped` → FORBIDDEN), cocokkan SQL dengan §11.5/§11.6, Gate G1 + G2 lulus, dokumentasi & commit diselesaikan. Disetujui via /1allclear pada prompt 15 (2026-10-22). |
-| 15 | 2 | P2-07 | 1 | MENUNGGU | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. |
+| 15 | 2 | P2-07 | 1 | DISETUJUI | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. Disetujui via `/1allclear` pada prompt 16 (2026-10-22). |
 | 16 | 2 | P2-08, P2-09, P2-10 | 0 | BELUM | | | |
 | 17 | 2 | P2-11 | 0 | BELUM | | | |
 | 18 | 2 | P2-12 | 0 | BELUM | | | |
