@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-08
-Prompt aktif         : 15 → MENUNGGU persetujuan; prompt berikutnya: 16 (lihat Lampiran E)
-Task terakhir selesai: P2-07
+Task berikutnya      : P2-09
+Prompt aktif         : 16 → WIP (P2-08 selesai; P2-09 dan P2-10 tersisa; lihat Lampiran E)
+Task terakhir selesai: P2-08
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-22 oleh Claude
@@ -1893,7 +1893,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Migration `rls_and_grants` berisi SQL §11.7. Tambahkan `GRANT EXECUTE … TO authenticated` untuk `reject_payment`, `mark_order_shipped`, `complete_order`, `mark_refunded`. Tambahkan fungsi `public.audit_tables_without_rls()` (`security definer`, hanya `service_role`) yang mengembalikan nama tabel di `public` tanpa RLS, untuk dipakai tes.
   - **Selesai jika:** Push berhasil; `audit_tables_without_rls()` mengembalikan kosong (diverifikasi di P2-12).
 
-- [ ] **P2-08 · Migration 0007 storage** `S` · butuh: P2-07
+- [x] **P2-08 · Migration 0007 storage** `S` · butuh: P2-07
   - **Kerjakan:** Migration `storage` berisi SQL §11.8. Push.
   - **Selesai jika:** Dua bucket ada dengan batas ukuran dan MIME yang benar; `product-images` publik, `payment-proofs` privat.
 
