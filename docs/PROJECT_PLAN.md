@@ -145,11 +145,11 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-00
-Prompt aktif         : 10 → MENUNGGU persetujuan; prompt berikutnya: 11 (LANGKAH PEMILIK 1 / P2-00)
-Task terakhir selesai: P1-05
+Task berikutnya      : P2-02
+Prompt aktif         : 11 → MENUNGGU persetujuan; prompt berikutnya: 12 (lihat Lampiran E)
+Task terakhir selesai: P2-01
 Blocker aktif        : tidak ada
-Menunggu pemilik     : P2-00 (LANGKAH PEMILIK 1: project Supabase dev) sebelum P2-01 / Prompt 11
+Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
 ```
 
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 0 |
+| 2 | Database dan Keamanan | 13 | 2 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1858,11 +1858,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 
 ### Fase 2 — Database dan Keamanan (paralel dengan Fase 1)
 
-- [ ] **P2-00 · [PEMILIK] Project Supabase dev** `S` · butuh: —
+- [x] **P2-00 · [PEMILIK] Project Supabase dev** `S` · butuh: —
   - **Kerjakan (pemilik):** Buat project Supabase **dev** (region terdekat, mis. Singapura). Di pengaturan database, pastikan opsi **"Automatically expose new tables and functions" = OFF**. Di API Keys ambil *publishable key* dan *secret key*; isi `.env.local` (jangan kirim nilainya ke chat). Di Authentication → URL Configuration: Site URL `http://localhost:3000`, Redirect URL `http://localhost:3000/**`. Jalankan `npx supabase login` lalu `npx supabase link --project-ref <ref>`.
   - **Selesai jika:** `.env.local` terisi; `npx supabase projects list` menampilkan project ter-link; pemilik memberi tahu agent bahwa P2-00 selesai. **Agent tidak boleh `db push` sebelum ini selesai.**
 
-- [ ] **P2-01 · Inisialisasi Supabase CLI** `S` · butuh: P2-00
+- [x] **P2-01 · Inisialisasi Supabase CLI** `S` · butuh: P2-00
   - **Kerjakan:** `npx supabase init` (menghasilkan `supabase/config.toml`); jangan menimpa file yang sudah ada.
   - **Selesai jika:** `supabase/` ada; `npx supabase migration list` berjalan terhadap project tertaut.
 
@@ -2573,6 +2573,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: Pemilik mengerjakan **LANGKAH PEMILIK 1 (P2-00: setup project Supabase dev)** sesuai panduan Prompt 11 / §15 P2-00 sebelum melanjutkan ke Prompt 11 (P2-01).
 
+### [2026-10-22 20:00] — Gemini 3.8 Flash High — SELESAI
+- Task: P2-00 (Project Supabase dev), P2-01 (Inisialisasi Supabase CLI)
+- Ringkasan: Memverifikasi setup Supabase dev oleh pemilik (P2-00): file `.env.local` ada dan 4 variabel lingkungan (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`) terisi tanpa mengekspos nilainya; `npx supabase projects list` mengonfirmasi project `hairy-hijab-dev` (ref: `kwbvipxelphwbouwcsln`, region: `ap-southeast-1`, status: `ACTIVE_HEALTHY`) terhubung (`linked: true`). Mengeksekusi inisialisasi CLI (P2-01): `supabase/config.toml` ada tanpa menimpa konfigurasi; `npx supabase migration list` berhasil terhubung ke remote database. Gate G1 (`lint`, `typecheck`, `test` 8 file / 47 tes) LULUS.
+- File dibuat/diubah: `supabase/config.toml` (baru), `supabase/.gitignore` (baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes)
+- Commit: `chore(P2-01): inisialisasi supabase cli dan konfirmasi project dev`
+- Asumsi / keputusan baru: —
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P2-02** (Migration 0001 fondasi) dan **P2-03** (Migration 0002 identity) sesuai Prompt 12.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2594,8 +2604,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 07 | 1 | P1-01, P1-02 | 2 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | P1-01 di-commit di `ead0622`. P1-02: 17 komponen shadcn/ui di `components/ui/`, `radix-ui` terpasang. Rasio kontras teks utama & tombol utama 11.60:1 (lulus WCAG AA ≥ 4.5:1). Tes unit `ui-primitives` (Button & Input) ✔. Gate G1 (lint, typecheck, test 19 tes) ✔. |
 | 08 | 1 | P1-03 | 1 | DISETUJUI | 2026-10-21 | Gemini 3.8 Flash High | Layout toko: app/(store)/layout.tsx, AnnouncementBar, SiteHeader, MainNavigation, MobileNavigation (Sheet), SiteFooter, lib/mock/categories.ts (8 kategori §6.1). Tes unit layout lulus (23 tes total). Gate G1 & G2 LULUS. Disetujui via /1allclear pada prompt 09. |
 | 09 | 1 | P1-04 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Komponen presentasional (ProductCard, ProductGrid, CategoryCard, PriceDisplay, StockBadge, EmptyState, LoadingState, ErrorState). Formula diskon PriceDisplay integer lulus tes unit. Grid 2/3/4 kolom terverifikasi. Halaman visual di app/(store)/dev-preview. Gate G1 lulus (40 tes). Disetujui via /1allclear pada prompt 10. |
-| 10 | 1 | P1-05 | 2 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Beranda statis (HeroBanner, grid 8 kategori, Produk Terbaru mock, komitmen kualitas), not-found.tsx, error.tsx, hapus dev-preview. Gate G2 lulus (47 tes). Gerbang Fase 1 tuntas. |
-| 11 | 2 | P2-00, P2-01 | 0 | BELUM | | | |
+| 10 | 1 | P1-05 | 2 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Beranda statis (HeroBanner, grid 8 kategori, Produk Terbaru mock, komitmen kualitas), not-found.tsx, error.tsx, hapus dev-preview. Gate G2 lulus (47 tes). Gerbang Fase 1 tuntas. Disetujui via /1allclear pada prompt 11. |
+| 11 | 2 | P2-00, P2-01 | 1 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Verifikasi P2-00 (.env.local ada & 4 variabel Supabase/site terisi, project hairy-hijab-dev ter-link). P2-01: supabase/config.toml ada, migration list terhubung ke database dev. Gate G1 lulus. |
 | 12 | 2 | P2-02, P2-03 | 0 | BELUM | | | |
 | 13 | 2 | P2-04, P2-05 | 0 | BELUM | | | |
 | 14 | 2 | P2-06 | 0 | BELUM | | | |
