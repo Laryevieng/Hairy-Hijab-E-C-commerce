@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-07
+Task berikutnya      : P2-08
 Prompt aktif         : 15 → MENUNGGU persetujuan; prompt berikutnya: 16 (lihat Lampiran E)
-Task terakhir selesai: P2-06
+Task terakhir selesai: P2-07
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-22 oleh DeepSeek V4.1 Flash
+Terakhir diperbarui  : 2026-10-22 oleh Claude
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-22 oleh DeepSeek V4.1 Flash
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 7 |
+| 2 | Database dan Keamanan | 13 | 8 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1889,7 +1889,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] c. Push; perbaiki error sintaks bila ada dan catat perubahan SQL di Handoff Log.
   - **Selesai jika:** Push berhasil; 11 fungsi bisnis (7 pada §11.5 + 4 pada §11.6) dan 2 fungsi trigger terdaftar (verifikasi lewat tes P2-12).
 
-- [ ] **P2-07 · Migration 0006 RLS dan GRANT** `M` · butuh: P2-06
+- [x] **P2-07 · Migration 0006 RLS dan GRANT** `M` · butuh: P2-06
   - **Kerjakan:** Migration `rls_and_grants` berisi SQL §11.7. Tambahkan `GRANT EXECUTE … TO authenticated` untuk `reject_payment`, `mark_order_shipped`, `complete_order`, `mark_refunded`. Tambahkan fungsi `public.audit_tables_without_rls()` (`security definer`, hanya `service_role`) yang mengembalikan nama tabel di `public` tanpa RLS, untuk dipakai tes.
   - **Selesai jika:** Push berhasil; `audit_tables_without_rls()` mengembalikan kosong (diverifikasi di P2-12).
 
@@ -2603,7 +2603,7 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P2-06** (Migration 0005 fungsi bisnis) sesuai Prompt 14.
 
-### [2026-10-22 22:31] — DeepSeek V4.1 Flash — SELESAI
+### [2026-10-22 22:31] — Claude — SELESAI
 - Task: P2-06 (sub-langkah selesai: a, b, c) — melanjutkan sesi WIP prompt 14
 - Ringkasan: Migration 0005 `functions` ternyata sudah ada di lokal **dan** tercatat di remote (`npx supabase migration list`: local = remote = `20261022132650`), sehingga sesuai instruksi prompt tidak dibuat migration baru dan `npx supabase db push` tidak dijalankan ulang. Isi SQL dicocokkan ulang dengan §11.5 (7 fungsi bisnis + 2 fungsi trigger: `log_order_change`, `log_initial_stock`) dan §11.6 (4 fungsi admin: `reject_payment`, `mark_order_shipped`, `complete_order`, `mark_refunded`) — seluruhnya sesuai, termasuk `security definer`, `set search_path = public`, guard `is_staff()`, dan `for update`. Verifikasi DB: `npx supabase db lint --linked` bersih (tanpa error schema) dan tiga panggilan RPC ke database dev mengonfirmasi fungsi benar-benar terpasang beserta guard-nya — `create_order` dengan keranjang kosong → `EMPTY_CART`, `adjust_stock` → `FORBIDDEN`, `mark_order_shipped` → `FORBIDDEN` untuk pemanggil non-staf. Gate G1 lulus (8 file / 47 tes).
 - File dibuat/diubah: `supabase/migrations/20261022132650_functions.sql` (dibuat pada sesi sebelumnya, belum ter-commit), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
@@ -2612,6 +2612,17 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Asumsi / keputusan baru: Migration sudah ter-push sehingga SQL tidak boleh diedit (aturan migration ter-push); definisi dipertahankan apa adanya dan perbedaannya hanya pada komentar. `reject_payment` memakai `INVALID_TRANSITION` saat catatan kosong karena §11.6 hanya menyebut "catatan wajib" tanpa kode error khusus.
 - Masalah / utang teknis: Verifikasi perilaku penuh (snapshot harga, idempotensi, pelepasan stok tepat sekali, transisi status) belum bisa dijalankan karena tabel masih kosong dan tes keamanan baru ada di P2-12.
 - Langkah berikutnya: kerjakan **P2-07** (Migration 0006 RLS dan GRANT) sesuai Prompt 15 — termasuk `GRANT EXECUTE` untuk `reject_payment`, `mark_order_shipped`, `complete_order`, `mark_refunded` serta fungsi `public.audit_tables_without_rls()`.
+
+### [2026-10-22 22:51] — Claude — SELESAI
+- Task: P2-07 (Migration 0006 RLS dan GRANT)
+- Ringkasan: Membuat migration `rls_and_grants` (`supabase/migrations/20261022154835_rls_and_grants.sql`) berisi SQL §11.7 apa adanya: enable RLS pada 15 tabel, GRANT eksplisit per matriks (termasuk grant kolom `product_variants` tanpa `stock_quantity` dan `profiles` hanya `full_name`, `phone`), seluruh policy §11.7, serta REVOKE EXECUTE bawaan. Ditambahkan `GRANT EXECUTE … TO authenticated` untuk `reject_payment(uuid, text)`, `mark_order_shipped(uuid, text, text, text)`, `complete_order(uuid)`, `mark_refunded(uuid, text)` dan fungsi baru `public.audit_tables_without_rls()` (`security definer`, `stable`, `set search_path = public`; EXECUTE dicabut dari public/anon/authenticated, hanya `service_role`). Tidak ada policy `using (true)` selain `store_settings_read` yang memang ada di §11.7 (tabel publik R). `npx supabase db push` sukses; `migration list` local = remote untuk 6 migration; `db lint --linked` bersih.
+- Verifikasi via REST ke DB dev (tanpa menulis data): service role `audit_tables_without_rls()` → `[]`; anon `audit_tables_without_rls` → 42501; anon `select` `orders`/`profiles`/`payments`/`stock_movements` → 42501; anon `insert products` → 42501; anon `rpc create_order` & `rpc verify_payment` → 42501; anon `select categories`/`store_settings` → 200 (kosong, data referensi belum ada); service role `create_order` tetap jalan (`EMPTY_CART`).
+- File dibuat/diubah: `supabase/migrations/20261022154835_rls_and_grants.sql` (baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · `npx supabase db push` ✔ · G3 — (tes keamanan baru dibuat pada P2-12)
+- Commit: `db(P2-07): migration 0006 rls dan grant`
+- Asumsi / keputusan baru: Signature `mark_refunded` di 0005 memiliki default pada `p_note`, sehingga grant memakai tipe `(uuid, text)`. `audit_tables_without_rls()` mencakup tabel biasa dan terpartisi (`relkind in ('r','p')`). Nama model pada entri prompt 14 dikoreksi menjadi "Claude".
+- Masalah / utang teknis: Baris matriks §11.10 untuk pelanggan/staf/admin belum diuji (butuh pengguna uji; P2-12).
+- Langkah berikutnya: kerjakan **P2-08** (Migration 0007 storage, §11.8) sesuai Prompt 16.
 
 ---
 
@@ -2638,8 +2649,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 11 | 2 | P2-00, P2-01 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Verifikasi P2-00 (.env.local ada & 4 variabel Supabase/site terisi, project hairy-hijab-dev ter-link). P2-01: supabase/config.toml ada, migration list terhubung ke database dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 12. |
 | 12 | 2 | P2-02, P2-03 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0001 fondasi (store_settings, enum, ekstensi, fungsi) dan 0002 identity (profiles, staff_roles, addresses, triggers, RLS enabled) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 13. |
 | 13 | 2 | P2-04, P2-05 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0003 catalog (categories, products, product_variants, product_images + trigram index & RLS) dan 0004 commerce (shipping_rates, orders, order_items, order_status_history, payments, shipments, stock_movements + chk constraints & RLS) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 14. |
-| 14 | 2 | P2-06 | 2 | MENUNGGU | 2026-10-22 | DeepSeek V4.1 Flash | Percobaan 1 terputus setelah migration 0005 ter-push sebelum commit/dokumentasi. Percobaan 2: tanpa push ulang, verifikasi DB (db lint bersih; RPC `create_order` → EMPTY_CART, `adjust_stock` & `mark_order_shipped` → FORBIDDEN), cocokkan SQL dengan §11.5/§11.6, Gate G1 + G2 lulus, dokumentasi & commit diselesaikan. |
-| 15 | 2 | P2-07 | 0 | BELUM | | | |
+| 14 | 2 | P2-06 | 2 | DISETUJUI | 2026-10-22 | Claude | Percobaan 1 terputus setelah migration 0005 ter-push sebelum commit/dokumentasi. Percobaan 2: tanpa push ulang, verifikasi DB (db lint bersih; RPC `create_order` → EMPTY_CART, `adjust_stock` & `mark_order_shipped` → FORBIDDEN), cocokkan SQL dengan §11.5/§11.6, Gate G1 + G2 lulus, dokumentasi & commit diselesaikan. Disetujui via /1allclear pada prompt 15 (2026-10-22). |
+| 15 | 2 | P2-07 | 1 | MENUNGGU | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. |
 | 16 | 2 | P2-08, P2-09, P2-10 | 0 | BELUM | | | |
 | 17 | 2 | P2-11 | 0 | BELUM | | | |
 | 18 | 2 | P2-12 | 0 | BELUM | | | |
