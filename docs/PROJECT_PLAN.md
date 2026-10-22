@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-04
-Prompt aktif         : 12 → MENUNGGU persetujuan; prompt berikutnya: 13 (lihat Lampiran E)
-Task terakhir selesai: P2-03
+Task berikutnya      : P2-06
+Prompt aktif         : 13 → MENUNGGU persetujuan; prompt berikutnya: 14 (lihat Lampiran E)
+Task terakhir selesai: P2-05
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-22 oleh Gemini 3.8 Flash High
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 4 |
+| 2 | Database dan Keamanan | 13 | 6 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1874,11 +1874,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Migration `identity` berisi SQL §11.4 (0002). Tambahkan `alter table … enable row level security;` segera setelah setiap `create table` (sabuk pengaman; idempoten dengan 0006). Push.
   - **Selesai jika:** Push berhasil; trigger `on_auth_user_created` ada.
 
-- [ ] **P2-04 · Migration 0003 catalog** `S` · butuh: P2-03
+- [x] **P2-04 · Migration 0003 catalog** `S` · butuh: P2-03
   - **Kerjakan:** Migration `catalog` berisi SQL §11.4 (0003) + `enable row level security` per tabel. Push.
   - **Selesai jika:** Push berhasil; constraint dan indeks (termasuk trigram) ada.
 
-- [ ] **P2-05 · Migration 0004 commerce** `M` · butuh: P2-04
+- [x] **P2-05 · Migration 0004 commerce** `M` · butuh: P2-04
   - **Kerjakan:** Migration `commerce` berisi SQL §11.4 (0004) + `enable row level security` per tabel. Push.
   - **Selesai jika:** Push berhasil; `chk_order_total` dan `chk_line_total` ada.
 
@@ -2593,6 +2593,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: —
 - Langkah berikutnya: kerjakan **P2-04** (Migration 0003 catalog) dan **P2-05** (Migration 0004 commerce) sesuai Prompt 13.
 
+### [2026-10-22 20:30] — Gemini 3.8 Flash High — SELESAI
+- Task: P2-04 (Migration 0003 catalog), P2-05 (Migration 0004 commerce)
+- Ringkasan: Membuat migration `catalog` (`supabase/migrations/*_catalog.sql`) berisi tabel `categories`, `products` (dengan indeks `idx_products_category`, `idx_products_active_created`, dan indeks trigram GIN `idx_products_name_trgm`), `product_variants` (dengan constraint `uq_variant_combo` UNIQUE NULLS NOT DISTINCT, check regex color hex, check compare_at_price > price, check stock_quantity >= 0), dan `product_images` (dengan indeks `idx_images_product`), seluruh tabel diaktifkan RLS sebagai sabuk pengaman. Berhasil di-push ke remote DB dev via `npx supabase db push`. Selanjutnya membuat migration `commerce` (`supabase/migrations/*_commerce.sql`) berisi tabel `shipping_rates`, `orders` (dengan constraint `chk_order_total`, indeks status, user, dan partial index expiry), `order_items` (dengan constraint `chk_line_total`), `order_status_history`, `payments` (dengan indeks parsial unik idempotensi provider `uq_payments_provider_ref`), `shipments`, dan `stock_movements` (dengan check delta <> 0 dan stock_after >= 0), seluruh tabel diaktifkan RLS. Berhasil di-push ke Supabase dev. `npx supabase migration list` mengonfirmasi 4 file migrasi tersinkronisasi di lokal dan remote.
+- File dibuat/diubah: `supabase/migrations/20261022131215_catalog.sql` (baru), `supabase/migrations/20261022131251_commerce.sql` (baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes) · `npx supabase db push` ✔
+- Commit: `db(P2-04, P2-05): migration 0003 catalog dan 0004 commerce`
+- Asumsi / keputusan baru: Sesuai aturan keamanan §11.4 dan prompt 13, RLS diaktifkan pada semua tabel catalog dan commerce (`alter table ... enable row level security;`).
+- Masalah / utang teknis: —
+- Langkah berikutnya: kerjakan **P2-06** (Migration 0005 fungsi bisnis) sesuai Prompt 14.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2616,9 +2626,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 09 | 1 | P1-04 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Komponen presentasional (ProductCard, ProductGrid, CategoryCard, PriceDisplay, StockBadge, EmptyState, LoadingState, ErrorState). Formula diskon PriceDisplay integer lulus tes unit. Grid 2/3/4 kolom terverifikasi. Halaman visual di app/(store)/dev-preview. Gate G1 lulus (40 tes). Disetujui via /1allclear pada prompt 10. |
 | 10 | 1 | P1-05 | 2 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Beranda statis (HeroBanner, grid 8 kategori, Produk Terbaru mock, komitmen kualitas), not-found.tsx, error.tsx, hapus dev-preview. Gate G2 lulus (47 tes). Gerbang Fase 1 tuntas. Disetujui via /1allclear pada prompt 11. |
 | 11 | 2 | P2-00, P2-01 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Verifikasi P2-00 (.env.local ada & 4 variabel Supabase/site terisi, project hairy-hijab-dev ter-link). P2-01: supabase/config.toml ada, migration list terhubung ke database dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 12. |
-| 12 | 2 | P2-02, P2-03 | 1 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Migration 0001 fondasi (store_settings, enum, ekstensi, fungsi) dan 0002 identity (profiles, staff_roles, addresses, triggers, RLS enabled) berhasil di-push ke Supabase dev. Gate G1 lulus. |
-| 13 | 2 | P2-04, P2-05 | 0 | BELUM | | | |
-| 13 | 2 | P2-04, P2-05 | 0 | BELUM | | | |
+| 12 | 2 | P2-02, P2-03 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0001 fondasi (store_settings, enum, ekstensi, fungsi) dan 0002 identity (profiles, staff_roles, addresses, triggers, RLS enabled) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 13. |
+| 13 | 2 | P2-04, P2-05 | 1 | MENUNGGU | 2026-10-22 | Gemini 3.8 Flash High | Migration 0003 catalog (categories, products, product_variants, product_images + trigram index & RLS) dan 0004 commerce (shipping_rates, orders, order_items, order_status_history, payments, shipments, stock_movements + chk constraints & RLS) berhasil di-push ke Supabase dev. Gate G1 lulus. |
 | 14 | 2 | P2-06 | 0 | BELUM | | | |
 | 15 | 2 | P2-07 | 0 | BELUM | | | |
 | 16 | 2 | P2-08, P2-09, P2-10 | 0 | BELUM | | | |
