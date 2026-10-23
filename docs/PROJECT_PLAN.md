@@ -1912,7 +1912,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 - [ ] **P2-12 · Tes keamanan database** `L` · butuh: P2-11, P0-08
   - **Kerjakan:**
     - [x] a. `tests/security/helpers.ts`: klien `anon`, `service`, serta pembuatan pengguna uji (pelanggan A, pelanggan B, staf, admin) lewat `auth.admin.createUser`, pemberian `staff_roles` lewat service, login untuk memperoleh klien terautentikasi, dan **pembersihan** semua data uji (prefiks `rls-test`).
-    - [ ] b. Tes baris matriks §11.10 untuk anon, pelanggan, staf, admin.
+    - [x] b. Tes baris matriks §11.10 untuk anon, pelanggan, staf, admin.
     - [ ] c. Tes `create_order` (validasi, snapshot harga, ongkir, idempotensi), `expire_unpaid_orders`, `cancel_order` (stok kembali sekali), dan `audit_tables_without_rls()` kosong.
   - **Selesai jika:** `npm run test:rls` hijau; semua baris §11.10 tercakup; tes tidak meninggalkan data; hasil ringkas ditempel di Handoff Log.
 
