@@ -1,5 +1,6 @@
 import 'server-only'
 import { notFound, redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/database.types'
 
@@ -12,6 +13,9 @@ export interface CurrentUser {
 
 /** Identitas dari JWT yang sudah diverifikasi `getClaims()`; jangan pakai `getSession()` di server. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
+  // getClaims() memeriksa masa berlaku token dengan Date.now(); tunda ke permintaan nyata
+  // agar tidak dievaluasi saat Next melakukan prerender shell (Cache Components).
+  await connection()
   const supabase = await createClient()
   const { data, error } = await supabase.auth.getClaims()
   if (error || !data?.claims) return null
