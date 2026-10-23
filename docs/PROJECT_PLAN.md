@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 3 — Autentikasi dan Akun
-Task berikutnya      : P3-03
-Prompt aktif         : 20 (lihat Lampiran E)
-Task terakhir selesai: P3-02
+Task berikutnya      : P3-04
+Prompt aktif         : 21 (lihat Lampiran E)
+Task terakhir selesai: P3-03
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
@@ -160,7 +160,7 @@ Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
-| 3 | Autentikasi dan Akun | 5 | 2 |
+| 3 | Autentikasi dan Akun | 5 | 3 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
@@ -1930,7 +1930,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `lib/auth/guards.ts` (§10.6); `lib/errors.ts` dengan `mapDbError(error)` yang menerjemahkan awalan pesan dan SQLSTATE sesuai §9.6 menjadi `{ code, message }`.
   - **Selesai jika:** Tes unit `mapDbError` untuk setiap kode di §9.6 lulus; guard lolos typecheck.
 
-- [ ] **P3-03 · Halaman autentikasi** `L` · butuh: P3-02
+- [x] **P3-03 · Halaman autentikasi** `L` · butuh: P3-02
   - **Kerjakan:**
     - [x] a. `lib/validations/auth.ts` (daftar: nama, email, kata sandi ≥ 8 karakter; masuk; lupa; reset).
     - [x] b. `actions/auth.actions.ts`: `signUp` (dengan `full_name` dan `emailRedirectTo` ke `/auth/callback`), `signIn`, `signOut`, `requestPasswordReset`, `updatePassword`. Pesan lupa kata sandi bersifat generik (tidak membocorkan apakah email terdaftar).
@@ -2697,6 +2697,19 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: `tests/security/helpers.ts` masih membuat klien service sendiri. Ini diizinkan §10.5 (`tests/**`) dan tidak diubah karena di luar scope.
 - Langkah berikutnya: kerjakan **P3-03** sub-langkah a (`lib/validations/auth.ts`) sesuai Prompt 20.
 
+### [2026-10-24 00:28] — Claude Opus 5.5 (Thinking) — SELESAI
+- Task: P3-03 (sub-langkah a, b, c, d); Prompt 20 percobaan 1. Prompt 19 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) `lib/validations/auth.ts`: `registerSchema` (nama 2–100, email di-trim/lowercase, kata sandi 8–72), `loginSchema` (kata sandi hanya wajib terisi), `forgotPasswordSchema`, `resetPasswordSchema` (konfirmasi harus sama). (b) `actions/auth.actions.ts` (`'use server'`, urutan validasi Zod → Supabase → hasil `ActionResult`): `signUp` (`full_name` di `options.data`, `emailRedirectTo` = `/auth/callback?next=/account` dari `NEXT_PUBLIC_SITE_URL`), `signIn` (redirect ke `safeNextPath(next)`), `signOut` (scope `local`), `requestPasswordReset` (selalu pesan generik yang sama, error hanya dicatat kodenya), `updatePassword` (wajib sesi lewat `getClaims()`). Kode error Supabase Auth dipetakan ke pesan Indonesia, tanpa data pribadi di log. `lib/auth/next-path.ts` `safeNextPath`: hanya string diawali `/`, bukan `//`, tanpa backslash/karakter kontrol, origin tetap sama setelah parse URL, maksimal 2048 karakter; selain itu `/account`. (c) Grup `(auth)` dengan layout toko + `Toaster`; halaman `/login` (pesan `?error=link_invalid` dari daftar tetap, state "sudah masuk" + tombol Keluar), `/register`, `/forgot-password`, `/reset-password` (tanpa sesi pemulihan → pesan tautan kedaluwarsa). Form RHF + `zodResolver`, komponen `components/ui/form` (label terhubung, `aria-invalid`, `aria-describedby`), `fieldErrors` server diterapkan dengan fokus ke field pertama, tombol submit nonaktif + "Memproses…", toast `sonner` + teks `role=alert/status`. (d) `app/auth/callback/route.ts`: `exchangeCodeForSession(code)` (PKCE bawaan `@supabase/ssr`) atau `verifyOtp({ token_hash, type })` (template email kustom), `next` lewat `safeNextPath`, gagal → `/login?error=link_invalid`, header `Cache-Control: private, no-store`.
+- Verifikasi otomatis: tes unit baru `auth-validation` (11), `next-path` (24: `//evil.com`, `https://evil.com`, `/\evil`, `/\t/evil.com`, `javascript:`, dll.), `auth-callback` (10, Supabase di-mock).
+- Verifikasi browser (Playwright sementara terhadap `next start` port 3100 + project Supabase dev nyata; file uji, config, dan `test-results/` dihapus setelahnya; pengguna `rls-test-*` dihapus, total pengguna dev = 0): 6/6 lulus. (1) Tautan konfirmasi daftar (`generateLink` signup → `/auth/callback?token_hash=…&type=signup`) → `/account`, `profiles.full_name` terisi. (2) Kata sandi salah → "Email atau kata sandi salah."; masuk dengan `next=//evil.com` → `/account`; `/login` saat sudah masuk menampilkan status + Keluar; Keluar → `/`; `/account` kembali dialihkan ke `/login?next=%2Faccount`; masuk dengan `next=/admin` → `/admin`. (3) Submit kosong → `aria-invalid`, fokus ke "Nama lengkap", pesan minimal 8 karakter. (4) Lupa kata sandi untuk email tidak terdaftar → pesan generik. (5) Tautan pemulihan → `/reset-password` → sandi baru disimpan → sandi lama ditolak, sandi baru berhasil. (6) `code` palsu → `/login?error=link_invalid` dengan pesan.
+- Perbaikan selama verifikasi: log server menampilkan error prerender "unstable value `Date.now()`" pada `/login` dan `/reset-password` (berasal dari `getClaims()` saat Cache Components melakukan prerender shell). `getCurrentUser()` di `lib/auth/guards.ts` kini memanggil `await connection()` (docs `connection.md` Next 16.4.2) sebelum membuat klien; error hilang pada run berikutnya.
+- File dibuat/diubah: `lib/validations/auth.ts`, `lib/auth/next-path.ts`, `actions/auth.actions.ts`, `app/(auth)/{layout,login/page,register/page,forgot-password/page,reset-password/page}.tsx`, `app/auth/callback/route.ts`, `components/auth/{auth-card,form-parts,login-form,register-form,forgot-password-form,reset-password-form,sign-out-button}.tsx`, `components/auth/index.ts`, `tests/unit/{auth-validation,next-path,auth-callback}.test.ts` (baru); `lib/auth/guards.ts`, `docs/PROJECT_PLAN.md` (diubah).
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 12 file / 111 tes · `npm run build` ✔: `/login` dan `/reset-password` Partial Prerender, `/auth/callback` dinamis, Proxy aktif).
+- Commit: `feat(P3-03a): skema validasi autentikasi`, `feat(P3-03b): server action autentikasi dan validasi parameter next`, `feat(P3-03c): halaman login, daftar, lupa dan atur ulang kata sandi`, `feat(P3-03d): route callback auth dengan validasi next`, `fix(P3-03): tunda getClaims ke waktu permintaan pada guard`.
+- Asumsi / keputusan baru: Konfirmasi email di project dev aktif (`mailer_autoconfirm: false`, dicek lewat `/auth/v1/settings`), jadi alur daftar menampilkan "periksa email". Batas atas kata sandi 72 karakter (batas bcrypt Supabase). Callback menerima `code` dan `token_hash` karena template email bawaan memakai alur PKCE `code`, sedangkan dokumentasi Supabase menyarankan `token_hash` untuk template kustom (P11-03). `/account` belum ada (dibuat P3-04), jadi setelah masuk pengguna melihat 404 sementara. Toaster dipasang di layout `(auth)` saja, belum di root layout (di luar scope).
+- Masalah / utang teknis: Email bawaan Supabase dibatasi 2 email/jam, jadi verifikasi memakai `auth.admin.generateLink` (tidak mengirim email). Uji end-to-end dengan email sungguhan perlu dilakukan pemilik. `tests/e2e` belum memuat tes auth permanen (dijadwalkan P10-04).
+- Langkah berikutnya: kerjakan **P3-04** (`app/account/layout.tsx` dengan `requireUser()`, `/account`, `/account/profile`, `/account/addresses`) sesuai Prompt 21.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2728,7 +2741,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 17 | 2 | P2-11 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `types/database.types.ts` dibuat via `npm run db:types` (15 tabel, 16 fungsi, 6 enum, `Constants`). `next.config.ts`: `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` dengan path `/storage/v1/object/public/**` (protokol/port/query dikunci) dan `experimental.serverActions.bodySizeLimit: '4mb'` (lokasi opsi sesuai docs Next 16.4.2). Konfigurasi terkonfirmasi di `.next/required-server-files.json`. G2 lulus. |
 | 18 | 2 | P2-12 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
 | 19 | 3 | P3-01, P3-02 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | P3-01: `lib/supabase/{client,server,public,admin,proxy}.ts` + `proxy.ts` (Next 16, bukan middleware) sesuai docs Supabase SSR untuk `@supabase/ssr` 0.12.7 (`getAll`/`setAll` + header cache, `getClaims()`). Build lulus dengan "Proxy (Middleware)"; `curl -I /admin` tanpa cookie → 307 `/login?next=%2Fadmin`; `admin.ts` diawali `import 'server-only'`, belum diimpor file mana pun. P3-02: `lib/auth/guards.ts` (getCurrentUser/requireUser/requireStaff/requireAdmin) dan `lib/errors.ts` `mapDbError` + 19 tes unit (9 kode §9.6, awalan `:`, 23505 idempotency_key). G1 lulus (66 tes). |
-| 20 | 3 | P3-03 | 0 | BELUM | | | |
+| 20 | 3 | P3-03 | 1 | MENUNGGU | 2026-10-24 | Claude Opus 5.5 (Thinking) | (a) skema Zod auth + 11 tes; (b) `actions/auth.actions.ts` (signUp/signIn/signOut/requestPasswordReset/updatePassword, pesan reset generik) + `lib/auth/next-path.ts` `safeNextPath` + 24 tes (tolak `//evil.com`, `https://evil.com`, `/\evil`, karakter kontrol); (c) `/login`, `/register`, `/forgot-password`, `/reset-password` (RHF + Zod, aria-invalid, fokus error pertama, toast + teks status); (d) `/auth/callback` (`code` PKCE dan `token_hash`) + 10 tes. Verifikasi browser sementara (Playwright, port 3100, 6/6 lulus, data uji dihapus): daftar→konfirmasi→`/account`, masuk, `next` berbahaya diabaikan, keluar, reset kata sandi end-to-end. Perbaikan: `getCurrentUser` memanggil `connection()` (error prerender `Date.now()`). G2 lulus (111 tes). |
 | 21 | 3 | P3-04 | 0 | BELUM | | | |
 | 22 | 4 | P3-05, P4-01 | 0 | BELUM | | | |
 | 23 | 4 | P4-02 | 0 | BELUM | | | |
