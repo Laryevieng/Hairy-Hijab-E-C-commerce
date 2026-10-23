@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-11
-Prompt aktif         : 17 (lihat Lampiran E)
-Task terakhir selesai: P2-10
+Task berikutnya      : P2-12
+Prompt aktif         : 18 (lihat Lampiran E)
+Task terakhir selesai: P2-11
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-22 oleh GPT
+Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-22 oleh GPT
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 11 |
+| 2 | Database dan Keamanan | 13 | 12 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1905,7 +1905,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Migration `reference_data` (§11.9: 8 kategori, `store_settings`, tarif default). Buat `supabase/dev/sample_products.sql` **[DEV ONLY]** berisi 4–6 produk contoh (lintas kategori, dengan varian, harga, stok, satu produk berharga coret, satu varian stok 0), dijalankan manual di project dev.
   - **Selesai jika:** 8 kategori ada; `store_settings` punya satu baris; contoh produk muncul di dev; tarif default ditandai `TODO(owner)`.
 
-- [ ] **P2-11 · Tipe dan konfigurasi Next.js** `S` · butuh: P2-10
+- [x] **P2-11 · Tipe dan konfigurasi Next.js** `S` · butuh: P2-10
   - **Kerjakan:** `npm run db:types` → `types/database.types.ts`. Di `next.config.ts` tambahkan `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` (path `/storage/v1/object/public/**`) dan `bodySizeLimit` Server Actions `4mb` (sesuai dokumentasi versi terpasang).
   - **Selesai jika:** `npm run typecheck` dan `npm run build` lulus dengan tipe `Database`.
 
@@ -2664,6 +2664,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: `npx supabase migration list` gagal autentikasi temp-role setelah push sukses, dan query agregat sempat timeout. Verifikasi query individual serta hasil `db push` berhasil memastikan kriteria.
 - Langkah berikutnya: kerjakan P2-11 (tipe database dan konfigurasi Next.js) sesuai Prompt 17.
 
+### [2026-10-23 21:58] — Claude Opus 5.5 (Thinking) — SELESAI
+- Task: P2-11 (Tipe dan konfigurasi Next.js); Prompt 17 percobaan 1. Prompt 16 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: `npm run db:types` menghasilkan `types/database.types.ts` (973 baris; tipe `Database` dengan 15 tabel `public`, 16 fungsi termasuk `create_order`/`verify_payment`/`audit_tables_without_rls`, 6 enum, helper `Tables`/`TablesInsert`/`TablesUpdate`/`Enums`, dan `Constants`). Pesan update CLI hanya keluar di stderr, file bersih. `next.config.ts`: `images.remotePatterns` diturunkan dari `NEXT_PUBLIC_SUPABASE_URL` lewat `getPublicEnv()` (`lib/env.ts`, validasi Zod) dengan `pathname: '/storage/v1/object/public/**'`, protokol/port mengikuti URL, `search: ''`; `experimental.serverActions.bodySizeLimit: '4mb'`. Lokasi opsi dicocokkan dengan `node_modules/next/dist/docs/.../serverActions.md`, `image.md#remotepatterns`, dan `config-shared.d.ts` (Next 16.4.2: `serverActions` masih di bawah `experimental`). Hasil build: `.next/required-server-files.json` memuat pola host project dev dan `bodySizeLimit: "4mb"`.
+- File dibuat/diubah: `types/database.types.ts` (baru), `next.config.ts`, `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes · `npm run build` ✔ exit 0)
+- Commit: `chore(P2-11): tipe database dan konfigurasi next`
+- Asumsi / keputusan baru: `next.config.ts` membaca env lewat `lib/env.ts` (aturan §10.3) — aman karena `loadEnvConfig` Next berjalan sebelum config dievaluasi. Akibatnya build gagal cepat bila `NEXT_PUBLIC_SUPABASE_URL` tidak di-set (perlu diisi di env Vercel pada P11). Tipe `Database` belum dipakai klien Supabase; itu bagian P3-01.
+- Masalah / utang teknis: Supabase CLI v2.121.0 memberi notifikasi versi baru v2.122.0; tidak di-upgrade (di luar scope).
+- Langkah berikutnya: kerjakan **P2-12** (tes keamanan database: `tests/security/helpers.ts`, matriks §11.10, tes `create_order`/`expire_unpaid_orders`/`cancel_order`) sesuai Prompt 18.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2691,8 +2701,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 13 | 2 | P2-04, P2-05 | 1 | DISETUJUI | 2026-10-22 | Gemini 3.8 Flash High | Migration 0003 catalog (categories, products, product_variants, product_images + trigram index & RLS) dan 0004 commerce (shipping_rates, orders, order_items, order_status_history, payments, shipments, stock_movements + chk constraints & RLS) berhasil di-push ke Supabase dev. Gate G1 lulus. Disetujui via /1allclear pada prompt 14. |
 | 14 | 2 | P2-06 | 2 | DISETUJUI | 2026-10-22 | Claude | Percobaan 1 terputus setelah migration 0005 ter-push sebelum commit/dokumentasi. Percobaan 2: tanpa push ulang, verifikasi DB (db lint bersih; RPC `create_order` → EMPTY_CART, `adjust_stock` & `mark_order_shipped` → FORBIDDEN), cocokkan SQL dengan §11.5/§11.6, Gate G1 + G2 lulus, dokumentasi & commit diselesaikan. Disetujui via /1allclear pada prompt 15 (2026-10-22). |
 | 15 | 2 | P2-07 | 1 | DISETUJUI | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. Disetujui via `/1allclear` pada prompt 16 (2026-10-22). |
-| 16 | 2 | P2-08, P2-09, P2-10 | 1 | MENUNGGU | 2026-10-22 | GPT | Storage bucket publik/privat dengan batas MIME/ukuran valid; pg_cron job `expire-unpaid-orders` tiap 15 menit; migration referensi 8 kategori, store_settings, tarif default TODO(owner). Data contoh dev manual: 5 produk/6 varian, termasuk harga coret dan stok 0. G1 + build + db push lulus. `migration list` mengalami gagal autentikasi temp-role sesudah push; seluruh kriteria task diverifikasi langsung. |
-| 17 | 2 | P2-11 | 0 | BELUM | | | |
+| 16 | 2 | P2-08, P2-09, P2-10 | 1 | DISETUJUI | 2026-10-22 | GPT | Storage bucket publik/privat dengan batas MIME/ukuran valid; pg_cron job `expire-unpaid-orders` tiap 15 menit; migration referensi 8 kategori, store_settings, tarif default TODO(owner). Data contoh dev manual: 5 produk/6 varian, termasuk harga coret dan stok 0. G1 + build + db push lulus. `migration list` mengalami gagal autentikasi temp-role sesudah push; seluruh kriteria task diverifikasi langsung. Disetujui via `/1allclear` pada prompt 17 (2026-10-23). |
+| 17 | 2 | P2-11 | 1 | MENUNGGU | 2026-10-23 | Claude Opus 5.5 (Thinking) | `types/database.types.ts` dibuat via `npm run db:types` (15 tabel, 16 fungsi, 6 enum, `Constants`). `next.config.ts`: `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` dengan path `/storage/v1/object/public/**` (protokol/port/query dikunci) dan `experimental.serverActions.bodySizeLimit: '4mb'` (lokasi opsi sesuai docs Next 16.4.2). Konfigurasi terkonfirmasi di `.next/required-server-files.json`. G2 lulus. |
 | 18 | 2 | P2-12 | 0 | BELUM | | | |
 | 19 | 3 | P3-01, P3-02 | 0 | BELUM | | | |
 | 20 | 3 | P3-03 | 0 | BELUM | | | |
