@@ -1933,7 +1933,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 - [ ] **P3-03 · Halaman autentikasi** `L` · butuh: P3-02
   - **Kerjakan:**
     - [x] a. `lib/validations/auth.ts` (daftar: nama, email, kata sandi ≥ 8 karakter; masuk; lupa; reset).
-    - [ ] b. `actions/auth.actions.ts`: `signUp` (dengan `full_name` dan `emailRedirectTo` ke `/auth/callback`), `signIn`, `signOut`, `requestPasswordReset`, `updatePassword`. Pesan lupa kata sandi bersifat generik (tidak membocorkan apakah email terdaftar).
+    - [x] b. `actions/auth.actions.ts`: `signUp` (dengan `full_name` dan `emailRedirectTo` ke `/auth/callback`), `signIn`, `signOut`, `requestPasswordReset`, `updatePassword`. Pesan lupa kata sandi bersifat generik (tidak membocorkan apakah email terdaftar).
     - [ ] c. Halaman `/login`, `/register`, `/forgot-password`, `/reset-password` (form RHF + Zod, a11y §12.5).
     - [ ] d. `app/auth/callback/route.ts`: tukar kode/token menjadi sesi sesuai dokumentasi; parameter `next` **hanya** path relatif yang diawali `/` dan bukan `//` (selain itu abaikan, default `/account`).
   - **Selesai jika:** Daftar → konfirmasi email (bila aktif) → masuk → `/account`; keluar; reset kata sandi berjalan; tes unit untuk validasi `next` (menolak `//evil.com`, `https://evil.com`, `/\evil`); G2 lulus.
