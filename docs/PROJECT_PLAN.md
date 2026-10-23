@@ -1922,7 +1922,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 
 ### Fase 3 — Autentikasi dan Akun
 
-- [ ] **P3-01 · Klien Supabase dan proxy** `M` · butuh: P2-11
+- [x] **P3-01 · Klien Supabase dan proxy** `M` · butuh: P2-11
   - **Kerjakan:** `lib/supabase/{client,server,public,admin,proxy}.ts` dan `proxy.ts` di root sesuai §10.5–10.6 (jika Next.js < 16 gunakan `middleware.ts` dan catat). Cocokkan dengan dokumentasi Supabase SSR untuk versi `@supabase/ssr` terpasang.
   - **Selesai jika:** Build lulus; `curl -I http://localhost:3000/admin` tanpa cookie menghasilkan redirect ke `/login?next=/admin`; `lib/supabase/admin.ts` diawali `import 'server-only'`.
 
@@ -2715,7 +2715,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 15 | 2 | P2-07 | 1 | DISETUJUI | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. Disetujui via `/1allclear` pada prompt 16 (2026-10-22). |
 | 16 | 2 | P2-08, P2-09, P2-10 | 1 | DISETUJUI | 2026-10-22 | GPT | Storage bucket publik/privat dengan batas MIME/ukuran valid; pg_cron job `expire-unpaid-orders` tiap 15 menit; migration referensi 8 kategori, store_settings, tarif default TODO(owner). Data contoh dev manual: 5 produk/6 varian, termasuk harga coret dan stok 0. G1 + build + db push lulus. `migration list` mengalami gagal autentikasi temp-role sesudah push; seluruh kriteria task diverifikasi langsung. Disetujui via `/1allclear` pada prompt 17 (2026-10-23). |
 | 17 | 2 | P2-11 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `types/database.types.ts` dibuat via `npm run db:types` (15 tabel, 16 fungsi, 6 enum, `Constants`). `next.config.ts`: `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` dengan path `/storage/v1/object/public/**` (protokol/port/query dikunci) dan `experimental.serverActions.bodySizeLimit: '4mb'` (lokasi opsi sesuai docs Next 16.4.2). Konfigurasi terkonfirmasi di `.next/required-server-files.json`. G2 lulus. |
-| 18 | 2 | P2-12 | 1 | MENUNGGU | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
+| 18 | 2 | P2-12 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
 | 19 | 3 | P3-01, P3-02 | 0 | BELUM | | | |
 | 20 | 3 | P3-03 | 0 | BELUM | | | |
 | 21 | 3 | P3-04 | 0 | BELUM | | | |
