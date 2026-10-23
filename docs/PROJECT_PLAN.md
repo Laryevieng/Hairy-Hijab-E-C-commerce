@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 3 — Autentikasi dan Akun
-Task berikutnya      : P3-01
-Prompt aktif         : 19 (lihat Lampiran E)
-Task terakhir selesai: P2-12 (Gerbang Fase 2 lulus: G2 + G3; tag v0.2.0)
+Task berikutnya      : P3-03
+Prompt aktif         : 20 (lihat Lampiran E)
+Task terakhir selesai: P3-02
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
@@ -160,7 +160,7 @@ Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
-| 3 | Autentikasi dan Akun | 5 | 0 |
+| 3 | Autentikasi dan Akun | 5 | 2 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
@@ -1926,7 +1926,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `lib/supabase/{client,server,public,admin,proxy}.ts` dan `proxy.ts` di root sesuai §10.5–10.6 (jika Next.js < 16 gunakan `middleware.ts` dan catat). Cocokkan dengan dokumentasi Supabase SSR untuk versi `@supabase/ssr` terpasang.
   - **Selesai jika:** Build lulus; `curl -I http://localhost:3000/admin` tanpa cookie menghasilkan redirect ke `/login?next=/admin`; `lib/supabase/admin.ts` diawali `import 'server-only'`.
 
-- [ ] **P3-02 · Guard dan pemetaan error** `M` · butuh: P3-01
+- [x] **P3-02 · Guard dan pemetaan error** `M` · butuh: P3-01
   - **Kerjakan:** `lib/auth/guards.ts` (§10.6); `lib/errors.ts` dengan `mapDbError(error)` yang menerjemahkan awalan pesan dan SQLSTATE sesuai §9.6 menjadi `{ code, message }`.
   - **Selesai jika:** Tes unit `mapDbError` untuk setiap kode di §9.6 lulus; guard lolos typecheck.
 
@@ -2686,6 +2686,17 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Vite memberi peringatan `configLoader: 'native'` untuk `vitest.rls.config.ts` (ESM di package tanpa `"type": "module"`); hanya peringatan, tidak memengaruhi hasil. `tests/security` menulis ke DB dev; jangan diarahkan ke produksi.
 - Langkah berikutnya: kerjakan **P3-01** (klien Supabase `lib/supabase/{client,server,public,admin,proxy}.ts` dan `proxy.ts`) dan **P3-02** sesuai Prompt 19.
 
+### [2026-10-23 23:28] — Claude Opus 5.5 (Thinking) — SELESAI
+- Task: P3-01 (Klien Supabase dan proxy), P3-02 (Guard dan pemetaan error); Prompt 19 percobaan 1. Prompt 18 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: P3-01 — Next.js terpasang 16.4.2, jadi dipakai `proxy.ts` (export `proxy`), bukan `middleware.ts`. Kode dicocokkan dengan `node_modules/next/dist/docs/.../proxy.md`, tipe `@supabase/ssr` 0.12.7, dan panduan resmi Supabase "Creating a client" (Next.js). `lib/supabase/server.ts` (`server-only`, `await cookies()`, `setAll` dalam try/catch), `client.ts` (`createBrowserClient`), `public.ts` (tanpa cookie, untuk katalog yang di-cache), `admin.ts` (`import 'server-only'` di baris 1, secret key lewat `serverEnv()`, `persistSession: false`), `proxy.ts` (`updateSession`: `getClaims()` langsung setelah `createServerClient`, header cache `setAll` diteruskan ke respons, redirect tamu dari `/account` dan `/admin` dengan cookie dan header cache tetap terbawa). Semua klien bertipe `Database`. P3-02 — `lib/auth/guards.ts` (`server-only`): `getCurrentUser` lewat `getClaims()`, `requireUser` → `redirect('/login')`, `requireStaff` membaca `staff_roles` milik sendiri lewat klien sesi (RLS) → `notFound()`, `requireAdmin` → `notFound()` bila bukan admin. `lib/errors.ts`: `mapDbError` memetakan awalan sebelum `:` ke 9 pesan §9.6, SQLSTATE 23505 pada `idempotency_key` → `IDEMPOTENCY_CONFLICT` "Coba lagi.", selain itu `UNKNOWN` dengan pesan umum (detail teknis tidak diteruskan).
+- Verifikasi redirect (`next start` di port 3100 karena port 3000 dipakai server dev pemilik, yang tidak dihentikan): `/admin` → `307 location: /login?next=%2Fadmin`; `/admin/orders` → `/login?next=%2Fadmin%2Forders`; `/account` → `/login?next=%2Faccount`; `/administrator` → 404 (tidak ikut terlindungi); `/` → 200. Server uji sudah dihentikan.
+- File dibuat/diubah: `proxy.ts`, `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/supabase/public.ts`, `lib/supabase/proxy.ts`, `lib/supabase/admin.ts`, `lib/auth/guards.ts`, `lib/errors.ts`, `tests/unit/errors.test.ts` (semua baru), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 9 file / 66 tes) · `npm run build` ✔ (P3-01, "ƒ Proxy (Middleware)").
+- Commit: `feat(P3-01): klien supabase dan proxy sesi`, `feat(P3-02): guard otorisasi dan pemetaan error database`
+- Asumsi / keputusan baru: Prefiks terlindungi dicocokkan per segmen (`/admin` dan `/admin/...`) supaya path seperti `/administrator` tidak ikut dialihkan. Query string lama dibuang saat redirect; `next` hanya berisi pathname. `curl` menampilkan `next=%2Fadmin`, yaitu `/admin` yang di-encode URL (sesuai kriteria). `mapDbError` menambah kode `IDEMPOTENCY_CONFLICT` dan `UNKNOWN` di luar tabel §9.6 karena 23505 dan error tak dikenal memerlukan kode. Logika retry 23505 milik Server Action checkout (P6). Guard baru lolos typecheck dan belum dipakai halaman mana pun (dipakai mulai P3-03/P3-04/P8-01). `lib/supabase/admin` belum diimpor file mana pun.
+- Masalah / utang teknis: `tests/security/helpers.ts` masih membuat klien service sendiri. Ini diizinkan §10.5 (`tests/**`) dan tidak diubah karena di luar scope.
+- Langkah berikutnya: kerjakan **P3-03** sub-langkah a (`lib/validations/auth.ts`) sesuai Prompt 20.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2716,7 +2727,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 16 | 2 | P2-08, P2-09, P2-10 | 1 | DISETUJUI | 2026-10-22 | GPT | Storage bucket publik/privat dengan batas MIME/ukuran valid; pg_cron job `expire-unpaid-orders` tiap 15 menit; migration referensi 8 kategori, store_settings, tarif default TODO(owner). Data contoh dev manual: 5 produk/6 varian, termasuk harga coret dan stok 0. G1 + build + db push lulus. `migration list` mengalami gagal autentikasi temp-role sesudah push; seluruh kriteria task diverifikasi langsung. Disetujui via `/1allclear` pada prompt 17 (2026-10-23). |
 | 17 | 2 | P2-11 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `types/database.types.ts` dibuat via `npm run db:types` (15 tabel, 16 fungsi, 6 enum, `Constants`). `next.config.ts`: `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` dengan path `/storage/v1/object/public/**` (protokol/port/query dikunci) dan `experimental.serverActions.bodySizeLimit: '4mb'` (lokasi opsi sesuai docs Next 16.4.2). Konfigurasi terkonfirmasi di `.next/required-server-files.json`. G2 lulus. |
 | 18 | 2 | P2-12 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
-| 19 | 3 | P3-01, P3-02 | 0 | BELUM | | | |
+| 19 | 3 | P3-01, P3-02 | 1 | MENUNGGU | 2026-10-23 | Claude Opus 5.5 (Thinking) | P3-01: `lib/supabase/{client,server,public,admin,proxy}.ts` + `proxy.ts` (Next 16, bukan middleware) sesuai docs Supabase SSR untuk `@supabase/ssr` 0.12.7 (`getAll`/`setAll` + header cache, `getClaims()`). Build lulus dengan "Proxy (Middleware)"; `curl -I /admin` tanpa cookie → 307 `/login?next=%2Fadmin`; `admin.ts` diawali `import 'server-only'`, belum diimpor file mana pun. P3-02: `lib/auth/guards.ts` (getCurrentUser/requireUser/requireStaff/requireAdmin) dan `lib/errors.ts` `mapDbError` + 19 tes unit (9 kode §9.6, awalan `:`, 23505 idempotency_key). G1 lulus (66 tes). |
 | 20 | 3 | P3-03 | 0 | BELUM | | | |
 | 21 | 3 | P3-04 | 0 | BELUM | | | |
 | 22 | 4 | P3-05, P4-01 | 0 | BELUM | | | |
