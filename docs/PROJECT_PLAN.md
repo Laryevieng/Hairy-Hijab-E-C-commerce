@@ -144,10 +144,10 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 2 — Database dan Keamanan
-Task berikutnya      : P2-12
-Prompt aktif         : 18 (lihat Lampiran E)
-Task terakhir selesai: P2-11
+Fase aktif           : Fase 3 — Autentikasi dan Akun
+Task berikutnya      : P3-01
+Prompt aktif         : 19 (lihat Lampiran E)
+Task terakhir selesai: P2-12 (Gerbang Fase 2 lulus: G2 + G3; tag v0.2.0)
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
@@ -159,7 +159,7 @@ Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
 |---|---|---:|---:|
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
-| 2 | Database dan Keamanan | 13 | 12 |
+| 2 | Database dan Keamanan | 13 | 13 |
 | 3 | Autentikasi dan Akun | 5 | 0 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
@@ -1909,11 +1909,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `npm run db:types` → `types/database.types.ts`. Di `next.config.ts` tambahkan `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` (path `/storage/v1/object/public/**`) dan `bodySizeLimit` Server Actions `4mb` (sesuai dokumentasi versi terpasang).
   - **Selesai jika:** `npm run typecheck` dan `npm run build` lulus dengan tipe `Database`.
 
-- [ ] **P2-12 · Tes keamanan database** `L` · butuh: P2-11, P0-08
+- [x] **P2-12 · Tes keamanan database** `L` · butuh: P2-11, P0-08
   - **Kerjakan:**
     - [x] a. `tests/security/helpers.ts`: klien `anon`, `service`, serta pembuatan pengguna uji (pelanggan A, pelanggan B, staf, admin) lewat `auth.admin.createUser`, pemberian `staff_roles` lewat service, login untuk memperoleh klien terautentikasi, dan **pembersihan** semua data uji (prefiks `rls-test`).
     - [x] b. Tes baris matriks §11.10 untuk anon, pelanggan, staf, admin.
-    - [ ] c. Tes `create_order` (validasi, snapshot harga, ongkir, idempotensi), `expire_unpaid_orders`, `cancel_order` (stok kembali sekali), dan `audit_tables_without_rls()` kosong.
+    - [x] c. Tes `create_order` (validasi, snapshot harga, ongkir, idempotensi), `expire_unpaid_orders`, `cancel_order` (stok kembali sekali), dan `audit_tables_without_rls()` kosong.
   - **Selesai jika:** `npm run test:rls` hijau; semua baris §11.10 tercakup; tes tidak meninggalkan data; hasil ringkas ditempel di Handoff Log.
 
 > **Gerbang Fase 2:** G2 + G3 lulus sebelum Fase 3 dimulai.
@@ -2674,6 +2674,18 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Supabase CLI v2.121.0 memberi notifikasi versi baru v2.122.0; tidak di-upgrade (di luar scope).
 - Langkah berikutnya: kerjakan **P2-12** (tes keamanan database: `tests/security/helpers.ts`, matriks §11.10, tes `create_order`/`expire_unpaid_orders`/`cancel_order`) sesuai Prompt 18.
 
+### [2026-10-23 22:59] — Claude Opus 5.5 (Thinking) — SELESAI
+- Task: P2-12 (sub-langkah a, b, c) dan Gerbang Fase 2; Prompt 18 percobaan 1. Prompt 17 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: Suite `tests/security/` berjalan terhadap project Supabase dev nyata (`.env.local`, key tidak dicetak). (a) `helpers.ts`: klien anon/service, `createTestUsers` (pelanggan A/B, staf, admin lewat `auth.admin.createUser` + `staff_roles` via service + login password), fabrikasi katalog/pesanan, dan `cleanupTestData`/`countTestData` per prefiks `rls-test-<run>` (pesanan, produk, kategori, tarif, bukti transfer, pengguna). (b) `matrix.test.ts`: 13 baris §11.10 untuk anon, pelanggan, staf, admin, plus kontrol positif (varian aktif terlihat, pesanan sendiri terlihat, staf bisa membuat signed URL bukti). (c) `functions.test.ts`: validasi `create_order` (EMPTY_CART, INVALID_ITEM termasuk duplikat digabung >20, INVALID_ADDRESS, VARIANT_UNAVAILABLE, INSUFFICIENT_STOCK, rollback), nomor `HH-YYMMDD-XXXXX`, snapshot harga tahan ubah harga/nonaktif, ongkir provinsi case-insensitive sebelum `*`, idempotensi (`replayed = true`), stok 1 dua panggilan serentak (tepat satu berhasil), `expire_unpaid_orders` (expired, stok kembali, `stock_released_at`, panggilan kedua tidak menggandakan), `cancel_order` (stok kembali sekali; ulang/expired → INVALID_TRANSITION; ORDER_NOT_FOUND), `audit_tables_without_rls()` = `[]`.
+- Hasil ringkas `npm run test:rls`: 3 file / 43 tes lulus (`helpers` 3, `matrix` 21, `functions` 19), ±31 detik. Pemeriksaan terpisah setelah semua run: sisa data `rls-test%` = 0 (pesanan, kategori, produk, varian, tarif, folder bukti, pengguna); kategori total tetap 8.
+- File dibuat/diubah: `tests/security/helpers.ts`, `tests/security/helpers.test.ts`, `tests/security/matrix.test.ts`, `tests/security/functions.test.ts` (baru), `vitest.rls.config.ts` (`fileParallelism: false`, `testTimeout` 30 dtk, `hookTimeout` 120 dtk), `docs/PROJECT_PLAN.md` (§1, §15, Lampiran D, Lampiran E).
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 8 file / 47 tes · `npm run build` ✔) · G3 ✔ (`npm run test:rls` 3 file / 43 tes). Semua perintah dijalankan dari folder `hairy\`.
+- Commit: `test(P2-12a): helper pengguna uji dan pembersihan data rls-test`, `test(P2-12b): matriks rls anon, pelanggan, staf, admin`, `test(P2-12c): fungsi bisnis, service role, dan gerbang fase 2`
+- Tag: `v0.2.0`
+- Asumsi / keputusan baru: Pesanan uji dikenali lewat `customer_name_snapshot` berprefiks run karena `orders` tidak punya kolom slug. Tes kedaluwarsa memundurkan `expires_at` lewat service role (bukan menunggu tempo). Baris "staf: update harga produk" diuji pada `product_variants.price` (harga ada di varian, §11.4). Tes berjalan berurutan per file karena memakai satu DB dev bersama. Cast `p_user_id` ke `string` di helper karena tipe hasil generate tidak memuat `null`, padahal SQL menerima null untuk tamu.
+- Masalah / utang teknis: Vite memberi peringatan `configLoader: 'native'` untuk `vitest.rls.config.ts` (ESM di package tanpa `"type": "module"`); hanya peringatan, tidak memengaruhi hasil. `tests/security` menulis ke DB dev; jangan diarahkan ke produksi.
+- Langkah berikutnya: kerjakan **P3-01** (klien Supabase `lib/supabase/{client,server,public,admin,proxy}.ts` dan `proxy.ts`) dan **P3-02** sesuai Prompt 19.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2703,7 +2715,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 15 | 2 | P2-07 | 1 | DISETUJUI | 2026-10-22 | Claude | Migration 0006 rls_and_grants (§11.7 persis + GRANT EXECUTE 4 fungsi §11.6 + `audit_tables_without_rls()` khusus service_role) di-push ke Supabase dev. Audit RLS → `[]`; anon ditolak 42501 pada tabel transaksi, insert katalog, dan RPC. Gate G1 lulus. Disetujui via `/1allclear` pada prompt 16 (2026-10-22). |
 | 16 | 2 | P2-08, P2-09, P2-10 | 1 | DISETUJUI | 2026-10-22 | GPT | Storage bucket publik/privat dengan batas MIME/ukuran valid; pg_cron job `expire-unpaid-orders` tiap 15 menit; migration referensi 8 kategori, store_settings, tarif default TODO(owner). Data contoh dev manual: 5 produk/6 varian, termasuk harga coret dan stok 0. G1 + build + db push lulus. `migration list` mengalami gagal autentikasi temp-role sesudah push; seluruh kriteria task diverifikasi langsung. Disetujui via `/1allclear` pada prompt 17 (2026-10-23). |
 | 17 | 2 | P2-11 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `types/database.types.ts` dibuat via `npm run db:types` (15 tabel, 16 fungsi, 6 enum, `Constants`). `next.config.ts`: `images.remotePatterns` untuk host dari `NEXT_PUBLIC_SUPABASE_URL` dengan path `/storage/v1/object/public/**` (protokol/port/query dikunci) dan `experimental.serverActions.bodySizeLimit: '4mb'` (lokasi opsi sesuai docs Next 16.4.2). Konfigurasi terkonfirmasi di `.next/required-server-files.json`. G2 lulus. |
-| 18 | 2 | P2-12 | 0 | BELUM | | | |
+| 18 | 2 | P2-12 | 1 | MENUNGGU | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
 | 19 | 3 | P3-01, P3-02 | 0 | BELUM | | | |
 | 20 | 3 | P3-03 | 0 | BELUM | | | |
 | 21 | 3 | P3-04 | 0 | BELUM | | | |
