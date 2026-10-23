@@ -16,5 +16,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/security/**/*.test.ts'],
+    // Semua file memakai satu database dev bersama; dijalankan berurutan agar hasil deterministik.
+    fileParallelism: false,
+    testTimeout: 30_000,
+    hookTimeout: 120_000,
   },
 })
