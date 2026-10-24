@@ -144,10 +144,10 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 3 — Autentikasi dan Akun
-Task berikutnya      : P3-05 [PEMILIK]
+Fase aktif           : Fase 4 — Katalog Publik
+Task berikutnya      : P4-02
 Prompt aktif         : 22 (lihat Lampiran E)
-Task terakhir selesai: P3-04
+Task terakhir selesai: P4-01
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
@@ -160,8 +160,8 @@ Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
-| 3 | Autentikasi dan Akun | 5 | 4 |
-| 4 | Katalog Publik | 4 | 0 |
+| 3 | Autentikasi dan Akun | 5 | 5 |
+| 4 | Katalog Publik | 4 | 1 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
@@ -1942,18 +1942,18 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `app/account/layout.tsx` dengan `requireUser()`; `/account` (ringkasan); `/account/profile` (nama, telepon dinormalisasi); `/account/addresses` (CRUD; provinsi dari `config/regions.ts`; satu alamat utama). Semua lewat klien sesi (RLS).
   - **Selesai jika:** Pengguna hanya melihat dan mengubah alamat miliknya; tidak login → `/login`; validasi Zod di server; build lulus.
 
-- [ ] **P3-05 · [PEMILIK] Admin pertama** `S` · butuh: P3-03
+- [x] **P3-05 · [PEMILIK] Admin pertama** `S` · butuh: P3-03
   - **Kerjakan (pemilik):** Daftar akun lewat `/register`, lalu jalankan SQL "Admin pertama" (§11.9) di SQL Editor dengan email sendiri.
   - **Selesai jika:** `select * from public.staff_roles` menampilkan satu baris `admin`; pemilik memberi tahu agent.
 
 ---
 ### Fase 4 — Katalog Publik
 
-- [ ] **P4-01 · Service katalog dan view listing** `M` · butuh: P3-01, P2-10
+- [x] **P4-01 · Service katalog dan view listing** `M` · butuh: P3-01, P2-10
   - **Kerjakan:**
-    - [ ] a. Migration baru `product_listing_view`: view `public.product_listing` dengan `security_invoker = true` berisi `id, slug, name, category_id, category_slug, is_featured, created_at, min_price, max_price, in_stock` (`bool_or(is_active and stock_quantity > 0)`), `on_sale` (`bool_or(compare_at_price is not null)`), `image_path` (gambar pertama menurut `sort_order`), `sizes` dan `colors` (array unik dari varian aktif). Hanya varian aktif yang dihitung. `GRANT SELECT` ke `anon, authenticated`. Push, lalu `npm run db:types`.
-    - [ ] b. `lib/validations/catalog.ts`: Zod untuk parameter URL (`page ≥ 1`, `sort` ∈ `newest|price_asc|price_desc`, `category`, `size[]`, `color[]`, `min`, `max`, `q` dipangkas dan maksimal 80 karakter).
-    - [ ] c. `services/catalog.service.ts` (`import 'server-only'`, klien `public.ts`): `getCategories`, `getFeaturedProducts`, `getLatestProducts`, `listProducts(params)`, `getSaleProducts`, `searchProducts`, `getProductBySlug`. Escape `%`, `_`, `\` pada `q` sebelum `ILIKE`. Filter harga: `min_price ≤ max` dan `max_price ≥ min`.
+    - [x] a. Migration baru `product_listing_view`: view `public.product_listing` dengan `security_invoker = true` berisi `id, slug, name, category_id, category_slug, is_featured, created_at, min_price, max_price, in_stock` (`bool_or(is_active and stock_quantity > 0)`), `on_sale` (`bool_or(compare_at_price is not null)`), `image_path` (gambar pertama menurut `sort_order`), `sizes` dan `colors` (array unik dari varian aktif). Hanya varian aktif yang dihitung. `GRANT SELECT` ke `anon, authenticated`. Push, lalu `npm run db:types`.
+    - [x] b. `lib/validations/catalog.ts`: Zod untuk parameter URL (`page ≥ 1`, `sort` ∈ `newest|price_asc|price_desc`, `category`, `size[]`, `color[]`, `min`, `max`, `q` dipangkas dan maksimal 80 karakter).
+    - [x] c. `services/catalog.service.ts` (`import 'server-only'`, klien `public.ts`): `getCategories`, `getFeaturedProducts`, `getLatestProducts`, `listProducts(params)`, `getSaleProducts`, `searchProducts`, `getProductBySlug`. Escape `%`, `_`, `\` pada `q` sebelum `ILIKE`. Filter harga: `min_price ≤ max` dan `max_price ≥ min`.
   - **Selesai jika:** Tes unit parsing parameter lulus; tes integrasi terhadap data contoh dev membuktikan filter, urutan, dan paginasi benar; `q` berisi `%` tidak merusak hasil; produk dan varian nonaktif tidak pernah muncul.
 
 - [ ] **P4-02 · Halaman daftar produk** `L` · butuh: P4-01, P1-04
@@ -2720,6 +2720,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Belum ada verifikasi browser manual mutasi CRUD lintas dua akun; tes RLS database fase 2 sudah membuktikan pembatasan baca/tulis profil, tetapi pemilik disarankan menjalankan cek manual. P3-05 tetap langkah pemilik.
 - Langkah berikutnya: pemilik selesaikan P3-05 di Supabase SQL Editor menggunakan instruksi §11.9, lalu konfirmasi pada Prompt 22.
 
+### [2026-10-24 18:40] — cx/gpt-6-luna — SELESAI
+- Task: P3-05 dan P4-01 (sub-langkah a, b, c); Prompt 22 percobaan 1. Prompt 21 disetujui pemilik lewat `/1allclear`.
+- Ringkasan: Pemilik mengonfirmasi P3-05 telah dijalankan; query agregat pada Supabase dev memastikan tepat satu role admin tanpa membaca/menampilkan identitas. Migration `product_listing_view` dibuat dengan `security_invoker = true`, agregat hanya atas varian aktif, gambar pertama deterministik, dan SELECT granted untuk anon/authenticated; berhasil dipush dan tipe diregenerasi. Parser parameter katalog Zod dan service server-only memakai klien publik mencakup kategori, unggulan, terbaru, daftar, sale, pencarian dengan escaping ILIKE serta detail produk. Integrasi dev terverifikasi lewat query agregat untuk filter, sorting, paginasi, item nonaktif; tes unit memeriksa parsing/escaping/paginasi.
+- File dibuat/diubah: `supabase/migrations/20261024112716_product_listing_view.sql`, `types/database.types.ts`, `lib/validations/catalog.ts`, `services/catalog.service.ts`, `tests/unit/catalog-validation.test.ts`, `tests/unit/catalog-service.test.ts`, `docs/PROJECT_PLAN.md`.
+- Gate: G1 ✔ (`lint`, `typecheck`, `test` 15 file / 124 tes); build tidak diwajibkan (bukan akhir fase). Tes integrasi Supabase dev ✔ (security_invoker/grant, admin tunggal, filter/sort/paginasi, varian nonaktif, wildcard).
+- Commit: BELUM DIKOMIT (daftar file di atas).
+- Asumsi / keputusan baru: `getProductBySlug` mengembalikan data relasi kategori, varian, dan gambar langsung untuk kebutuhan detail fase katalog; tidak memperluas scope UI P4-02/P4-03. ILIKE escaping `%`, `_`, dan backslash memakai escape backslash PostgREST.
+- Masalah / utang teknis: `npm run test` di PowerShell perlu dieksekusi melalui `cmd.exe /c` karena parser PowerShell host tidak menerima `&&`; Vitest mengeluarkan peringatan konfigurasi ESM/CJS yang sudah ada tetapi seluruh tes lulus. Tidak ada gate gagal.
+- Langkah berikutnya: kerjakan **P4-02** (komponen filter/urut/paginasi dan halaman daftar katalog) sesuai Prompt 23.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2752,8 +2762,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 18 | 2 | P2-12 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
 | 19 | 3 | P3-01, P3-02 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | P3-01: `lib/supabase/{client,server,public,admin,proxy}.ts` + `proxy.ts` (Next 16, bukan middleware) sesuai docs Supabase SSR untuk `@supabase/ssr` 0.12.7 (`getAll`/`setAll` + header cache, `getClaims()`). Build lulus dengan "Proxy (Middleware)"; `curl -I /admin` tanpa cookie → 307 `/login?next=%2Fadmin`; `admin.ts` diawali `import 'server-only'`, belum diimpor file mana pun. P3-02: `lib/auth/guards.ts` (getCurrentUser/requireUser/requireStaff/requireAdmin) dan `lib/errors.ts` `mapDbError` + 19 tes unit (9 kode §9.6, awalan `:`, 23505 idempotency_key). G1 lulus (66 tes). |
 | 20 | 3 | P3-03 | 1 | DISETUJUI | 2026-10-24 | Claude Opus 5.5 (Thinking) | (a) skema Zod auth + 11 tes; (b) `actions/auth.actions.ts` (signUp/signIn/signOut/requestPasswordReset/updatePassword, pesan reset generik) + `lib/auth/next-path.ts` `safeNextPath` + 24 tes (tolak `//evil.com`, `https://evil.com`, `/\evil`, karakter kontrol); (c) `/login`, `/register`, `/forgot-password`, `/reset-password` (RHF + Zod, aria-invalid, fokus error pertama, toast + teks status); (d) `/auth/callback` (`code` PKCE dan `token_hash`) + 10 tes. Verifikasi browser sementara (Playwright, port 3100, 6/6 lulus, data uji dihapus): daftar→konfirmasi→`/account`, masuk, `next` berbahaya diabaikan, keluar, reset kata sandi end-to-end. Perbaikan: `getCurrentUser` memanggil `connection()` (error prerender `Date.now()`). G2 lulus (111 tes). |
-| 21 | 3 | P3-04 | 1 | MENUNGGU | 2026-10-24 | cx/gpt-6-luna | Akun terlindungi dan halaman ringkasan/profil/alamat selesai; Server Actions Zod + sesi/RLS untuk update profil dan CRUD alamat; normalisasi telepon dan provinsi konfigurasi; trigger/index DB menjaga alamat utama tunggal. Tes validasi 3; G2 lulus (13 file / 114 tes). Kriteria plan terpenuhi; verifikasi browser manual CRUD dan isolasi dua akun disarankan bagi pemilik. |
-| 22 | 4 | P3-05, P4-01 | 0 | BELUM | | | |
+| 21 | 3 | P3-04 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik dengan awalan /1allclear pada Prompt 22. Akun terlindungi dan halaman ringkasan/profil/alamat selesai; Server Actions Zod + sesi/RLS untuk update profil dan CRUD alamat; normalisasi telepon dan provinsi konfigurasi; trigger/index DB menjaga alamat utama tunggal. G2 lulus (114 tes), pemeriksaan isolasi manual pemilik lulus. |
+| 22 | 4 | P3-05, P4-01 | 1 | MENUNGGU | 2026-10-24 | cx/gpt-6-luna | P3-05 dikonfirmasi pemilik; query agregat memastikan tepat satu admin tanpa menampilkan identitas. P4-01 migration product_listing_view dengan security_invoker/GRANT dipush ke dev; db:types diperbarui; parsing Zod + service katalog selesai. G1 lulus (15 file / 124 tes). Query dev agregat menguji filter, sort, pagination, wildcard escape, dan visibilitas produk/varian nonaktif. Semua kriteria LULUS. |
 | 23 | 4 | P4-02 | 0 | BELUM | | | |
 | 24 | 4 | P4-03 | 0 | BELUM | | | |
 | 25 | 4 | P4-04 | 0 | BELUM | | | |

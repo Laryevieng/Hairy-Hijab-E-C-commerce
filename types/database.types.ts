@@ -409,6 +409,13 @@ export type Database = {
             foreignKeyName: "product_images_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "product_listing"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -468,6 +475,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_listing"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "product_variants_product_id_fkey"
             columns: ["product_id"]
@@ -747,7 +761,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      product_listing: {
+        Row: {
+          category_id: string | null
+          category_slug: string | null
+          colors: string[] | null
+          created_at: string | null
+          id: string | null
+          image_path: string | null
+          in_stock: boolean | null
+          is_featured: boolean | null
+          max_price: number | null
+          min_price: number | null
+          name: string | null
+          on_sale: boolean | null
+          sizes: string[] | null
+          slug: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       adjust_stock: {
