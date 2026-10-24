@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 4 — Katalog Publik
-Task berikutnya      : P4-02
-Prompt aktif         : 22 (lihat Lampiran E)
-Task terakhir selesai: P4-01
+Task berikutnya      : P4-03
+Prompt aktif         : 24 (lihat Lampiran E)
+Task terakhir selesai: P4-02
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
@@ -161,7 +161,7 @@ Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
 | 3 | Autentikasi dan Akun | 5 | 5 |
-| 4 | Katalog Publik | 4 | 1 |
+| 4 | Katalog Publik | 4 | 2 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
@@ -1956,11 +1956,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] c. `services/catalog.service.ts` (`import 'server-only'`, klien `public.ts`): `getCategories`, `getFeaturedProducts`, `getLatestProducts`, `listProducts(params)`, `getSaleProducts`, `searchProducts`, `getProductBySlug`. Escape `%`, `_`, `\` pada `q` sebelum `ILIKE`. Filter harga: `min_price ≤ max` dan `max_price ≥ min`.
   - **Selesai jika:** Tes unit parsing parameter lulus; tes integrasi terhadap data contoh dev membuktikan filter, urutan, dan paginasi benar; `q` berisi `%` tidak merusak hasil; produk dan varian nonaktif tidak pernah muncul.
 
-- [ ] **P4-02 · Halaman daftar produk** `L` · butuh: P4-01, P1-04
+- [x] **P4-02 · Halaman daftar produk** `L` · butuh: P4-01, P1-04
   - **Kerjakan:**
-    - [ ] a. `ProductFilters` (Client Component; memperbarui URL), `SortSelector`, `Pagination`.
-    - [ ] b. Halaman `/products`, `/categories/[slug]`, `/sale`, `/search` (selalu `await searchParams`/`params`).
-    - [ ] c. `loading.tsx`, `EmptyState`, `generateMetadata`, kategori tidak ada/nonaktif → `notFound()`.
+    - [x] a. `ProductFilters` (Client Component; memperbarui URL), `SortSelector`, `Pagination`.
+    - [x] b. Halaman `/products`, `/categories/[slug]`, `/sale`, `/search` (selalu `await searchParams`/`params`).
+    - [x] c. `loading.tsx`, `EmptyState`, `generateMetadata`, kategori tidak ada/nonaktif → `notFound()`.
   - **Selesai jika:** Filter, urutan, dan halaman bekerja lewat URL yang dapat dibagikan; ponsel dan desktop benar; metadata unik; G2 lulus.
 
 - [ ] **P4-03 · Detail produk** `L` · butuh: P4-01
@@ -2730,6 +2730,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: `npm run test` di PowerShell perlu dieksekusi melalui `cmd.exe /c` karena parser PowerShell host tidak menerima `&&`; Vitest mengeluarkan peringatan konfigurasi ESM/CJS yang sudah ada tetapi seluruh tes lulus. Tidak ada gate gagal.
 - Langkah berikutnya: kerjakan **P4-02** (komponen filter/urut/paginasi dan halaman daftar katalog) sesuai Prompt 23.
 
+### [2026-10-24 19:55] — cx/gpt-6-luna — SELESAI
+- Task: P4-02 (sub-langkah a, b, c); Prompt 23 percobaan 1. Prompt 22 disetujui pemilik lewat `/1allclear`.
+- Ringkasan: Menambahkan ProductFilters kategori/ukuran/warna/harga yang memperbarui query URL, SortSelector dan Pagination yang mempertahankan filter. Empat route katalog membaca parameter Next.js secara asynchronous, mengambil listing dari service server-only, menampilkan kartu berbasis hanya data view aktual, EmptyState dan loading state. Metadata route unik; kategori yang tidak aktif/tidak ditemukan memanggil `notFound()` dan menampilkan UI 404 khusus. Browser production build memverifikasi route valid, query `%_\\`, perubahan URL filter/sort, dan kategori tidak ditemukan; viewport 390px/1440px diperiksa.
+- File dibuat/diubah: `app/(store)/products/{page,loading}.tsx`, `app/(store)/categories/[slug]/{page,loading,not-found}.tsx`, `app/(store)/sale/{page,loading}.tsx`, `app/(store)/search/{page,loading}.tsx`, `components/product/{catalog-product-card,product-filters,sort-selector,pagination,search-bar,catalog-listing,catalog-loading}.tsx`, `components/layout/site-header.tsx`, `services/catalog.service.ts`, `lib/catalog/page-data.ts`, `tests/unit/catalog-components.test.tsx`, `docs/PROJECT_PLAN.md`.
+- Gate: G2 ✔ (`npm run lint`, `npm run typecheck`, `npm run test`: 16 file / 127 tes, `npm run build`). Semua empat route masuk build; kategori dinamis dan page query Partial Prerender.
+- Commit: BELUM DIKOMIT (akan dicatat setelah commit task).
+- Asumsi / keputusan baru: View product_listing tidak mengekspos gambar URL, nama kategori, harga coret, jumlah total stok atau hex warna. Kartu memakai storage path publik, nama kategori dari categories service pada listing umum, harga minimum dan flag in_stock; tidak merekayasa stock/discount/color swatch. Pencarian tidak diindeks; canonical route listing tanpa filter, metadata search unik berdasarkan kata kunci.
+- Masalah / utang teknis: Server local yang dijalankan di background berhenti saat harness timeout; browser verifikasi kedua dijalankan lewat server start terpisah. HTTP streaming Next dapat mengirim 200 walau boundary not-found me-render UI 404; hasil yang diuji adalah UI not-found. Catatan handoff P4-01 sebelumnya menyebut `BELUM DIKOMIT`, bertentangan dengan commit nyata `76181a5`; ledger tetap benar dan kesalahan dokumentasi ini dikoreksi pada entri ini.
+- Langkah berikutnya: kerjakan **P4-03** halaman detail produk (`/products/[slug]`, galeri, pilihan varian, harga/stok dan SEO) sesuai Prompt 24.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2763,8 +2773,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 19 | 3 | P3-01, P3-02 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | P3-01: `lib/supabase/{client,server,public,admin,proxy}.ts` + `proxy.ts` (Next 16, bukan middleware) sesuai docs Supabase SSR untuk `@supabase/ssr` 0.12.7 (`getAll`/`setAll` + header cache, `getClaims()`). Build lulus dengan "Proxy (Middleware)"; `curl -I /admin` tanpa cookie → 307 `/login?next=%2Fadmin`; `admin.ts` diawali `import 'server-only'`, belum diimpor file mana pun. P3-02: `lib/auth/guards.ts` (getCurrentUser/requireUser/requireStaff/requireAdmin) dan `lib/errors.ts` `mapDbError` + 19 tes unit (9 kode §9.6, awalan `:`, 23505 idempotency_key). G1 lulus (66 tes). |
 | 20 | 3 | P3-03 | 1 | DISETUJUI | 2026-10-24 | Claude Opus 5.5 (Thinking) | (a) skema Zod auth + 11 tes; (b) `actions/auth.actions.ts` (signUp/signIn/signOut/requestPasswordReset/updatePassword, pesan reset generik) + `lib/auth/next-path.ts` `safeNextPath` + 24 tes (tolak `//evil.com`, `https://evil.com`, `/\evil`, karakter kontrol); (c) `/login`, `/register`, `/forgot-password`, `/reset-password` (RHF + Zod, aria-invalid, fokus error pertama, toast + teks status); (d) `/auth/callback` (`code` PKCE dan `token_hash`) + 10 tes. Verifikasi browser sementara (Playwright, port 3100, 6/6 lulus, data uji dihapus): daftar→konfirmasi→`/account`, masuk, `next` berbahaya diabaikan, keluar, reset kata sandi end-to-end. Perbaikan: `getCurrentUser` memanggil `connection()` (error prerender `Date.now()`). G2 lulus (111 tes). |
 | 21 | 3 | P3-04 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik dengan awalan /1allclear pada Prompt 22. Akun terlindungi dan halaman ringkasan/profil/alamat selesai; Server Actions Zod + sesi/RLS untuk update profil dan CRUD alamat; normalisasi telepon dan provinsi konfigurasi; trigger/index DB menjaga alamat utama tunggal. G2 lulus (114 tes), pemeriksaan isolasi manual pemilik lulus. |
-| 22 | 4 | P3-05, P4-01 | 1 | MENUNGGU | 2026-10-24 | cx/gpt-6-luna | P3-05 dikonfirmasi pemilik; query agregat memastikan tepat satu admin tanpa menampilkan identitas. P4-01 migration product_listing_view dengan security_invoker/GRANT dipush ke dev; db:types diperbarui; parsing Zod + service katalog selesai. G1 lulus (15 file / 124 tes). Query dev agregat menguji filter, sort, pagination, wildcard escape, dan visibilitas produk/varian nonaktif. Semua kriteria LULUS. |
-| 23 | 4 | P4-02 | 0 | BELUM | | | |
+| 22 | 4 | P3-05, P4-01 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik lewat /1allclear pada Prompt 23. P3-05 dikonfirmasi pemilik; query agregat memastikan tepat satu admin tanpa menampilkan identitas. P4-01 migration product_listing_view dengan security_invoker/GRANT dipush ke dev; db:types diperbarui; parsing Zod + service katalog selesai. G1 lulus (15 file / 124 tes). Query dev agregat menguji filter, sort, pagination, wildcard escape, dan visibilitas produk/varian nonaktif. Semua kriteria LULUS. |
+| 23 | 4 | P4-02 | 1 | MENUNGGU | 2026-10-24 | cx/gpt-6-luna | Implementasi tiga sub-langkah: URL-driven ProductFilters/SortSelector/Pagination; route products/categories/sale/search; loading, metadata unik, EmptyState dan not-found kategori. Browser production build: route valid 200; invalid category menampilkan UI 404; ukuran/sort mengubah query URL; pencarian `%_\\` tidak error. Responsif 390px dan 1440px diperiksa. G2 lulus (16 file / 127 tes + build). Semua kriteria LULUS. |
 | 24 | 4 | P4-03 | 0 | BELUM | | | |
 | 25 | 4 | P4-04 | 0 | BELUM | | | |
 | 26 | 5 | P5-01, P5-02 | 0 | BELUM | | | |

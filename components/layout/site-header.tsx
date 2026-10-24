@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { Search, ShoppingBag, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
@@ -14,7 +15,9 @@ export function SiteHeader() {
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Sisi Kiri: Tombol Hamburger Menu (Mobile) */}
           <div className="flex items-center md:hidden">
-            <MobileNavigation />
+            <Suspense fallback={<div className="size-11" />}>
+              <MobileNavigation />
+            </Suspense>
           </div>
 
           {/* Wordmark Logo Hairy Hijab */}
@@ -30,7 +33,9 @@ export function SiteHeader() {
 
           {/* Tengah: MainNavigation (desktop lg+) */}
           <div className="hidden lg:flex flex-1 justify-center">
-            <MainNavigation />
+            <Suspense fallback={<div className="h-11" />}>
+              <MainNavigation />
+            </Suspense>
           </div>
 
           {/* Sisi Kanan: Aksi Pengguna (Pencarian, Akun, Keranjang) */}
@@ -69,7 +74,9 @@ export function SiteHeader() {
 
         {/* Bar navigasi untuk tablet/layar medium (md hingga lg) */}
         <div className="hidden md:flex lg:hidden pb-3 justify-center border-t border-sand/30 pt-2">
-          <MainNavigation />
+          <Suspense fallback={<div className="h-11" />}>
+            <MainNavigation />
+          </Suspense>
         </div>
       </div>
     </header>

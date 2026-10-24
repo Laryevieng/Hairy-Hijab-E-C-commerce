@@ -40,6 +40,17 @@ export async function getCategories() {
   return data
 }
 
+export async function getCatalogFilterOptions() {
+  const { data, error } = await createPublicClient()
+    .from('product_listing')
+    .select('sizes, colors')
+  if (error) throw new Error('Filter katalog tidak dapat dimuat.')
+  return {
+    sizes: [...new Set(data.flatMap((product) => product.sizes ?? []))].sort(),
+    colors: [...new Set(data.flatMap((product) => product.colors ?? []))].sort(),
+  }
+}
+
 export async function getFeaturedProducts() {
   const { data, error } = await createPublicClient()
     .from('product_listing')
