@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 3 — Autentikasi dan Akun
-Task berikutnya      : P3-04
-Prompt aktif         : 21 (lihat Lampiran E)
-Task terakhir selesai: P3-03
+Task berikutnya      : P3-05 [PEMILIK]
+Prompt aktif         : 22 (lihat Lampiran E)
+Task terakhir selesai: P3-04
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
+Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -160,7 +160,7 @@ Terakhir diperbarui  : 2026-10-23 oleh Claude Opus 5.5 (Thinking)
 | 0 | Audit dan Fondasi Repo | 8 | 8 |
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
-| 3 | Autentikasi dan Akun | 5 | 3 |
+| 3 | Autentikasi dan Akun | 5 | 4 |
 | 4 | Katalog Publik | 4 | 0 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
@@ -1938,7 +1938,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] d. `app/auth/callback/route.ts`: tukar kode/token menjadi sesi sesuai dokumentasi; parameter `next` **hanya** path relatif yang diawali `/` dan bukan `//` (selain itu abaikan, default `/account`).
   - **Selesai jika:** Daftar → konfirmasi email (bila aktif) → masuk → `/account`; keluar; reset kata sandi berjalan; tes unit untuk validasi `next` (menolak `//evil.com`, `https://evil.com`, `/\evil`); G2 lulus.
 
-- [ ] **P3-04 · Akun pelanggan** `M` · butuh: P3-03
+- [x] **P3-04 · Akun pelanggan** `M` · butuh: P3-03
   - **Kerjakan:** `app/account/layout.tsx` dengan `requireUser()`; `/account` (ringkasan); `/account/profile` (nama, telepon dinormalisasi); `/account/addresses` (CRUD; provinsi dari `config/regions.ts`; satu alamat utama). Semua lewat klien sesi (RLS).
   - **Selesai jika:** Pengguna hanya melihat dan mengubah alamat miliknya; tidak login → `/login`; validasi Zod di server; build lulus.
 
@@ -2710,6 +2710,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Email bawaan Supabase dibatasi 2 email/jam, jadi verifikasi memakai `auth.admin.generateLink` (tidak mengirim email). Uji end-to-end dengan email sungguhan perlu dilakukan pemilik. `tests/e2e` belum memuat tes auth permanen (dijadwalkan P10-04).
 - Langkah berikutnya: kerjakan **P3-04** (`app/account/layout.tsx` dengan `requireUser()`, `/account`, `/account/profile`, `/account/addresses`) sesuai Prompt 21.
 
+### [2026-10-24 17:10] — cx/gpt-6-luna — SELESAI
+- Task: P3-04; Prompt 21 percobaan 1. Prompt 20 ditandai DISETUJUI via `/1allclear`.
+- Ringkasan: Membuat layout terlindungi dan ringkasan `/account`, formulir profil dengan normalisasi telepon Indonesia, serta CRUD alamat pada `/account/addresses` dengan provinsi dari `config/regions.ts`. Server Actions memanggil `requireUser()`, memvalidasi Zod di server, mengambil user ID hanya dari klaim sesi, dan menggunakan klien Supabase sesi; `.eq(user_id, user.id)` melengkapi perlindungan RLS. Database yang ada menjamin hanya satu alamat utama melalui trigger dan unique index; tidak dibuat migration atau admin client. Tes validasi account ditambahkan.
+- File dibuat/diubah: `actions/account.actions.ts`, `app/account/{layout,page}.tsx`, `app/account/profile/page.tsx`, `app/account/addresses/page.tsx`, `components/account/{profile-form,address-form}.tsx`, `lib/validations/account.ts`, `tests/unit/account-validation.test.ts`, dokumen ini.
+- Gate: G1 ✔ (`lint`, `typecheck`, `test` 13 file / 114 tes) · G2 ✔ (`npm run build`; `/account`, `/account/profile`, `/account/addresses` dinamis). Build pertama menemukan validasi navigasi instan Next 16 untuk route yang membaca sesi; diperbaiki mengikuti dokumentasi terpasang dengan `instant = false` pada ketiga page.
+- Commit: `db54167 feat(P3-04): akun pelanggan dan buku alamat`; dokumentasi penutup dikomit terpisah.
+- Asumsi / keputusan baru: Perubahan/penghapusan alamat memfilter user ID server dan sesi, lalu RLS tetap berlaku sebagai lapisan otorisasi. Alamat utama yang dihapus tidak otomatis digantikan; plan meminta maksimum satu alamat utama, bukan bahwa salah satu alamat wajib utama.
+- Masalah / utang teknis: Belum ada verifikasi browser manual mutasi CRUD lintas dua akun; tes RLS database fase 2 sudah membuktikan pembatasan baca/tulis profil, tetapi pemilik disarankan menjalankan cek manual. P3-05 tetap langkah pemilik.
+- Langkah berikutnya: pemilik selesaikan P3-05 di Supabase SQL Editor menggunakan instruksi §11.9, lalu konfirmasi pada Prompt 22.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2742,7 +2752,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 18 | 2 | P2-12 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | `tests/security/` (3 file, 43 tes) ke project Supabase dev nyata: helper pengguna uji + pembersihan (a), 13 baris §11.10 anon/pelanggan/staf/admin (b), 4 baris service role + validasi/snapshot/ongkir/idempotensi `create_order`, `expire_unpaid_orders`, `cancel_order` stok kembali sekali, audit RLS `[]` (c). Sisa data `rls-test` = 0. G2 + G3 lulus; Gerbang Fase 2 tuntas, tag `v0.2.0`. |
 | 19 | 3 | P3-01, P3-02 | 1 | DISETUJUI | 2026-10-23 | Claude Opus 5.5 (Thinking) | P3-01: `lib/supabase/{client,server,public,admin,proxy}.ts` + `proxy.ts` (Next 16, bukan middleware) sesuai docs Supabase SSR untuk `@supabase/ssr` 0.12.7 (`getAll`/`setAll` + header cache, `getClaims()`). Build lulus dengan "Proxy (Middleware)"; `curl -I /admin` tanpa cookie → 307 `/login?next=%2Fadmin`; `admin.ts` diawali `import 'server-only'`, belum diimpor file mana pun. P3-02: `lib/auth/guards.ts` (getCurrentUser/requireUser/requireStaff/requireAdmin) dan `lib/errors.ts` `mapDbError` + 19 tes unit (9 kode §9.6, awalan `:`, 23505 idempotency_key). G1 lulus (66 tes). |
 | 20 | 3 | P3-03 | 1 | DISETUJUI | 2026-10-24 | Claude Opus 5.5 (Thinking) | (a) skema Zod auth + 11 tes; (b) `actions/auth.actions.ts` (signUp/signIn/signOut/requestPasswordReset/updatePassword, pesan reset generik) + `lib/auth/next-path.ts` `safeNextPath` + 24 tes (tolak `//evil.com`, `https://evil.com`, `/\evil`, karakter kontrol); (c) `/login`, `/register`, `/forgot-password`, `/reset-password` (RHF + Zod, aria-invalid, fokus error pertama, toast + teks status); (d) `/auth/callback` (`code` PKCE dan `token_hash`) + 10 tes. Verifikasi browser sementara (Playwright, port 3100, 6/6 lulus, data uji dihapus): daftar→konfirmasi→`/account`, masuk, `next` berbahaya diabaikan, keluar, reset kata sandi end-to-end. Perbaikan: `getCurrentUser` memanggil `connection()` (error prerender `Date.now()`). G2 lulus (111 tes). |
-| 21 | 3 | P3-04 | 1 | BELUM | 2026-10-24 | cx/gpt-6-luna | Implementasi akun pelanggan dan verifikasi gate sedang dikerjakan. |
+| 21 | 3 | P3-04 | 1 | MENUNGGU | 2026-10-24 | cx/gpt-6-luna | Akun terlindungi dan halaman ringkasan/profil/alamat selesai; Server Actions Zod + sesi/RLS untuk update profil dan CRUD alamat; normalisasi telepon dan provinsi konfigurasi; trigger/index DB menjaga alamat utama tunggal. Tes validasi 3; G2 lulus (13 file / 114 tes). Kriteria plan terpenuhi; verifikasi browser manual CRUD dan isolasi dua akun disarankan bagi pemilik. |
 | 22 | 4 | P3-05, P4-01 | 0 | BELUM | | | |
 | 23 | 4 | P4-02 | 0 | BELUM | | | |
 | 24 | 4 | P4-03 | 0 | BELUM | | | |
