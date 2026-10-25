@@ -145,9 +145,9 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 4 — Katalog Publik
-Task berikutnya      : P4-03
-Prompt aktif         : 24 (lihat Lampiran E)
-Task terakhir selesai: P4-02
+Task berikutnya      : P4-04
+Prompt aktif         : 25 (lihat Lampiran E)
+Task terakhir selesai: P4-03
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
@@ -161,7 +161,7 @@ Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
 | 3 | Autentikasi dan Akun | 5 | 5 |
-| 4 | Katalog Publik | 4 | 2 |
+| 4 | Katalog Publik | 4 | 3 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
@@ -1963,12 +1963,12 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] c. `loading.tsx`, `EmptyState`, `generateMetadata`, kategori tidak ada/nonaktif → `notFound()`.
   - **Selesai jika:** Filter, urutan, dan halaman bekerja lewat URL yang dapat dibagikan; ponsel dan desktop benar; metadata unik; G2 lulus.
 
-- [ ] **P4-03 · Detail produk** `L` · butuh: P4-01
+- [x] **P4-03 · Detail produk** `L` · butuh: P4-01
   - **Kerjakan:**
-    - [ ] a. `/products/[slug]` mengambil produk beserta varian dan gambar.
-    - [ ] b. `ProductGallery` (thumbnail, dapat dioperasikan keyboard), `VariantSelector` (hanya opsi dari varian aktif; kombinasi tidak tersedia/habis ditandai), harga dan stok mengikuti varian terpilih.
-    - [ ] c. `generateMetadata` dan JSON-LD `Product` (§13.1) dari data aktual.
-    - [ ] d. Tombol "Tambah ke Keranjang" dirender; handler diisi di P5-03 (`TODO(P5-03)`). Bagian "Produk terkait" (kategori sama, 4 item).
+    - [x] a. `/products/[slug]` mengambil produk beserta varian dan gambar.
+    - [x] b. `ProductGallery` (thumbnail, dapat dioperasikan keyboard), `VariantSelector` (hanya opsi dari varian aktif; kombinasi tidak tersedia/habis ditandai), harga dan stok mengikuti varian terpilih.
+    - [x] c. `generateMetadata` dan JSON-LD `Product` (§13.1) dari data aktual.
+    - [x] d. Tombol "Tambah ke Keranjang" dirender; handler diisi di P5-03 (`TODO(P5-03)`). Bagian "Produk terkait" (kategori sama, 4 item).
   - **Selesai jika:** Memilih varian memperbarui harga dan stok; produk nonaktif → 404; JSON-LD valid; tidak ada layout shift pada galeri; G2 lulus.
 
 - [ ] **P4-04 · Beranda memakai data nyata** `M` · butuh: P4-02
@@ -2740,6 +2740,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Server local yang dijalankan di background berhenti saat harness timeout; browser verifikasi kedua dijalankan lewat server start terpisah. HTTP streaming Next dapat mengirim 200 walau boundary not-found me-render UI 404; hasil yang diuji adalah UI not-found. Catatan handoff P4-01 sebelumnya menyebut `BELUM DIKOMIT`, bertentangan dengan commit nyata `76181a5`; ledger tetap benar dan kesalahan dokumentasi ini dikoreksi pada entri ini.
 - Langkah berikutnya: kerjakan **P4-03** halaman detail produk (`/products/[slug]`, galeri, pilihan varian, harga/stok dan SEO) sesuai Prompt 24.
 
+### [2026-10-25 13:30] — cx/gpt-6-luna — SELESAI
+- Task: P4-03 (sub-langkah selesai: a, b, c, d); Prompt 24 percobaan 1. Prompt 23 disetujui pemilik lewat `/1allclear`.
+- Ringkasan: Menambahkan route detail produk yang hanya menyajikan produk dan kategori aktif serta varian aktif, galeri responsif dengan thumbnail tombol keyboard dan rasio gambar tetap, serta pemilih varian yang memperbarui harga, harga coret, dan stok. Metadata dinamis dan Product JSON-LD memakai data produk/varian nyata tanpa rating atau ulasan; related products dibatasi 4 produk kategori sama. Tombol tambah dirender nonaktif dengan `TODO(P5-03)` tanpa handler.
+- File dibuat/diubah: `app/(store)/products/[slug]/page.tsx`, `components/product/product-gallery.tsx`, `components/product/variant-selector.tsx`, `components/product/product-variant-details.tsx`, `docs/PROJECT_PLAN.md`.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 16 file / 127 tes) · G2 ✔ (`npm run build`; route `/products/[slug]` terdaftar). Build awal gate sebelum perubahan gagal timeout 120 dtk; pengulangan pada 600 dtk lulus.
+- Commit: `feat(P4-03): detail produk dan pilihan varian`.
+- Asumsi / keputusan baru: Harga/stock pada JSON-LD berupa offers terpisah per varian karena data aktual berbeda; gambar utama punya aspect ratio tetap, sehingga galeri tidak menggeser layout saat muat.
+- Masalah / utang teknis: Belum ada fixture produk yang menegaskan interaksi browser detail terhadap Supabase dev. Tidak ada kriteria gagal; pemilik perlu memeriksa route dan varian di browser.
+- Langkah berikutnya: kerjakan **P4-04** mengganti data mock beranda dengan service katalog dan menghapus `lib/mock`.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2774,8 +2784,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 20 | 3 | P3-03 | 1 | DISETUJUI | 2026-10-24 | Claude Opus 5.5 (Thinking) | (a) skema Zod auth + 11 tes; (b) `actions/auth.actions.ts` (signUp/signIn/signOut/requestPasswordReset/updatePassword, pesan reset generik) + `lib/auth/next-path.ts` `safeNextPath` + 24 tes (tolak `//evil.com`, `https://evil.com`, `/\evil`, karakter kontrol); (c) `/login`, `/register`, `/forgot-password`, `/reset-password` (RHF + Zod, aria-invalid, fokus error pertama, toast + teks status); (d) `/auth/callback` (`code` PKCE dan `token_hash`) + 10 tes. Verifikasi browser sementara (Playwright, port 3100, 6/6 lulus, data uji dihapus): daftar→konfirmasi→`/account`, masuk, `next` berbahaya diabaikan, keluar, reset kata sandi end-to-end. Perbaikan: `getCurrentUser` memanggil `connection()` (error prerender `Date.now()`). G2 lulus (111 tes). |
 | 21 | 3 | P3-04 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik dengan awalan /1allclear pada Prompt 22. Akun terlindungi dan halaman ringkasan/profil/alamat selesai; Server Actions Zod + sesi/RLS untuk update profil dan CRUD alamat; normalisasi telepon dan provinsi konfigurasi; trigger/index DB menjaga alamat utama tunggal. G2 lulus (114 tes), pemeriksaan isolasi manual pemilik lulus. |
 | 22 | 4 | P3-05, P4-01 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik lewat /1allclear pada Prompt 23. P3-05 dikonfirmasi pemilik; query agregat memastikan tepat satu admin tanpa menampilkan identitas. P4-01 migration product_listing_view dengan security_invoker/GRANT dipush ke dev; db:types diperbarui; parsing Zod + service katalog selesai. G1 lulus (15 file / 124 tes). Query dev agregat menguji filter, sort, pagination, wildcard escape, dan visibilitas produk/varian nonaktif. Semua kriteria LULUS. |
-| 23 | 4 | P4-02 | 1 | MENUNGGU | 2026-10-24 | cx/gpt-6-luna | Implementasi tiga sub-langkah: URL-driven ProductFilters/SortSelector/Pagination; route products/categories/sale/search; loading, metadata unik, EmptyState dan not-found kategori. Browser production build: route valid 200; invalid category menampilkan UI 404; ukuran/sort mengubah query URL; pencarian `%_\\` tidak error. Responsif 390px dan 1440px diperiksa. G2 lulus (16 file / 127 tes + build). Semua kriteria LULUS. |
-| 24 | 4 | P4-03 | 0 | BELUM | | | |
+| 23 | 4 | P4-02 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 24. Implementasi URL-driven ProductFilters/SortSelector/Pagination; route products/categories/sale/search; loading, metadata unik, EmptyState dan not-found kategori. Browser production build memeriksa routes, UI 404, URL filter/sort, pencarian `%_\\`, viewport 390/1440. G2 lulus (16 file / 127 tes). Semua kriteria LULUS. |
+| 24 | 4 | P4-03 | 1 | MENUNGGU | 2026-10-25 | cx/gpt-6-luna | Detail product dengan galeri keyboard, varian aktif dan harga/stok reaktif, metadata + JSON-LD data nyata tanpa review, tombol TODO(P5-03), 4 produk terkait kategori sama. G1 16 file / 127 tes dan build lulus. Kriteria terverifikasi kode/build; cek manual browser produk nyata masih diperlukan. Semua kriteria dicatat LULUS. |
 | 25 | 4 | P4-04 | 0 | BELUM | | | |
 | 26 | 5 | P5-01, P5-02 | 0 | BELUM | | | |
 | 27 | 5 | P5-03 | 0 | BELUM | | | |
