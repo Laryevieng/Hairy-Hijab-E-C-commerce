@@ -144,10 +144,10 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 4 — Katalog Publik
-Task berikutnya      : P4-04
-Prompt aktif         : 25 (lihat Lampiran E)
-Task terakhir selesai: P4-03
+Fase aktif           : Fase 5 — Keranjang
+Task berikutnya      : P5-01
+Prompt aktif         : 26 (lihat Lampiran E)
+Task terakhir selesai: P4-04
 Blocker aktif        : tidak ada
 Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
 Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
@@ -161,7 +161,7 @@ Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 | 1 | Design System dan Layout | 5 | 5 |
 | 2 | Database dan Keamanan | 13 | 13 |
 | 3 | Autentikasi dan Akun | 5 | 5 |
-| 4 | Katalog Publik | 4 | 3 |
+| 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 0 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
@@ -1971,7 +1971,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] d. Tombol "Tambah ke Keranjang" dirender; handler diisi di P5-03 (`TODO(P5-03)`). Bagian "Produk terkait" (kategori sama, 4 item).
   - **Selesai jika:** Memilih varian memperbarui harga dan stok; produk nonaktif → 404; JSON-LD valid; tidak ada layout shift pada galeri; G2 lulus.
 
-- [ ] **P4-04 · Beranda memakai data nyata** `M` · butuh: P4-02
+- [x] **P4-04 · Beranda memakai data nyata** `M` · butuh: P4-02
   - **Kerjakan:** Ganti seluruh `lib/mock/*` dengan data dari service katalog; navigasi kategori dari database; hapus folder `lib/mock`.
   - **Selesai jika:** `grep -r "lib/mock" app components lib` kosong; beranda dan navigasi menampilkan data database; G2 lulus.
 
@@ -2750,6 +2750,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Belum ada fixture produk yang menegaskan interaksi browser detail terhadap Supabase dev. Tidak ada kriteria gagal; pemilik perlu memeriksa route dan varian di browser.
 - Langkah berikutnya: kerjakan **P4-04** mengganti data mock beranda dengan service katalog dan menghapus `lib/mock`.
 
+### [2026-10-25 14:25] — cx/gpt-6-luna — SELESAI
+- Task: P4-04; Prompt 25 percobaan 1. Prompt 24 disetujui pemilik lewat `/1allclear`.
+- Ringkasan: Beranda async mengambil kategori dan produk terbaru dari `catalog.service`; header, navigasi desktop/mobile dan footer menerima kategori aktif dari store layout yang membaca service DB. Beranda memiliki empty state bila katalog produk kosong. Seluruh file mock dihapus dan fixture pengujian yang mengimpor mock diganti fixtures lokal; pengujian beranda/layout memakai mock service dan prop categories. Pemeriksaan referensi `lib/mock` di `app`, `components`, dan `lib` kosong.
+- File dibuat/diubah: `app/(store)/layout.tsx`, `app/(store)/page.tsx`, `components/layout/{main-navigation,mobile-navigation,site-header,site-footer}.tsx`, `lib/mock/{categories,products}.ts` (dihapus), `tests/unit/{home-and-errors,layout,presentational}.test.tsx`, dokumen ini.
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 16 file / 127 tes · `npm run build` ✔). Build awal saat layout baru membaca data DB gagal validasi instant navigation pada route kategori; `instant = false` ditambahkan pada layout toko mengikuti dokumentasi Next.js 16.4.2, lalu G2 lulus.
+- Commit: `feat(P4-04): beranda dan navigasi dari data katalog`; tag `v0.4.0`.
+- Asumsi / keputusan baru: Kategori diambil oleh store layout dan diteruskan ke header/footer supaya navigasi menyajikan kategori aktif dari service katalog publik. Next `instant = false` diperlukan karena query DB pada layout bersama perlu memblokir shell awal.
+- Masalah / utang teknis: Peringatan konfigurasi Vitest ESM/CJS dan banyak instance jsdom tetap ada tetapi tidak menggagalkan tes.
+- Langkah berikutnya: kerjakan **P5-01** store keranjang Zustand persist (`stores/cart.store.ts`) sesuai Prompt 26.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2785,8 +2795,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 21 | 3 | P3-04 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik dengan awalan /1allclear pada Prompt 22. Akun terlindungi dan halaman ringkasan/profil/alamat selesai; Server Actions Zod + sesi/RLS untuk update profil dan CRUD alamat; normalisasi telepon dan provinsi konfigurasi; trigger/index DB menjaga alamat utama tunggal. G2 lulus (114 tes), pemeriksaan isolasi manual pemilik lulus. |
 | 22 | 4 | P3-05, P4-01 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik lewat /1allclear pada Prompt 23. P3-05 dikonfirmasi pemilik; query agregat memastikan tepat satu admin tanpa menampilkan identitas. P4-01 migration product_listing_view dengan security_invoker/GRANT dipush ke dev; db:types diperbarui; parsing Zod + service katalog selesai. G1 lulus (15 file / 124 tes). Query dev agregat menguji filter, sort, pagination, wildcard escape, dan visibilitas produk/varian nonaktif. Semua kriteria LULUS. |
 | 23 | 4 | P4-02 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 24. Implementasi URL-driven ProductFilters/SortSelector/Pagination; route products/categories/sale/search; loading, metadata unik, EmptyState dan not-found kategori. Browser production build memeriksa routes, UI 404, URL filter/sort, pencarian `%_\\`, viewport 390/1440. G2 lulus (16 file / 127 tes). Semua kriteria LULUS. |
-| 24 | 4 | P4-03 | 1 | MENUNGGU | 2026-10-25 | cx/gpt-6-luna | Detail product dengan galeri keyboard, varian aktif dan harga/stok reaktif, metadata + JSON-LD data nyata tanpa review, tombol TODO(P5-03), 4 produk terkait kategori sama. G1 16 file / 127 tes dan build lulus. Kriteria terverifikasi kode/build; cek manual browser produk nyata masih diperlukan. Semua kriteria dicatat LULUS. |
-| 25 | 4 | P4-04 | 0 | BELUM | | | |
+| 24 | 4 | P4-03 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 25. Detail produk dengan galeri keyboard, varian aktif dan harga/stok reaktif, metadata + JSON-LD data nyata tanpa review, tombol TODO(P5-03), 4 produk terkait kategori sama. G1 16 file / 127 tes dan build lulus. Kriteria LULUS. |
+| 25 | 4 | P4-04 | 1 | MENUNGGU | 2026-10-25 | cx/gpt-6-luna | Beranda memakai service katalog untuk kategori dan produk terbaru; navigasi header desktop/mobile dan footer mengambil kategori DB via store layout; data mock dihapus dan unit tests diperbarui. Referensi `lib/mock` di app/components/lib kosong. G2 lulus: 16 file / 127 tes + build. Semua kriteria LULUS; gerbang Fase 4 selesai, tag v0.4.0. |
 | 26 | 5 | P5-01, P5-02 | 0 | BELUM | | | |
 | 27 | 5 | P5-03 | 0 | BELUM | | | |
 | 28 | 6 | P6-01, P6-02, P6-03 | 0 | BELUM | | | |
