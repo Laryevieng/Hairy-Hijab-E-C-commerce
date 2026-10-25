@@ -162,7 +162,7 @@ Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 | 2 | Database dan Keamanan | 13 | 13 |
 | 3 | Autentikasi dan Akun | 5 | 5 |
 | 4 | Katalog Publik | 4 | 4 |
-| 5 | Keranjang | 3 | 0 |
+| 5 | Keranjang | 3 | 2 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
 | 8 | Dashboard Admin | 10 | 0 |
@@ -1979,11 +1979,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 
 ### Fase 5 — Keranjang
 
-- [ ] **P5-01 · Store keranjang** `M` · butuh: P0-08
+- [x] **P5-01 · Store keranjang** `M` · butuh: P0-08
   - **Kerjakan:** `stores/cart.store.ts` dengan Zustand `persist` (kunci `hairy-cart-v1`, ada `version`). Hanya menyimpan `{ variantId, quantity }`. Aksi: `add` (gabungkan baris sama, batas 20), `setQuantity`, `remove`, `clear`; selector jumlah item. Tangani hidrasi agar tidak ada ketidakcocokan SSR (render nilai pasti hanya setelah mount).
   - **Selesai jika:** Tes unit (tambah, gabung, batas 20, ubah jumlah, hapus, kosongkan, persistensi); tidak ada peringatan hidrasi.
 
-- [ ] **P5-02 · Snapshot keranjang dari server** `M` · butuh: P5-01, P4-01
+- [x] **P5-02 · Snapshot keranjang dari server** `M` · butuh: P5-01, P4-01
   - **Kerjakan:** `actions/cart.actions.ts` → `getCartSnapshot(lines)`: validasi Zod (maks 30 baris, uuid, jumlah 1–20), baca varian lewat klien publik (RLS hanya mengembalikan yang aktif), kembalikan per baris nama, slug, gambar, ukuran, warna, harga, harga coret, stok, dan `status`: `ok | out_of_stock | insufficient (tersedia n) | unavailable`. Fungsi murni `computeCartView` dipisahkan agar dapat ditest.
   - **Selesai jika:** Tes unit `computeCartView` untuk semua status; harga selalu berasal dari database, bukan dari klien.
 
@@ -2796,8 +2796,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 22 | 4 | P3-05, P4-01 | 1 | DISETUJUI | 2026-10-24 | cx/gpt-6-luna | Disetujui pemilik lewat /1allclear pada Prompt 23. P3-05 dikonfirmasi pemilik; query agregat memastikan tepat satu admin tanpa menampilkan identitas. P4-01 migration product_listing_view dengan security_invoker/GRANT dipush ke dev; db:types diperbarui; parsing Zod + service katalog selesai. G1 lulus (15 file / 124 tes). Query dev agregat menguji filter, sort, pagination, wildcard escape, dan visibilitas produk/varian nonaktif. Semua kriteria LULUS. |
 | 23 | 4 | P4-02 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 24. Implementasi URL-driven ProductFilters/SortSelector/Pagination; route products/categories/sale/search; loading, metadata unik, EmptyState dan not-found kategori. Browser production build memeriksa routes, UI 404, URL filter/sort, pencarian `%_\\`, viewport 390/1440. G2 lulus (16 file / 127 tes). Semua kriteria LULUS. |
 | 24 | 4 | P4-03 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 25. Detail produk dengan galeri keyboard, varian aktif dan harga/stok reaktif, metadata + JSON-LD data nyata tanpa review, tombol TODO(P5-03), 4 produk terkait kategori sama. G1 16 file / 127 tes dan build lulus. Kriteria LULUS. |
-| 25 | 4 | P4-04 | 1 | MENUNGGU | 2026-10-25 | cx/gpt-6-luna | Beranda memakai service katalog untuk kategori dan produk terbaru; navigasi header desktop/mobile dan footer mengambil kategori DB via store layout; data mock dihapus dan unit tests diperbarui. Referensi `lib/mock` di app/components/lib kosong. G2 lulus: 16 file / 127 tes + build. Semua kriteria LULUS; gerbang Fase 4 selesai, tag v0.4.0. |
-| 26 | 5 | P5-01, P5-02 | 0 | BELUM | | | |
+| 25 | 4 | P4-04 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 26. Beranda memakai service katalog untuk kategori dan produk terbaru; navigasi header desktop/mobile dan footer mengambil kategori DB via store layout; data mock dihapus. Area app/components/lib tidak memuat referensi lib/mock. G2 lulus: 16 file / 127 tes + build. Gerbang Fase 4 selesai, tag v0.4.0. |
+| 26 | 5 | P5-01, P5-02 | 1 | MENUNGGU | 2026-10-25 | cx/gpt-6-luna | Store Zustand persist key `hairy-cart-v1`, version 1, hanya lines `{variantId, quantity}`, actions add/merge cap20, setQuantity/remove/clear, hydration manual sesudah mount; snapshot Server Action validasi Zod max30 UUID qty1–20, query publik varian+produk aktif, computeCartView status ok/out_of_stock/insufficient/unavailable dan sumber harga/stok DB. G1 lulus: 19 file / 137 tes. Semua kriteria P5-01/P5-02 LULUS. |
 | 27 | 5 | P5-03 | 0 | BELUM | | | |
 | 28 | 6 | P6-01, P6-02, P6-03 | 0 | BELUM | | | |
 | 29 | 6 | P6-04 | 0 | BELUM | | | |
