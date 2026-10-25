@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils/cn"
-import { MOCK_CATEGORIES } from "@/lib/mock/categories"
+import type { CategoryListItem } from "@/types/domain"
 
 interface MainNavigationProps {
+  categories?: Pick<CategoryListItem, "id" | "name" | "slug">[]
   className?: string
 }
 
-export function MainNavigation({ className }: MainNavigationProps) {
+export function MainNavigation({ categories = [], className }: MainNavigationProps) {
   const pathname = usePathname()
 
   return (
@@ -18,7 +19,7 @@ export function MainNavigation({ className }: MainNavigationProps) {
       className={cn("items-center justify-center gap-1", className)}
     >
       <ul className="flex flex-wrap items-center justify-center gap-1 text-sm font-medium">
-        {MOCK_CATEGORIES.map((category) => {
+        {categories.map((category) => {
           const href = `/categories/${category.slug}`
           const isActive = pathname === href
 

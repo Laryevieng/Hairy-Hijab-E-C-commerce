@@ -2,21 +2,22 @@ import Link from "next/link"
 import { ArrowRight, Feather, HeartHandshake, PackageCheck, Scissors } from "lucide-react"
 import { HeroBanner } from "@/components/home"
 import { CategoryCard } from "@/components/category"
-import { ProductGrid } from "@/components/product"
 import { Button } from "@/components/ui/button"
-import { MOCK_CATEGORIES } from "@/lib/mock/categories"
-import { MOCK_PRODUCTS } from "@/lib/mock/products"
+import { getCategories, getLatestProducts } from "@/services/catalog.service"
+import { CatalogProductCard } from "@/components/product/catalog-product-card"
+import { EmptyState } from "@/components/common/empty-state"
 
 /**
  * Halaman Beranda Hairy Hijab (Store Front).
  * Sesuai spesifikasi §8.1 dan §12.1.
- * Menggunakan data mock Fase 1 untuk 8 kategori dan produk terbaru.
+ * Data kategori dan produk terbaru dibaca dari service katalog publik.
  *
  * Catatan penting:
  * - Tidak memuat klaim sepihak, testimoni palsu, atau angka karangan.
  * - Copywriting placeholder ditandai TODO(owner) dan dicatat di plan §19.
  */
-export default function HomePage() {
+export default async function HomePage() {
+  const [categories, latestProducts] = await Promise.all([getCategories(), getLatestProducts()])
   return (
     <div className="flex flex-col">
       {/* 1. Hero Banner */}
@@ -47,20 +48,20 @@ export default function HomePage() {
 
           {/* Grid 8 Kategori: 2 kolom (mobile) -> 4 kolom (desktop) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-            {MOCK_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <CategoryCard
                 key={category.id}
                 id={category.id}
                 name={category.name}
                 slug={category.slug}
-                description={category.description}
+                description={category.description ?? undefined}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. Bagian Produk Terbaru (Mock Data) */}
+      {/* 3. Bagian Produk Terbaru */}
       <section
         aria-label="Koleksi Produk Terbaru"
         className="border-t border-sand/40 bg-sand/10 py-12 sm:py-16 lg:py-20"
@@ -94,7 +95,15 @@ export default function HomePage() {
           </div>
 
           {/* Grid Produk Responsif 2/3/4 kolom (§12.1) */}
-          <ProductGrid products={MOCK_PRODUCTS} />
+          {latestProducts.length ? (
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+              {latestProducts.map((product) => (
+                <CatalogProductCard key={product.id} product={product} categoryName={categories.find((category) => category.slug === product.category_slug)?.name} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="Produk segera hadir" description="Katalog produk sedang disiapkan." actionLabel="Lihat semua produk" actionHref="/products" />
+          )}
         </div>
       </section>
 

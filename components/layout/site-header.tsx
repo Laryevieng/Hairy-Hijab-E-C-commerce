@@ -4,8 +4,9 @@ import { Search, ShoppingBag, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
 import { MainNavigation } from "@/components/layout/main-navigation"
+import type { CategoryListItem } from "@/types/domain"
 
-export function SiteHeader() {
+export function SiteHeader({ categories = [] }: { categories?: Pick<CategoryListItem, "id" | "name" | "slug">[] }) {
   return (
     <header
       role="banner"
@@ -16,7 +17,7 @@ export function SiteHeader() {
           {/* Sisi Kiri: Tombol Hamburger Menu (Mobile) */}
           <div className="flex items-center md:hidden">
             <Suspense fallback={<div className="size-11" />}>
-              <MobileNavigation />
+              <MobileNavigation categories={categories} />
             </Suspense>
           </div>
 
@@ -34,7 +35,7 @@ export function SiteHeader() {
           {/* Tengah: MainNavigation (desktop lg+) */}
           <div className="hidden lg:flex flex-1 justify-center">
             <Suspense fallback={<div className="h-11" />}>
-              <MainNavigation />
+              <MainNavigation categories={categories} />
             </Suspense>
           </div>
 
@@ -75,7 +76,7 @@ export function SiteHeader() {
         {/* Bar navigasi untuk tablet/layar medium (md hingga lg) */}
         <div className="hidden md:flex lg:hidden pb-3 justify-center border-t border-sand/30 pt-2">
           <Suspense fallback={<div className="h-11" />}>
-            <MainNavigation />
+            <MainNavigation categories={categories} />
           </Suspense>
         </div>
       </div>

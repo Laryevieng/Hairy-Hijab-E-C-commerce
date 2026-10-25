@@ -4,8 +4,9 @@ import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { MainNavigation } from '@/components/layout/main-navigation'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
-import { MOCK_CATEGORIES } from '@/lib/mock/categories'
 import { siteConfig } from '@/config/site'
+
+const categories = Array.from({ length: 8 }, (_, index) => ({ id: `cat-${index}`, name: `Kategori ${index}`, slug: `kategori-${index}` }))
 
 describe('Komponen Layout Toko (P1-03)', () => {
   describe('AnnouncementBar', () => {
@@ -18,13 +19,13 @@ describe('Komponen Layout Toko (P1-03)', () => {
   })
 
   describe('MainNavigation', () => {
-    it('merender semua 8 kategori dari mock dan tautan Sale', () => {
-      render(<MainNavigation />)
+    it('merender kategori yang diterima dari database dan tautan Sale', () => {
+      render(<MainNavigation categories={categories} />)
       const nav = screen.getByRole('navigation', { name: 'Navigasi Utama' })
       expect(nav).toBeInTheDocument()
 
-      expect(MOCK_CATEGORIES).toHaveLength(8)
-      for (const cat of MOCK_CATEGORIES) {
+      expect(categories).toHaveLength(8)
+      for (const cat of categories) {
         const link = within(nav).getByRole('link', { name: cat.name })
         expect(link).toBeInTheDocument()
         expect(link).toHaveAttribute('href', `/categories/${cat.slug}`)
@@ -38,7 +39,7 @@ describe('Komponen Layout Toko (P1-03)', () => {
 
   describe('SiteHeader', () => {
     it('merender banner header dengan wordmark, tombol cari, akun, dan keranjang dengan badge', () => {
-      render(<SiteHeader />)
+      render(<SiteHeader categories={categories} />)
       const banner = screen.getByRole('banner')
       expect(banner).toBeInTheDocument()
 
@@ -63,7 +64,7 @@ describe('Komponen Layout Toko (P1-03)', () => {
 
   describe('SiteFooter', () => {
     it('merender informasi profil, kontak resmi, tautan kategori, bantuan, dan kebijakan', () => {
-      render(<SiteFooter />)
+      render(<SiteFooter categories={categories} />)
       const footer = screen.getByRole('contentinfo')
       expect(footer).toBeInTheDocument()
 
@@ -73,7 +74,7 @@ describe('Komponen Layout Toko (P1-03)', () => {
       expect(within(footer).getByText(siteConfig.contact.whatsappFormatted)).toBeInTheDocument()
 
       // Tautan kategori
-      for (const cat of MOCK_CATEGORIES) {
+      for (const cat of categories) {
         expect(within(footer).getByRole('link', { name: cat.name })).toHaveAttribute(
           'href',
           `/categories/${cat.slug}`

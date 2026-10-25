@@ -7,7 +7,19 @@ import { CategoryCard } from '@/components/category/category-card'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { LoadingState } from '@/components/common/loading-state'
-import { MOCK_PRODUCTS } from '@/lib/mock/products'
+
+const testProducts = Array.from({ length: 2 }, (_, index) => ({
+  id: `product-${index}`,
+  name: index === 0 ? 'Produk Uji' : 'Produk Habis',
+  slug: `produk-${index}`,
+  categoryName: 'Kategori Uji',
+  categorySlug: 'kategori-uji',
+  price: 65000,
+  compareAtPrice: null,
+  primaryImageUrl: '/images/placeholders/product-placeholder.svg',
+  totalStock: index === 0 ? 5 : 0,
+  colors: [],
+}))
 
 describe('Komponen Presentasional (P1-04)', () => {
   describe('StockBadge', () => {
@@ -33,7 +45,7 @@ describe('Komponen Presentasional (P1-04)', () => {
   })
 
   describe('ProductCard', () => {
-    const mockProduct = MOCK_PRODUCTS[0]
+    const mockProduct = testProducts[0]
 
     it('merender nama produk, kategori, harga, dan tautan ke detail produk', () => {
       render(<ProductCard product={mockProduct} />)
@@ -46,7 +58,7 @@ describe('Komponen Presentasional (P1-04)', () => {
     })
 
     it('menampilkan badge Sold Out pada produk dengan stok 0', () => {
-      const soldOutProduct = MOCK_PRODUCTS.find((p) => p.totalStock === 0)!
+      const soldOutProduct = testProducts.find((p) => p.totalStock === 0)!
       render(<ProductCard product={soldOutProduct} />)
       expect(screen.getByText('Sold Out')).toBeInTheDocument()
     })
@@ -54,14 +66,14 @@ describe('Komponen Presentasional (P1-04)', () => {
 
   describe('ProductGrid', () => {
     it('memiliki kelas CSS grid 2 kolom di mobile, 3 di tablet, 4 di desktop (grid-cols-2 md:grid-cols-3 lg:grid-cols-4)', () => {
-      render(<ProductGrid products={MOCK_PRODUCTS} />)
+      render(<ProductGrid products={testProducts} />)
       const grid = screen.getByTestId('product-grid')
       expect(grid).toHaveClass('grid', 'grid-cols-2', 'md:grid-cols-3', 'lg:grid-cols-4')
     })
 
     it('merender seluruh produk yang diberikan', () => {
-      render(<ProductGrid products={MOCK_PRODUCTS} />)
-      for (const product of MOCK_PRODUCTS) {
+      render(<ProductGrid products={testProducts} />)
+      for (const product of testProducts) {
         expect(screen.getByText(product.name)).toBeInTheDocument()
       }
     })

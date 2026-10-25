@@ -2,12 +2,17 @@ import type { ReactNode } from "react"
 import { AnnouncementBar } from "@/components/layout/announcement-bar"
 import { SiteHeader } from "@/components/layout/site-header"
 import { SiteFooter } from "@/components/layout/site-footer"
+import { getCategories } from "@/services/catalog.service"
+
+// Navigasi membaca kategori dari database pada request; izinkan layout toko memblokir render awal.
+export const instant = false
 
 interface StoreLayoutProps {
   children: ReactNode
 }
 
-export default function StoreLayout({ children }: StoreLayoutProps) {
+export default async function StoreLayout({ children }: StoreLayoutProps) {
+  const categories = await getCategories()
   return (
     <div className="flex min-h-screen flex-col bg-ivory text-espresso">
       {/* Skip link untuk aksesibilitas keyboard dan pembaca layar */}
@@ -18,11 +23,11 @@ export default function StoreLayout({ children }: StoreLayoutProps) {
         Lewati ke konten utama
       </a>
       <AnnouncementBar />
-      <SiteHeader />
+      <SiteHeader categories={categories} />
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <SiteFooter />
+      <SiteFooter categories={categories} />
     </div>
   )
 }

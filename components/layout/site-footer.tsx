@@ -1,10 +1,10 @@
 import Link from "next/link"
 import { siteConfig } from "@/config/site"
 import { buildWhatsAppLink } from "@/lib/utils/phone"
-import { MOCK_CATEGORIES } from "@/lib/mock/categories"
 import { MessageCircle, Mail, MapPin, Clock } from "lucide-react"
+import type { CategoryListItem } from "@/types/domain"
 
-export function SiteFooter() {
+export function SiteFooter({ categories = [] }: { categories?: Pick<CategoryListItem, "id" | "name" | "slug">[] }) {
   const whatsappUrl = buildWhatsAppLink(
     siteConfig.contact.phone,
     "Halo Hairy Hijab, saya ingin bertanya seputar produk."
@@ -74,7 +74,7 @@ export function SiteFooter() {
                   Semua Produk
                 </Link>
               </li>
-              {MOCK_CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link
                     href={`/categories/${cat.slug}`}

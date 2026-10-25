@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils/cn"
-import { MOCK_CATEGORIES } from "@/lib/mock/categories"
+import type { CategoryListItem } from "@/types/domain"
 
-export function MobileNavigation() {
+export function MobileNavigation({ categories = [] }: { categories?: Pick<CategoryListItem, "id" | "name" | "slug">[] }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -58,7 +58,7 @@ export function MobileNavigation() {
             </p>
             <nav aria-label="Kategori Navigasi Mobile">
               <ul className="space-y-1">
-                {MOCK_CATEGORIES.map((cat) => {
+                {categories.map((cat) => {
                   const href = `/categories/${cat.slug}`
                   const isActive = pathname === href
                   return (
