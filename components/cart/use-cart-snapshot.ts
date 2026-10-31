@@ -27,17 +27,22 @@ export function useCartSnapshot(enabled = true): CartSnapshotState {
   const lines = useCartStore((state) => state.lines)
   const [attempt, setAttempt] = useState(0)
   const [result, setResult] = useState<SnapshotResult | null>(null)
-  const fetchKey = useMemo(() => `${attempt}:${JSON.stringify(lines)}`, [attempt, lines])
+  // Kunci berbasis isi, bukan referensi array: rehidrasi dengan isi yang sama tidak memicu permintaan ulang.
+  const linesJson = useMemo(() => JSON.stringify(lines), [lines])
+  const fetchKey = `${attempt}:${linesJson}`
 
   useEffect(() => {
-    if (!hydrated || !enabled || lines.length === 0) return
+    const requestLines = JSON.parse(linesJson) as typeof lines
+    if (!hydrated || !enabled || requestLines.length === 0) return
     let cancelled = false
-    getCartSnapshot(lines).then(
-      (response) => { if (!cancelled) setResult({ key: fetchKey, ...response }) },
-      () => { if (!cancelled) setResult({ key: fetchKey, ok: false, error: LOAD_ERROR }) },
-    )
+    Promise.resolve()
+      .then(() => getCartSnapshot(requestLines))
+      .then(
+        (response) => { if (!cancelled) setResult({ key: fetchKey, ...response }) },
+        () => { if (!cancelled) setResult({ key: fetchKey, ok: false, error: LOAD_ERROR }) },
+      )
     return () => { cancelled = true }
-  }, [hydrated, enabled, lines, fetchKey])
+  }, [hydrated, enabled, linesJson, fetchKey])
 
   if (!hydrated) return { status: 'loading' }
   if (lines.length === 0) return { status: 'empty' }
