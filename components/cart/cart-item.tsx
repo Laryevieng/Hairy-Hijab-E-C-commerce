@@ -35,7 +35,7 @@ export function CartItem({ line, onQuantityChange, onRemove }: CartItemProps) {
           // eslint-disable-next-line @next/next/no-img-element -- public Supabase Storage URL is assembled from a validated bucket path.
           <img src={imageUrl} alt={line.imageAlt ?? line.productName} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full items-center justify-center p-1 text-center text-[10px] text-espresso/60">Foto belum tersedia</div>
+          <div className="flex h-full items-center justify-center p-1 text-center text-xs text-espresso">Foto belum tersedia</div>
         )}
       </div>
 
