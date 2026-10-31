@@ -1,5 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('@/actions/cart.actions', () => ({ getCartSnapshot: vi.fn(async () => ({ ok: true, data: [] })) }))
 import { AnnouncementBar } from '@/components/layout/announcement-bar'
 import { MainNavigation } from '@/components/layout/main-navigation'
 import { SiteHeader } from '@/components/layout/site-header'
@@ -53,9 +55,9 @@ describe('Komponen Layout Toko (P1-03)', () => {
       const accountLink = within(banner).getByLabelText('Akun saya')
       expect(accountLink).toHaveAttribute('href', '/account')
 
-      const cartLink = within(banner).getByLabelText('Keranjang belanja (0 item)')
-      expect(cartLink).toHaveAttribute('href', '/cart')
-      expect(cartLink).toHaveTextContent('0')
+      const cartButton = within(banner).getByRole('button', { name: 'Keranjang belanja (0 item)' })
+      expect(cartButton).toHaveAttribute('aria-haspopup', 'dialog')
+      expect(cartButton).toHaveTextContent('0')
 
       const mobileMenuButton = within(banner).getByRole('button', { name: 'Buka menu navigasi' })
       expect(mobileMenuButton).toBeInTheDocument()

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Suspense } from "react"
-import { Search, ShoppingBag, User } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Search, User } from "lucide-react"
+import { CartSheet } from "@/components/cart/cart-sheet"
 import { MobileNavigation } from "@/components/layout/mobile-navigation"
 import { MainNavigation } from "@/components/layout/main-navigation"
 import type { CategoryListItem } from "@/types/domain"
@@ -57,19 +57,7 @@ export function SiteHeader({ categories = [] }: { categories?: Pick<CategoryList
               <User className="size-5" />
             </Link>
 
-            <Link
-              href="/cart"
-              aria-label="Keranjang belanja (0 item)"
-              className="relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-espresso/80 transition-colors hover:text-espresso hover:bg-sand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <ShoppingBag className="size-5" />
-              <Badge
-                variant="default"
-                className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-espresso text-ivory pointer-events-none"
-              >
-                0
-              </Badge>
-            </Link>
+            <CartSheet />
           </div>
         </div>
 
