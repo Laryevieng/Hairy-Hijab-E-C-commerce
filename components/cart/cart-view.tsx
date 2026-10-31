@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
 import { CartItem } from '@/components/cart/cart-item'
 import { CartSummary } from '@/components/cart/cart-summary'
 import { useCartSnapshot } from '@/components/cart/use-cart-snapshot'
+import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { cartLineVariantLabel, computeCartTotals } from '@/lib/cart/cart-totals'
 import type { CartViewLine } from '@/lib/cart/compute-cart-view'
@@ -49,7 +51,13 @@ export function CartView() {
       <p role="status" className="sr-only">{statusMessage}</p>
       {snapshot.status === 'loading' && <CartLoading />}
       {snapshot.status === 'empty' && (
-        <p className="text-espresso/80">Keranjang Anda masih kosong.</p>
+        <EmptyState
+          icon={<ShoppingBag className="size-7" aria-hidden="true" />}
+          title="Keranjang Anda masih kosong"
+          description="Jelajahi koleksi Hairy Hijab dan tambahkan produk pilihan Anda ke keranjang."
+          actionLabel="Mulai Belanja"
+          actionHref="/products"
+        />
       )}
       {snapshot.status === 'error' && (
         <ErrorState title="Keranjang tidak dapat dimuat" message={snapshot.error} onRetry={snapshot.retry} />

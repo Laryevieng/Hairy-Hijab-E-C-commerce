@@ -79,6 +79,22 @@ describe('CartView (P5-03c)', () => {
     await waitFor(() => expect(screen.getByRole('link', { name: 'Lanjut ke Checkout' })).toBeInTheDocument())
   })
 
+  it('menampilkan keadaan kosong tanpa memanggil server (P5-03d)', async () => {
+    render(<CartView />)
+    expect(await screen.findByRole('heading', { name: 'Keranjang Anda masih kosong' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Mulai Belanja' })).toHaveAttribute('href', '/products')
+    expect(getCartSnapshot).not.toHaveBeenCalled()
+  })
+
+  it('beralih ke keadaan kosong setelah baris terakhir dihapus (P5-03d)', async () => {
+    useCartStore.getState().add(okId, 1)
+    mockServer({ [okId]: 10 })
+    render(<CartView />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Hapus Pashmina Silk, Mocca dari keranjang' }))
+    expect(await screen.findByRole('heading', { name: 'Keranjang Anda masih kosong' })).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('hairy-cart-v1') ?? '{}').state.lines).toEqual([])
+  })
+
   it('menampilkan ErrorState dengan tombol coba lagi bila snapshot gagal', async () => {
     useCartStore.getState().add(okId, 1)
     vi.mocked(getCartSnapshot).mockResolvedValue({ ok: false, error: 'Data keranjang tidak dapat dimuat.' })
