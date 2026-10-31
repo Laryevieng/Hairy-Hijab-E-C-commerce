@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { AnnouncementBar } from "@/components/layout/announcement-bar"
 import { SiteHeader } from "@/components/layout/site-header"
 import { SiteFooter } from "@/components/layout/site-footer"
+import { Toaster } from "@/components/ui/sonner"
 import { getCategories } from "@/services/catalog.service"
 
 // Navigasi membaca kategori dari database pada request; izinkan layout toko memblokir render awal.
@@ -28,6 +29,7 @@ export default async function StoreLayout({ children }: StoreLayoutProps) {
         {children}
       </main>
       <SiteFooter categories={categories} />
+      <Toaster position="top-center" />
     </div>
   )
 }

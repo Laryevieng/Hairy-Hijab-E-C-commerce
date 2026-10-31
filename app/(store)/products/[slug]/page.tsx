@@ -54,7 +54,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <ProductGallery images={gallery} productName={product.name} />
       <div className="space-y-6">
         <div><p className="text-sm uppercase tracking-wide text-espresso/60">{product.category.name}</p><h1 className="mt-2 font-serif text-3xl font-semibold text-espresso">{product.name}</h1></div>
-        <ProductVariantDetails variants={variants} />
+        <ProductVariantDetails variants={variants} productName={product.name} />
         {product.description && <p className="whitespace-pre-line leading-relaxed text-espresso/80">{product.description}</p>}
         {product.specs && Object.keys(product.specs).length > 0 && <dl className="space-y-2 border-t border-sand pt-4">{Object.entries(product.specs).map(([key, value]) => <div key={key} className="flex gap-2 text-sm"><dt className="font-medium capitalize">{key.replaceAll('_', ' ')}:</dt><dd>{String(value)}</dd></div>)}</dl>}
         {product.material && <p className="text-sm">Bahan: {product.material}</p>}{product.care_instructions && <p className="text-sm">Perawatan: {product.care_instructions}</p>}

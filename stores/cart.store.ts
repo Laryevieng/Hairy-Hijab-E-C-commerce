@@ -16,7 +16,7 @@ interface CartState {
   setHasHydrated: (hasHydrated: boolean) => void
 }
 
-const MAX_QUANTITY = 20
+export const MAX_QUANTITY = 20
 
 export const useCartStore = create<CartState>()(
   persist(
