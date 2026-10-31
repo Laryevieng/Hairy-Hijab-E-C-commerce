@@ -144,13 +144,13 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 5 — Keranjang
-Task berikutnya      : P5-01
-Prompt aktif         : 26 (lihat Lampiran E)
-Task terakhir selesai: P4-04
+Fase aktif           : Fase 6 — Checkout dan Pesanan
+Task berikutnya      : P6-01
+Prompt aktif         : 28 (lihat Lampiran E)
+Task terakhir selesai: P5-03 (Gerbang Fase 5 lulus, tag v0.5.0)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
-Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
+Menunggu pemilik     : persetujuan Prompt 27; lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
+Terakhir diperbarui  : 2026-11-01 oleh Kiro
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -162,7 +162,7 @@ Terakhir diperbarui  : 2026-10-24 oleh cx/gpt-6-luna
 | 2 | Database dan Keamanan | 13 | 13 |
 | 3 | Autentikasi dan Akun | 5 | 5 |
 | 4 | Katalog Publik | 4 | 4 |
-| 5 | Keranjang | 3 | 2 |
+| 5 | Keranjang | 3 | 3 |
 | 6 | Checkout dan Pesanan | 8 | 0 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
 | 8 | Dashboard Admin | 10 | 0 |
@@ -1987,12 +1987,12 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `actions/cart.actions.ts` → `getCartSnapshot(lines)`: validasi Zod (maks 30 baris, uuid, jumlah 1–20), baca varian lewat klien publik (RLS hanya mengembalikan yang aktif), kembalikan per baris nama, slug, gambar, ukuran, warna, harga, harga coret, stok, dan `status`: `ok | out_of_stock | insufficient (tersedia n) | unavailable`. Fungsi murni `computeCartView` dipisahkan agar dapat ditest.
   - **Selesai jika:** Tes unit `computeCartView` untuk semua status; harga selalu berasal dari database, bukan dari klien.
 
-- [ ] **P5-03 · UI keranjang** `L` · butuh: P5-02, P4-03
+- [x] **P5-03 · UI keranjang** `L` · butuh: P5-02, P4-03
   - **Kerjakan:**
-    - [ ] a. Isi handler `AddToCartButton` pada detail produk (hilangkan `TODO(P5-03)`).
-    - [ ] b. `CartSheet` di header dengan badge jumlah (menggantikan placeholder).
-    - [ ] c. `/cart`: `CartItem`, `QuantitySelector`, `CartSummary` (subtotal; ongkir dihitung saat checkout), peringatan untuk baris bermasalah, tautan ke `/checkout` nonaktif bila ada baris tidak `ok`.
-    - [ ] d. Keadaan keranjang kosong.
+    - [x] a. Isi handler `AddToCartButton` pada detail produk (hilangkan `TODO(P5-03)`).
+    - [x] b. `CartSheet` di header dengan badge jumlah (menggantikan placeholder).
+    - [x] c. `/cart`: `CartItem`, `QuantitySelector`, `CartSummary` (subtotal; ongkir dihitung saat checkout), peringatan untuk baris bermasalah, tautan ke `/checkout` nonaktif bila ada baris tidak `ok`.
+    - [x] d. Keadaan keranjang kosong.
   - **Selesai jika:** Tambah/ubah/hapus bekerja dan bertahan setelah muat ulang; baris tidak tersedia ditandai dan memblokir checkout; a11y terpenuhi; G2 lulus.
 
 ---
@@ -2760,6 +2760,18 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Peringatan konfigurasi Vitest ESM/CJS dan banyak instance jsdom tetap ada tetapi tidak menggagalkan tes.
 - Langkah berikutnya: kerjakan **P5-01** store keranjang Zustand persist (`stores/cart.store.ts`) sesuai Prompt 26.
 
+### [2026-11-01 02:50] — Kiro — SELESAI
+- Task: P5-03 (sub-langkah selesai: a, b, c, d); Prompt 27 percobaan 1. Prompt 26 ditandai DISETUJUI (`/1allclear`). Gerbang Fase 5.
+- Ringkasan: (a) `AddToCartButton` menambah 1 unit varian terpilih ke store; nonaktif sampai store terhidrasi, bila belum ada varian, stok 0 ("Sold Out"), atau jumlah di keranjang sudah mencapai `min(20, stok)`; alasan ditautkan `aria-describedby`; sukses lewat toast `sonner` + teks `role=status`. `TODO(P5-03)` dihapus; `Toaster` dipasang di layout `(store)`. (b) `CartSheet` (Radix Sheet: fokus terjebak, `Esc` menutup) menggantikan tautan placeholder di header; badge membaca `selectCartItemCount` hanya setelah hidrasi (markup SSR = 0), `aria-label` "Keranjang belanja (n item)"; isi sheet memakai snapshot server hanya saat dibuka. (c) `/cart` (`robots: noindex`, `loading.tsx`): `CartItem`, `QuantitySelector` (tombol ±, maks `min(20, stok)`), `CartSummary` (subtotal integer dari baris `ok`, ongkir "Dihitung saat checkout"); baris bermasalah diberi garis merah + pesan teks per status; "Lanjut ke Checkout" berupa tombol nonaktif dengan alasan bila ada baris tidak `ok` atau snapshot sedang diperbarui; `ErrorState` + "Coba Lagi" bila snapshot gagal. (d) `EmptyState` "Keranjang Anda masih kosong" + "Mulai Belanja" → `/products`, tanpa memanggil server. Hook `useCartSnapshot` memanggil `getCartSnapshot` dengan kunci berbasis isi baris; harga/stok/status selalu dari server.
+- Verifikasi otomatis: tes unit baru `add-to-cart-button` (4), `cart-sheet` (3), `cart-totals` (4), `cart-view` (6); `layout.test.tsx` disesuaikan (keranjang kini tombol `aria-haspopup=dialog`).
+- Verifikasi browser (Playwright sementara terhadap `next start` port 3100 + Supabase dev; spec, config, `test-results/` dihapus): 2/2 lulus. Tambah dari detail produk → badge 1 → muat ulang tetap 1; sheet terbuka dan tertutup dengan `Esc`; varian UUID tak dikenal di localStorage → "Produk tidak lagi tersedia", checkout nonaktif; axe WCAG 2.2 AA pada `<main>` `/cart` tanpa pelanggaran; hapus baris → checkout aktif (`/checkout`); tambah jumlah → 2, bertahan setelah muat ulang; hapus terakhir → keadaan kosong, bertahan setelah muat ulang; tidak ada error hidrasi di console pada `/cart` dan `/`.
+- File dibuat/diubah: `components/product/{add-to-cart-button,quantity-selector}.tsx` (baru), `components/product/product-variant-details.tsx`, `app/(store)/products/[slug]/page.tsx`, `app/(store)/layout.tsx`, `stores/cart.store.ts` (ekspor `MAX_QUANTITY`), `components/cart/{cart-sheet,cart-item,cart-summary,cart-view,use-cart-snapshot}.{tsx,ts}` (baru), `lib/cart/cart-totals.ts` (baru), `components/layout/site-header.tsx`, `app/(store)/cart/{page,loading}.tsx` (baru), `tests/unit/{add-to-cart-button,cart-sheet,cart-totals,cart-view}.test.{tsx,ts}` (baru), `tests/unit/layout.test.tsx`, dokumen ini.
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 23 file / 154 tes · `npm run build` ✔, `/cart` dinamis). Build pertama lewat shell foreground terpotong batas waktu alat setelah TypeScript (bukan error build); dijalankan ulang di background dan lulus dengan `BUILD_EXIT=0`.
+- Commit: `85058ba feat(P5-03a): aktifkan tombol tambah ke keranjang`, `8d1dc06 feat(P5-03b): CartSheet di header dengan badge jumlah`, `ac02c8c feat(P5-03c): halaman /cart dengan CartItem, QuantitySelector, CartSummary`, `92da873 feat(P5-03d): keadaan keranjang kosong`, `5132dd4 fix(P5-03): kontras teks placeholder foto di CartItem`; dokumentasi dikomit terpisah; tag `v0.5.0`.
+- Asumsi / keputusan baru: Tombol detail produk menambah 1 unit per klik (plan tidak menyebut pemilih jumlah di detail; `QuantitySelector` dipakai di `/cart`). Batas tambah di detail = `min(20, stok tampilan)`; stok final tetap divalidasi snapshot dan `create_order`. Subtotal hanya menjumlahkan baris `ok`. Checkout juga nonaktif sementara snapshot diperbarui setelah jumlah diubah, agar status tidak basi. Placeholder foto memakai `text-xs text-espresso` karena `text-espresso/60` 10px gagal kontras (3,4:1). `/checkout` belum ada (P6-04), jadi tautan aktif menuju 404 sementara.
+- Masalah / utang teknis: axe menemukan kontras 3,61:1 pada dua teks footer (`SiteFooter`: baris hak cipta dan tagline, ±`text-espresso/60` 12px) — di luar scope P5-03, belum diperbaiki; usul ditangani di P9-04/P10. Peringatan konfigurasi Vitest ESM/CJS tetap ada. Tidak ada tes e2e keranjang permanen (dijadwalkan P10-04).
+- Langkah berikutnya: kerjakan **P6-01** `lib/validations/checkout.ts` (`customerSchema`, `addressSchema`, `checkoutSchema`) sesuai Prompt 28, setelah pemilik mengonfirmasi D-06, D-10, D-11 (§19).
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2797,8 +2809,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 23 | 4 | P4-02 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 24. Implementasi URL-driven ProductFilters/SortSelector/Pagination; route products/categories/sale/search; loading, metadata unik, EmptyState dan not-found kategori. Browser production build memeriksa routes, UI 404, URL filter/sort, pencarian `%_\\`, viewport 390/1440. G2 lulus (16 file / 127 tes). Semua kriteria LULUS. |
 | 24 | 4 | P4-03 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 25. Detail produk dengan galeri keyboard, varian aktif dan harga/stok reaktif, metadata + JSON-LD data nyata tanpa review, tombol TODO(P5-03), 4 produk terkait kategori sama. G1 16 file / 127 tes dan build lulus. Kriteria LULUS. |
 | 25 | 4 | P4-04 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 26. Beranda memakai service katalog untuk kategori dan produk terbaru; navigasi header desktop/mobile dan footer mengambil kategori DB via store layout; data mock dihapus. Area app/components/lib tidak memuat referensi lib/mock. G2 lulus: 16 file / 127 tes + build. Gerbang Fase 4 selesai, tag v0.4.0. |
-| 26 | 5 | P5-01, P5-02 | 1 | MENUNGGU | 2026-10-25 | cx/gpt-6-luna | Store Zustand persist key `hairy-cart-v1`, version 1, hanya lines `{variantId, quantity}`, actions add/merge cap20, setQuantity/remove/clear, hydration manual sesudah mount; snapshot Server Action validasi Zod max30 UUID qty1–20, query publik varian+produk aktif, computeCartView status ok/out_of_stock/insufficient/unavailable dan sumber harga/stok DB. G1 lulus: 19 file / 137 tes. Semua kriteria P5-01/P5-02 LULUS. |
-| 27 | 5 | P5-03 | 0 | BELUM | | | |
+| 26 | 5 | P5-01, P5-02 | 1 | DISETUJUI | 2026-11-01 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 27. Store Zustand persist key `hairy-cart-v1`, version 1, hanya lines `{variantId, quantity}`, actions add/merge cap20, setQuantity/remove/clear, hydration manual sesudah mount; snapshot Server Action validasi Zod max30 UUID qty1–20, query publik varian+produk aktif, computeCartView status ok/out_of_stock/insufficient/unavailable dan sumber harga/stok DB. G1 lulus: 19 file / 137 tes. Semua kriteria P5-01/P5-02 LULUS. |
+| 27 | 5 | P5-03 | 1 | MENUNGGU | 2026-11-01 | Kiro | (a) AddToCartButton aktif (nonaktif sebelum hidrasi/tanpa varian/Sold Out/batas stok, alasan terbaca, toast + role=status), TODO(P5-03) dihapus; (b) CartSheet di header dengan badge pasca-hidrasi; (c) `/cart` CartItem, QuantitySelector, CartSummary subtotal integer, baris bermasalah ditandai, checkout nonaktif bila ada baris tidak ok; (d) EmptyState keranjang kosong. Browser Playwright 2/2: persisten setelah muat ulang, unavailable memblokir checkout, axe `<main>` bersih, tanpa error hidrasi. G2 lulus (23 file / 154 tes + build). Gerbang Fase 5 tuntas, tag v0.5.0. Semua kriteria LULUS; catatan: kontras footer di luar scope. |
 | 28 | 6 | P6-01, P6-02, P6-03 | 0 | BELUM | | | |
 | 29 | 6 | P6-04 | 0 | BELUM | | | |
 | 30 | 6 | P6-05 | 0 | BELUM | | | |
