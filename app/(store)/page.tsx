@@ -7,6 +7,10 @@ import { getCategories, getLatestProducts } from "@/services/catalog.service"
 import { CatalogProductCard } from "@/components/product/catalog-product-card"
 import { EmptyState } from "@/components/common/empty-state"
 
+// Kategori dan produk terbaru dibaca dari database pada request; izinkan beranda memblokir render awal.
+// TODO(P9-03): ganti dengan <Suspense> atau 'use cache' agar beranda punya static shell.
+export const instant = false
+
 /**
  * Halaman Beranda Hairy Hijab (Store Front).
  * Sesuai spesifikasi §8.1 dan §12.1.

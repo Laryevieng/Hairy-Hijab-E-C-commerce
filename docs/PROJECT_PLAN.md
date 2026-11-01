@@ -2782,6 +2782,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Insert massal PostgREST mengisi kolom yang absen dengan `null` (bukan default) — ditemukan saat menulis tes dev, diatasi dengan kolom seragam. Peringatan Vitest ESM/CJS tetap ada. Footer kontras 3,61:1 (dari P5-03) masih terbuka.
 - Langkah berikutnya: kerjakan **P6-04** halaman checkout (`components/checkout/{checkout-form,address-fields}.tsx`, `app/(store)/checkout/page.tsx`) memakai `checkoutSchema`, `quoteShipping`, dan `calculateTotals` sesuai Prompt 29.
 
+### [2026-11-01 19:55] — Kiro — SELESAI
+- Task: P-FIX (diminta pemilik setelah cek manual Prompt 28; bukan bagian Prompt 28).
+- Ringkasan: `next dev` menampilkan "Route "/" / "/products/[slug]": Next.js encountered uncached data during prerendering or a navigation" (blocking-prerender-dynamic) dari `getLatestProducts` dan `getProductBySlug`. Penyebab: sejak P4-03/P4-04 kedua page membaca database tanpa `<Suspense>`, sedangkan `instant = false` hanya ada di `app/(store)/layout.tsx`; menurut docs Next 16.4.2 terpasang (`instant.md`), `false` pada layout tidak membebaskan page di bawahnya dari validasi dev. Perbaikan cepat (opsi "[block]" pada pesan error): `export const instant = false` di `app/(store)/page.tsx` dan `app/(store)/products/[slug]/page.tsx`, pola yang sama dengan `/account`. Hanya peringatan dev (route tetap 200, build tidak terpengaruh).
+- File dibuat/diubah: `app/(store)/page.tsx`, `app/(store)/products/[slug]/page.tsx`, dokumen ini. `AGENTS.md` mendapat blok `nextjs-agent-feedback` yang ditulis otomatis oleh `next dev` (`experimental.agentFeedback: true` di `next.config.ts`); dikomit terpisah apa adanya.
+- Gate: G1 ✔ (`lint` ✔ · `typecheck` ✔ · `test` ✔ 27 file / 212 tes). `next dev` port 3100: `/`, `/products`, dua detail produk, `/cart` → 200 tanpa error uncached data di log.
+- Commit: lihat `fix(P-FIX): izinkan beranda dan detail produk memblokir render awal`.
+- Asumsi / keputusan baru: Ditandai `TODO(P9-03)` di kedua file: ganti dengan `<Suspense>` atau `'use cache'` agar beranda dan detail produk punya static shell. Peringatan "Blocked cross-origin request … /_next/hmr" muncul karena dev server dibuka lewat IP jaringan, bukan `localhost`; `allowedDevOrigins` tidak ditambahkan (tidak diminta).
+- Masalah / utang teknis: `TODO(P9-03)` di atas; kontras footer (P5-03) tetap terbuka.
+- Langkah berikutnya: kerjakan **P6-04** sesuai Prompt 29.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)

@@ -7,6 +7,10 @@ import { ProductVariantDetails } from '@/components/product/product-variant-deta
 import { CatalogProductCard, type CatalogProduct } from '@/components/product/catalog-product-card'
 import { getPublicEnv } from '@/lib/env'
 
+// Detail produk dibaca dari database pada request; izinkan halaman memblokir render awal.
+// TODO(P9-03): ganti dengan <Suspense> atau 'use cache' agar detail produk punya static shell.
+export const instant = false
+
 type ProductPageProps = { params: Promise<{ slug: string }> }
 
 function imageUrl(path: string) {
