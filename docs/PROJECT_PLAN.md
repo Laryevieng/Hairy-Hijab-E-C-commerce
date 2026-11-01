@@ -145,11 +145,11 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 6 — Checkout dan Pesanan
-Task berikutnya      : P6-01
-Prompt aktif         : 28 (lihat Lampiran E)
-Task terakhir selesai: P5-03 (Gerbang Fase 5 lulus, tag v0.5.0)
+Task berikutnya      : P6-04
+Prompt aktif         : 29 (lihat Lampiran E)
+Task terakhir selesai: P6-03 (juga P6-01, P6-02)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 27; lihat §19 (D-06, D-10, D-11 perlu konfirmasi sebelum Fase 6)
+Menunggu pemilik     : persetujuan Prompt 28; jawaban §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11) sebelum Gerbang Fase 6
 Terakhir diperbarui  : 2026-11-01 oleh Kiro
 ```
 
@@ -163,7 +163,7 @@ Terakhir diperbarui  : 2026-11-01 oleh Kiro
 | 3 | Autentikasi dan Akun | 5 | 5 |
 | 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 3 |
-| 6 | Checkout dan Pesanan | 8 | 0 |
+| 6 | Checkout dan Pesanan | 8 | 3 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
 | 8 | Dashboard Admin | 10 | 0 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
@@ -1999,15 +1999,15 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 
 ### Fase 6 — Checkout dan Pesanan
 
-- [ ] **P6-01 · Skema validasi checkout** `S` · butuh: P0-05
+- [x] **P6-01 · Skema validasi checkout** `S` · butuh: P0-05
   - **Kerjakan:** `lib/validations/checkout.ts`: `customerSchema` (nama 2–80, telepon dinormalisasi `62…`, email opsional), `addressSchema` (provinsi ∈ `regions`, kota, kecamatan, kode pos `^\d{5}$`, detail 10–300), `checkoutSchema` (`idempotencyKey` uuid, `customer`, `address`, `items[]` ≤ 30, `notes` ≤ 300). Skema **tidak** menerima harga atau total.
   - **Selesai jika:** Tes unit dengan input valid dan tidak valid lulus.
 
-- [ ] **P6-02 · Perhitungan total** `S` · butuh: P0-05
+- [x] **P6-02 · Perhitungan total** `S` · butuh: P0-05
   - **Kerjakan:** `lib/pricing/calculate-totals.ts`: `calculateTotals({ lines, shippingCost, discount = 0 })` → `{ subtotal, shippingCost, discount, grandTotal }`, semua integer; melempar error bila ada nilai non-integer/negatif. Dipakai untuk **pratinjau UI**; otoritas tetap `create_order`.
   - **Selesai jika:** Tes unit mencakup kasus normal, nol, dan input tidak valid.
 
-- [ ] **P6-03 · Service ongkir** `S` · butuh: P4-01
+- [x] **P6-03 · Service ongkir** `S` · butuh: P4-01
   - **Kerjakan:** `services/shipping.service.ts` → `getShippingQuote(province)` memakai aturan yang sama dengan `create_order` (provinsi cocok dulu, lalu `*`); kembalikan `{ cost, label, estimatedDays } | null`. Server Action `quoteShipping(province)` untuk UI.
   - **Selesai jika:** Tes terhadap data dev: provinsi tanpa baris khusus memakai tarif `*`; baris nonaktif diabaikan.
 
@@ -2772,6 +2772,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: axe menemukan kontras 3,61:1 pada dua teks footer (`SiteFooter`: baris hak cipta dan tagline, ±`text-espresso/60` 12px) — di luar scope P5-03, belum diperbaiki; usul ditangani di P9-04/P10. Peringatan konfigurasi Vitest ESM/CJS tetap ada. Tidak ada tes e2e keranjang permanen (dijadwalkan P10-04).
 - Langkah berikutnya: kerjakan **P6-01** `lib/validations/checkout.ts` (`customerSchema`, `addressSchema`, `checkoutSchema`) sesuai Prompt 28, setelah pemilik mengonfirmasi D-06, D-10, D-11 (§19).
 
+### [2026-11-01 19:40] — Kiro — SELESAI
+- Task: P6-01, P6-02, P6-03; Prompt 28 percobaan 1. Prompt 27 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (P6-01) `lib/validations/checkout.ts`: `customerSchema` (nama 2–80, telepon lewat `normalizePhoneID` → `62…`, email opsional di-lowercase), `addressSchema` (provinsi ∈ `PROVINCES`, kota, kecamatan, kode pos `^\d{5}$`, detail 10–300), `checkoutSchema` (`idempotencyKey` uuid, `customer`, `address`, `items` 1–30 baris × `quantity` integer 1–20, `notes` ≤ 300). Tidak ada field harga/ongkir/total; field tambahan dari klien dibuang oleh `z.object`. (P6-02) `lib/pricing/calculate-totals.ts` `calculateTotals({ lines, shippingCost, discount = 0 })` → `{ subtotal, shippingCost, discount, grandTotal }`, melempar `RangeError` bila nilai bukan safe integer, negatif, atau `grandTotal` < 0 (cermin `chk_order_total`); hanya untuk pratinjau UI. (P6-03) `services/shipping.service.ts` `getShippingQuote(province)` (server-only, klien publik + RLS): baris aktif, provinsi cocok setelah trim/lowercase (sama dengan `lower()` di `create_order`) lalu `*`, kembalikan `{ cost, label, estimatedDays } | null`. `actions/checkout.actions.ts` `quoteShipping(province)`: validasi provinsi Zod → service → `ActionResult`, `null` → `SHIPPING_UNAVAILABLE`, error teknis disembunyikan.
+- File dibuat/diubah: `lib/validations/checkout.ts`, `lib/pricing/calculate-totals.ts`, `services/shipping.service.ts`, `actions/checkout.actions.ts`, `tests/unit/{checkout-validation,calculate-totals,shipping-service,quote-shipping-action}.test.ts`, `tests/security/shipping.test.ts` (semua baru), dokumen ini.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 27 file / 212 tes). Tes Supabase dev `tests/security/shipping.test.ts` ✔ 4/4 (provinsi tanpa baris khusus → tarif `*`; baris aktif per provinsi tanpa beda huruf; baris nonaktif diabaikan; ongkir pratinjau = `shipping_cost` hasil `create_order`); data `rls-test-*` dibersihkan dan dicek 0. G3 penuh tidak dijalankan (tidak ada perubahan database).
+- Commit: `dc3c4cb feat(P6-01): skema validasi checkout tanpa harga dari klien`, `4501d70 feat(P6-02): calculateTotals integer untuk pratinjau checkout`, `a3320e0 feat(P6-03): service ongkir dan action quoteShipping`; dokumentasi dikomit terpisah.
+- Asumsi / keputusan baru: §19 Q-01–Q-03 belum dijawab pemilik → dipakai DEFAULT: guest checkout diizinkan (D-06; `quoteShipping` tanpa guard login karena hanya membaca tarif publik), transfer manual (D-10), tarif flat dengan baris `*` Rp 20.000 placeholder (D-11, `TODO(owner)` di migration reference_data). Nama field skema camelCase (`postalCode`, `addressDetail`, `variantId`) seperti `lib/validations/account.ts`; pemetaan ke `p_shipping_address`/`p_items` snake_case dikerjakan di P6-05. `addressSchema` checkout tidak memuat nama/telepon penerima (plan tidak menyebutnya; `create_order` mewajibkan `recipient_name`/`phone`, jadi P6-05 mengisinya dari `customer`). Email kosong → `undefined`. `getShippingQuote` mencocokkan provinsi di kode (tabel kecil) agar persis sama dengan `lower()` SQL tanpa escaping wildcard ILIKE.
+- Masalah / utang teknis: Insert massal PostgREST mengisi kolom yang absen dengan `null` (bukan default) — ditemukan saat menulis tes dev, diatasi dengan kolom seragam. Peringatan Vitest ESM/CJS tetap ada. Footer kontras 3,61:1 (dari P5-03) masih terbuka.
+- Langkah berikutnya: kerjakan **P6-04** halaman checkout (`components/checkout/{checkout-form,address-fields}.tsx`, `app/(store)/checkout/page.tsx`) memakai `checkoutSchema`, `quoteShipping`, dan `calculateTotals` sesuai Prompt 29.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2810,8 +2820,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 24 | 4 | P4-03 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 25. Detail produk dengan galeri keyboard, varian aktif dan harga/stok reaktif, metadata + JSON-LD data nyata tanpa review, tombol TODO(P5-03), 4 produk terkait kategori sama. G1 16 file / 127 tes dan build lulus. Kriteria LULUS. |
 | 25 | 4 | P4-04 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 26. Beranda memakai service katalog untuk kategori dan produk terbaru; navigasi header desktop/mobile dan footer mengambil kategori DB via store layout; data mock dihapus. Area app/components/lib tidak memuat referensi lib/mock. G2 lulus: 16 file / 127 tes + build. Gerbang Fase 4 selesai, tag v0.4.0. |
 | 26 | 5 | P5-01, P5-02 | 1 | DISETUJUI | 2026-11-01 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 27. Store Zustand persist key `hairy-cart-v1`, version 1, hanya lines `{variantId, quantity}`, actions add/merge cap20, setQuantity/remove/clear, hydration manual sesudah mount; snapshot Server Action validasi Zod max30 UUID qty1–20, query publik varian+produk aktif, computeCartView status ok/out_of_stock/insufficient/unavailable dan sumber harga/stok DB. G1 lulus: 19 file / 137 tes. Semua kriteria P5-01/P5-02 LULUS. |
-| 27 | 5 | P5-03 | 1 | MENUNGGU | 2026-11-01 | Kiro | (a) AddToCartButton aktif (nonaktif sebelum hidrasi/tanpa varian/Sold Out/batas stok, alasan terbaca, toast + role=status), TODO(P5-03) dihapus; (b) CartSheet di header dengan badge pasca-hidrasi; (c) `/cart` CartItem, QuantitySelector, CartSummary subtotal integer, baris bermasalah ditandai, checkout nonaktif bila ada baris tidak ok; (d) EmptyState keranjang kosong. Browser Playwright 2/2: persisten setelah muat ulang, unavailable memblokir checkout, axe `<main>` bersih, tanpa error hidrasi. G2 lulus (23 file / 154 tes + build). Gerbang Fase 5 tuntas, tag v0.5.0. Semua kriteria LULUS; catatan: kontras footer di luar scope. |
-| 28 | 6 | P6-01, P6-02, P6-03 | 0 | BELUM | | | |
+| 27 | 5 | P5-03 | 1 | DISETUJUI | 2026-11-01 | Kiro | Disetujui pemilik lewat `/1allclear` pada Prompt 28. (a) AddToCartButton aktif (nonaktif sebelum hidrasi/tanpa varian/Sold Out/batas stok, alasan terbaca, toast + role=status), TODO(P5-03) dihapus; (b) CartSheet di header dengan badge pasca-hidrasi; (c) `/cart` CartItem, QuantitySelector, CartSummary subtotal integer, baris bermasalah ditandai, checkout nonaktif bila ada baris tidak ok; (d) EmptyState keranjang kosong. Browser Playwright 2/2: persisten setelah muat ulang, unavailable memblokir checkout, axe `<main>` bersih, tanpa error hidrasi. G2 lulus (23 file / 154 tes + build). Gerbang Fase 5 tuntas, tag v0.5.0. Semua kriteria LULUS; catatan: kontras footer di luar scope. |
+| 28 | 6 | P6-01, P6-02, P6-03 | 1 | MENUNGGU | 2026-11-01 | Kiro | P6-01: `lib/validations/checkout.ts` customer/address/checkout (telepon → `62…`, provinsi ∈ regions, kode pos 5 digit, detail 10–300, items 1–30 × qty 1–20, notes ≤ 300); field harga/total dari klien dibuang; 30 tes. P6-02: `calculateTotals` integer, melempar `RangeError` untuk non-integer/negatif/grandTotal < 0; 17 tes. P6-03: `getShippingQuote` (provinsi cocok tanpa beda huruf → `*`, hanya baris aktif) + `quoteShipping` di `actions/checkout.actions.ts`; 11 tes unit + 4 tes Supabase dev (tarif `*`, baris nonaktif diabaikan, sama dengan `shipping_cost` `create_order`). G1 lulus (27 file / 212 tes). Q-01–Q-03 belum dijawab → DEFAULT. Semua kriteria LULUS. |
 | 29 | 6 | P6-04 | 0 | BELUM | | | |
 | 30 | 6 | P6-05 | 0 | BELUM | | | |
 | 31 | 6 | P6-06 | 0 | BELUM | | | |
