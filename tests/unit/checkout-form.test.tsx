@@ -300,6 +300,7 @@ describe('CheckoutForm (P6-04)', () => {
     resolveOrderPromise({ ok: true, data: { orderNumber: 'ORD-12345' } })
     await waitFor(() => {
       expect(pushMock).toHaveBeenCalledWith('/orders/ORD-12345')
+      expect(replaceMock).not.toHaveBeenCalledWith('/cart')
     })
   })
 

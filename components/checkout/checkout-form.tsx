@@ -80,12 +80,14 @@ export function CheckoutForm({ initialData, onSubmitOrder }: CheckoutFormProps) 
     }
   }, [cartSignature])
 
-  // Arahkan ke /cart bila keranjang kosong setelah hidrasi selesai
+  const [isOrderPlaced, setIsOrderPlaced] = useState(false)
+
+  // Arahkan ke /cart bila keranjang kosong setelah hidrasi selesai (kecuali bila pesanan berhasil dibuat)
   useEffect(() => {
-    if (hydrated && lines.length === 0) {
+    if (hydrated && lines.length === 0 && !isOrderPlaced) {
       router.replace('/cart')
     }
-  }, [hydrated, lines.length, router])
+  }, [hydrated, lines.length, router, isOrderPlaced])
 
   const snapshot = useCartSnapshot(lines.length > 0)
 
@@ -256,6 +258,7 @@ export function CheckoutForm({ initialData, onSubmitOrder }: CheckoutFormProps) 
       const result = await executeOrder(payload)
 
       if (result.ok) {
+        setIsOrderPlaced(true)
         toast.success('Pesanan berhasil dibuat!')
         // Sesi sukses: buat kunci baru & kosongkan keranjang
         setIdempotencyKey(crypto.randomUUID())
