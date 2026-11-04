@@ -28,3 +28,20 @@ export async function quoteShipping(province: unknown): Promise<ActionResult<Shi
     return { ok: false, error: { code: UNKNOWN_ERROR, message: 'Ongkir belum dapat dihitung. Coba lagi.' } }
   }
 }
+
+/**
+ * Aksi placeOrder dibuat lengkap pada P6-05 bersama services/orders.service.ts.
+ * Kontrak standar ini dipakai CheckoutForm untuk pembuatan pesanan.
+ */
+export async function placeOrder(
+  _input?: unknown
+): Promise<ActionResult<{ orderNumber: string; publicToken?: string }>> {
+  void _input
+  return {
+    ok: false,
+    error: {
+      code: 'NOT_IMPLEMENTED',
+      message: 'Fitur pemesanan sedang disiapkan.',
+    },
+  }
+}

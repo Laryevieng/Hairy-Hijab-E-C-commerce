@@ -68,6 +68,16 @@ export const checkoutItemSchema = z.object({
 })
 
 /**
+ * Skema input form checkout di browser (data pembeli, alamat, dan catatan).
+ * Field `items` dan `idempotencyKey` digabungkan saat submit membentuk `checkoutSchema`.
+ */
+export const checkoutFormSchema = z.object({
+  customer: customerSchema,
+  address: addressSchema,
+  notes: optionalText(300, 'Catatan maksimal 300 karakter.'),
+})
+
+/**
  * Input checkout dari browser. Sengaja tidak memuat harga, ongkir, atau total:
  * `z.object` membuang field yang tidak dikenal, dan `create_order` menghitung ulang semuanya.
  */
@@ -84,5 +94,23 @@ export const checkoutSchema = z.object({
 
 export type CustomerInput = z.input<typeof customerSchema>
 export type AddressInput = z.input<typeof addressSchema>
+export type CheckoutFormInput = z.input<typeof checkoutFormSchema>
+export type CheckoutFormData = z.output<typeof checkoutFormSchema>
 export type CheckoutInput = z.input<typeof checkoutSchema>
 export type CheckoutData = z.output<typeof checkoutSchema>
+
+export interface CheckoutInitialData {
+  customer?: {
+    name?: string
+    phone?: string
+    email?: string
+  }
+  address?: {
+    province?: string
+    city?: string
+    district?: string
+    postalCode?: string
+    addressDetail?: string
+  }
+  notes?: string
+}

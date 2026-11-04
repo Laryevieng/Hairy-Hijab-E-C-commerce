@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 6 — Checkout dan Pesanan
-Task berikutnya      : P6-04
-Prompt aktif         : 29 (lihat Lampiran E)
-Task terakhir selesai: P6-03 (juga P6-01, P6-02)
+Task berikutnya      : P6-05
+Prompt aktif         : 30 (lihat Lampiran E)
+Task terakhir selesai: P6-04 (juga P6-01, P6-02, P6-03)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 28; jawaban §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11) sebelum Gerbang Fase 6
-Terakhir diperbarui  : 2026-11-01 oleh Kiro
+Menunggu pemilik     : persetujuan Prompt 29; jawaban §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11) sebelum Gerbang Fase 6
+Terakhir diperbarui  : 2026-11-04 oleh Antigravity Gemini 3.8 Flash High
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -163,7 +163,7 @@ Terakhir diperbarui  : 2026-11-01 oleh Kiro
 | 3 | Autentikasi dan Akun | 5 | 5 |
 | 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 3 |
-| 6 | Checkout dan Pesanan | 8 | 3 |
+| 6 | Checkout dan Pesanan | 8 | 4 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
 | 8 | Dashboard Admin | 10 | 0 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
@@ -2011,12 +2011,12 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** `services/shipping.service.ts` → `getShippingQuote(province)` memakai aturan yang sama dengan `create_order` (provinsi cocok dulu, lalu `*`); kembalikan `{ cost, label, estimatedDays } | null`. Server Action `quoteShipping(province)` untuk UI.
   - **Selesai jika:** Tes terhadap data dev: provinsi tanpa baris khusus memakai tarif `*`; baris nonaktif diabaikan.
 
-- [ ] **P6-04 · Halaman checkout** `L` · butuh: P5-03, P6-01, P6-02, P6-03
+- [x] **P6-04 · Halaman checkout** `L` · butuh: P5-03, P6-01, P6-02, P6-03
   - **Kerjakan:**
-    - [ ] a. `CheckoutForm` + `AddressFields` (RHF + Zod); bila login, isi awal dari profil dan alamat utama (dimuat di server).
-    - [ ] b. Ringkasan: ambil ulang snapshot keranjang saat mount; tampilkan ongkir dari `quoteShipping`; total dari `calculateTotals`, dengan catatan bahwa total final dikonfirmasi saat pesanan dibuat.
-    - [ ] c. `idempotencyKey` dibuat sekali per sesi pengisian (`crypto.randomUUID()`); dibuat ulang bila isi keranjang berubah atau setelah pesanan sukses; dipakai ulang pada percobaan ulang.
-    - [ ] d. Tombol kirim nonaktif saat memproses; keranjang kosong → arahkan ke `/cart`.
+    - [x] a. `CheckoutForm` + `AddressFields` (RHF + Zod); bila login, isi awal dari profil dan alamat utama (dimuat di server).
+    - [x] b. Ringkasan: ambil ulang snapshot keranjang saat mount; tampilkan ongkir dari `quoteShipping`; total dari `calculateTotals`, dengan catatan bahwa total final dikonfirmasi saat pesanan dibuat.
+    - [x] c. `idempotencyKey` dibuat sekali per sesi pengisian (`crypto.randomUUID()`); dibuat ulang bila isi keranjang berubah atau setelah pesanan sukses; dipakai ulang pada percobaan ulang.
+    - [x] d. Tombol kirim nonaktif saat memproses; keranjang kosong → arahkan ke `/cart`.
   - **Selesai jika:** Validasi dan pesan error benar; ongkir tampil sesuai provinsi; klik ganda tidak mengirim dua kali; a11y terpenuhi; G2 lulus.
 
 - [ ] **P6-05 · Aksi `placeOrder`** `L` · butuh: P6-04, P2-12
@@ -2792,6 +2792,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: `TODO(P9-03)` di atas; kontras footer (P5-03) tetap terbuka.
 - Langkah berikutnya: kerjakan **P6-04** sesuai Prompt 29.
 
+### [2026-11-04 11:05] — Antigravity Gemini 3.8 Flash High — SELESAI
+- Task: P6-04 (sub-langkah selesai: a, b, c, d); Prompt 29 percobaan 1. Prompt 28 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) `CheckoutForm` + `AddressFields` (RHF + Zod via `checkoutFormSchema` di `lib/validations/checkout.ts`); pengisian awal pengguna login dari profil dan alamat utama (`addresses` order `is_default` desc) dimuat di server component `app/(store)/checkout/page.tsx`. (b) Ringkasan pesanan `CheckoutSummary`: snapshot keranjang diambil ulang saat mount via `useCartSnapshot`; ongkos kirim diambil dari `quoteShipping` secara reaktif via `useWatch` saat provinsi dipilih/berubah; total tagihan dari `calculateTotals` integer dengan catatan jelas bahwa total akhir, stok, dan ongkir dikonfirmasi ulang oleh sistem saat pesanan dibuat. (c) `idempotencyKey` dibuat sekali per sesi pengisian via `crypto.randomUUID()`; dibuat ulang bila isi keranjang berubah (`cartSignature`) atau setelah pesanan berhasil; dipertahankan dan dipakai ulang saat percobaan ulang (retry). (d) Tombol submit nonaktif saat memproses (`isSubmitting`) dan dicegah klik ganda; keranjang kosong setelah hidrasi dialihkan otomatis ke `/cart`. Aksesibilitas: `aria-invalid`, `aria-describedby` ke error message, `aria-busy` pada form, status alert teks yang dapat dibaca screen reader (`role="alert"`), dan metadata noindex/nofollow.
+- File dibuat/diubah: `lib/validations/checkout.ts`, `actions/checkout.actions.ts`, `components/checkout/{address-fields,checkout-summary,checkout-form}.tsx`, `app/(store)/checkout/{page,loading}.tsx`, `tests/unit/checkout-form.test.tsx`, dokumen ini.
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 28 file / 221 tes · `npm run build` ✔, route `/checkout` dinamis).
+- Commit: `feat(P6-04): halaman checkout dengan AddressFields, ringkasan, dan idempotensi`
+- Asumsi / keputusan baru: `placeOrder` stub diekspor di `actions/checkout.actions.ts` dengan kontrak standar `ActionResult<{ orderNumber: string; publicToken?: string }>` dan penanda `TODO(P6-05)`. `CheckoutForm` menerima prop opsional `onSubmitOrder` untuk kemudahan pengujian unit tanpa mocking modul Server Action.
+- Masalah / utang teknis: Peringatan Vitest ESM/CJS dan kontras footer (dari P5-03) tetap terbuka di luar scope P6-04.
+- Langkah berikutnya: kerjakan **P6-05** aksi `placeOrder` (`services/orders.service.ts` dan implementasi penuh `actions/checkout.actions.ts`) sesuai Prompt 30.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2831,8 +2841,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 25 | 4 | P4-04 | 1 | DISETUJUI | 2026-10-25 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 26. Beranda memakai service katalog untuk kategori dan produk terbaru; navigasi header desktop/mobile dan footer mengambil kategori DB via store layout; data mock dihapus. Area app/components/lib tidak memuat referensi lib/mock. G2 lulus: 16 file / 127 tes + build. Gerbang Fase 4 selesai, tag v0.4.0. |
 | 26 | 5 | P5-01, P5-02 | 1 | DISETUJUI | 2026-11-01 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 27. Store Zustand persist key `hairy-cart-v1`, version 1, hanya lines `{variantId, quantity}`, actions add/merge cap20, setQuantity/remove/clear, hydration manual sesudah mount; snapshot Server Action validasi Zod max30 UUID qty1–20, query publik varian+produk aktif, computeCartView status ok/out_of_stock/insufficient/unavailable dan sumber harga/stok DB. G1 lulus: 19 file / 137 tes. Semua kriteria P5-01/P5-02 LULUS. |
 | 27 | 5 | P5-03 | 1 | DISETUJUI | 2026-11-01 | Kiro | Disetujui pemilik lewat `/1allclear` pada Prompt 28. (a) AddToCartButton aktif (nonaktif sebelum hidrasi/tanpa varian/Sold Out/batas stok, alasan terbaca, toast + role=status), TODO(P5-03) dihapus; (b) CartSheet di header dengan badge pasca-hidrasi; (c) `/cart` CartItem, QuantitySelector, CartSummary subtotal integer, baris bermasalah ditandai, checkout nonaktif bila ada baris tidak ok; (d) EmptyState keranjang kosong. Browser Playwright 2/2: persisten setelah muat ulang, unavailable memblokir checkout, axe `<main>` bersih, tanpa error hidrasi. G2 lulus (23 file / 154 tes + build). Gerbang Fase 5 tuntas, tag v0.5.0. Semua kriteria LULUS; catatan: kontras footer di luar scope. |
-| 28 | 6 | P6-01, P6-02, P6-03 | 1 | MENUNGGU | 2026-11-01 | Kiro | P6-01: `lib/validations/checkout.ts` customer/address/checkout (telepon → `62…`, provinsi ∈ regions, kode pos 5 digit, detail 10–300, items 1–30 × qty 1–20, notes ≤ 300); field harga/total dari klien dibuang; 30 tes. P6-02: `calculateTotals` integer, melempar `RangeError` untuk non-integer/negatif/grandTotal < 0; 17 tes. P6-03: `getShippingQuote` (provinsi cocok tanpa beda huruf → `*`, hanya baris aktif) + `quoteShipping` di `actions/checkout.actions.ts`; 11 tes unit + 4 tes Supabase dev (tarif `*`, baris nonaktif diabaikan, sama dengan `shipping_cost` `create_order`). G1 lulus (27 file / 212 tes). Q-01–Q-03 belum dijawab → DEFAULT. Semua kriteria LULUS. |
-| 29 | 6 | P6-04 | 0 | BELUM | | | |
+| 28 | 6 | P6-01, P6-02, P6-03 | 1 | DISETUJUI | 2026-11-04 | Kiro | P6-01: `lib/validations/checkout.ts` customer/address/checkout (telepon → `62…`, provinsi ∈ regions, kode pos 5 digit, detail 10–300, items 1–30 × qty 1–20, notes ≤ 300); field harga/total dari klien dibuang; 30 tes. P6-02: `calculateTotals` integer, melempar `RangeError` untuk non-integer/negatif/grandTotal < 0; 17 tes. P6-03: `getShippingQuote` (provinsi cocok tanpa beda huruf → `*`, hanya baris aktif) + `quoteShipping` di `actions/checkout.actions.ts`; 11 tes unit + 4 tes Supabase dev (tarif `*`, baris nonaktif diabaikan, sama dengan `shipping_cost` `create_order`). G1 lulus (27 file / 212 tes). Q-01–Q-03 belum dijawab → DEFAULT. Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 29. |
+| 29 | 6 | P6-04 | 1 | MENUNGGU | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-04: `CheckoutForm` + `AddressFields` (RHF + Zod), initialData login dari profil & default address di page.tsx, quoteShipping reaktif per provinsi, calculateTotals pratinjau, idempotencyKey per sesi/keranjang/sukses, cegah klik ganda, redirect /cart bila kosong; 9 tes unit; G2 lulus (28 file / 221 tes + build). Semua kriteria LULUS. |
 | 30 | 6 | P6-05 | 0 | BELUM | | | |
 | 31 | 6 | P6-06 | 0 | BELUM | | | |
 | 32 | 6 | P6-07, P6-08 | 0 | BELUM | | | |
