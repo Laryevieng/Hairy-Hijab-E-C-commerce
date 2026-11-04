@@ -145,11 +145,11 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 6 — Checkout dan Pesanan
-Task berikutnya      : P6-05
-Prompt aktif         : 30 (lihat Lampiran E)
-Task terakhir selesai: P6-04 (juga P6-01, P6-02, P6-03)
+Task berikutnya      : P6-06
+Prompt aktif         : 31 (lihat Lampiran E)
+Task terakhir selesai: P6-05 (juga P6-01, P6-02, P6-03, P6-04)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 29; jawaban §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11) sebelum Gerbang Fase 6
+Menunggu pemilik     : persetujuan Prompt 30; jawaban §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11) sebelum Gerbang Fase 6
 Terakhir diperbarui  : 2026-11-04 oleh Antigravity Gemini 3.8 Flash High
 ```
 
@@ -163,7 +163,7 @@ Terakhir diperbarui  : 2026-11-04 oleh Antigravity Gemini 3.8 Flash High
 | 3 | Autentikasi dan Akun | 5 | 5 |
 | 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 3 |
-| 6 | Checkout dan Pesanan | 8 | 4 |
+| 6 | Checkout dan Pesanan | 8 | 5 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
 | 8 | Dashboard Admin | 10 | 0 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
@@ -2019,11 +2019,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] d. Tombol kirim nonaktif saat memproses; keranjang kosong → arahkan ke `/cart`.
   - **Selesai jika:** Validasi dan pesan error benar; ongkir tampil sesuai provinsi; klik ganda tidak mengirim dua kali; a11y terpenuhi; G2 lulus.
 
-- [ ] **P6-05 · Aksi `placeOrder`** `L` · butuh: P6-04, P2-12
+- [x] **P6-05 · Aksi `placeOrder`** `L` · butuh: P6-04, P2-12
   - **Kerjakan:**
-    - [ ] a. `services/orders.service.ts` → `createOrderFromCheckout(client, input, userId)`: **menerima klien Supabase sebagai argumen** (admin client dibuat di action, sehingga file service tidak mengimpor `lib/supabase/admin`, sesuai §10.5); memeriksa `store_settings.bank_accounts` tidak kosong (§14.1), memanggil `client.rpc('create_order', …)`, memetakan error via `mapDbError`, mencoba ulang **sekali** bila SQLSTATE `23505`.
-    - [ ] b. `actions/checkout.actions.ts` → `placeOrder(input)`: `getCurrentUser()` menentukan `user_id` (tidak pernah dari input) → validasi Zod → `createAdminClient()` → service → `ActionResult<{ orderNumber, publicToken? }>`. `publicToken` hanya dikembalikan untuk tamu.
-    - [ ] c. Klien: bila sukses, kosongkan keranjang lalu `router.push('/orders/<nomor>' + (token ? '?token=' + token : ''))`.
+    - [x] a. `services/orders.service.ts` → `createOrderFromCheckout(client, input, userId)`: **menerima klien Supabase sebagai argumen** (admin client dibuat di action, sehingga file service tidak mengimpor `lib/supabase/admin`, sesuai §10.5); memeriksa `store_settings.bank_accounts` tidak kosong (§14.1), memanggil `client.rpc('create_order', …)`, memetakan error via `mapDbError`, mencoba ulang **sekali** bila SQLSTATE `23505`.
+    - [x] b. `actions/checkout.actions.ts` → `placeOrder(input)`: `getCurrentUser()` menentukan `user_id` (tidak pernah dari input) → validasi Zod → `createAdminClient()` → service → `ActionResult<{ orderNumber, publicToken? }>`. `publicToken` hanya dikembalikan untuk tamu.
+    - [x] c. Klien: bila sukses, kosongkan keranjang lalu `router.push('/orders/<nomor>' + (token ? '?token=' + token : ''))`.
   - **Selesai jika:** Pesanan tercipta dengan total dari server; stok berkurang; percobaan ulang dengan kunci sama tidak membuat pesanan ganda; error stok/varian/alamat tampil ramah; tidak ada PII atau token di log; G2 lulus.
 
 - [ ] **P6-06 · Halaman pesanan** `L` · butuh: P6-05
@@ -2802,6 +2802,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Peringatan Vitest ESM/CJS dan kontras footer (dari P5-03) tetap terbuka di luar scope P6-04.
 - Langkah berikutnya: kerjakan **P6-05** aksi `placeOrder` (`services/orders.service.ts` dan implementasi penuh `actions/checkout.actions.ts`) sesuai Prompt 30.
 
+### [2026-11-04 13:35] — Antigravity Gemini 3.8 Flash High — SELESAI
+- Task: P6-05 (sub-langkah selesai: a, b, c); Prompt 30 percobaan 1. Prompt 29 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) `services/orders.service.ts` → `createOrderFromCheckout(client, input, userId)`: menerima SupabaseClient tanpa mengimpor admin client (§10.5); memverifikasi `store_settings.bank_accounts` tidak kosong (§14.1, jika kosong kembalikan PAYMENT_UNAVAILABLE "Metode pembayaran belum tersedia. Hubungi kami."); memanggil RPC `create_order` dengan pemetaan parameter lengkap (`p_idempotency_key`, `p_user_id`, `p_customer_*`, `p_shipping_address`, `p_items`, `p_notes`); memetakan error via `mapDbError`; otomatis mencoba ulang sekali bila terjadi SQLSTATE 23505 pada `idempotency_key`. (b) `actions/checkout.actions.ts` → `placeOrder(input)`: `user_id` diambil aman dari sesi via `getCurrentUser()` (bukan dari input browser); validasi Zod via `checkoutSchema` dengan fieldErrors terstruktur; memanggil service dengan `createAdminClient()` (whitelist §10.5); `publicToken` hanya dikembalikan untuk tamu (`!user`), sedangkan pengguna login hanya menerima `orderNumber`. (c) Pengalihan klien dan pembersihan keranjang sudah aktif di `CheckoutForm` (P6-04). Dilarang dan terbukti bebas pencatatan PII atau token di log.
+- File dibuat/diubah: `services/orders.service.ts`, `actions/checkout.actions.ts`, `tests/unit/place-order.test.ts`, `tests/unit/quote-shipping-action.test.ts`, dokumen ini.
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 29 file / 228 tes · `npm run test:rls` ✔ 4 file / 47 tes · `npm run build` ✔).
+- Commit: `feat(P6-05): aksi placeOrder dan service createOrderFromCheckout`
+- Asumsi / keputusan baru: `store_settings.bank_accounts` dicek sebelum `create_order` agar pesanan tidak dibuat tanpa instruksi transfer manual; `publicToken` disembunyikan untuk pengguna login agar rute pesanan mereka tetap terlindungi via autentikasi sesi.
+- Masalah / utang teknis: Peringatan Vitest ESM/CJS dan kontras footer (dari P5-03) tetap terbuka di luar scope P6-05.
+- Langkah berikutnya: kerjakan **P6-06** halaman pesanan `/orders/[orderNumber]` (`services/orders.public.service.ts`, badge status, timeline, rincian pembayaran & upload bukti) sesuai Prompt 31.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2842,8 +2852,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 26 | 5 | P5-01, P5-02 | 1 | DISETUJUI | 2026-11-01 | cx/gpt-6-luna | Disetujui pemilik lewat `/1allclear` pada Prompt 27. Store Zustand persist key `hairy-cart-v1`, version 1, hanya lines `{variantId, quantity}`, actions add/merge cap20, setQuantity/remove/clear, hydration manual sesudah mount; snapshot Server Action validasi Zod max30 UUID qty1–20, query publik varian+produk aktif, computeCartView status ok/out_of_stock/insufficient/unavailable dan sumber harga/stok DB. G1 lulus: 19 file / 137 tes. Semua kriteria P5-01/P5-02 LULUS. |
 | 27 | 5 | P5-03 | 1 | DISETUJUI | 2026-11-01 | Kiro | Disetujui pemilik lewat `/1allclear` pada Prompt 28. (a) AddToCartButton aktif (nonaktif sebelum hidrasi/tanpa varian/Sold Out/batas stok, alasan terbaca, toast + role=status), TODO(P5-03) dihapus; (b) CartSheet di header dengan badge pasca-hidrasi; (c) `/cart` CartItem, QuantitySelector, CartSummary subtotal integer, baris bermasalah ditandai, checkout nonaktif bila ada baris tidak ok; (d) EmptyState keranjang kosong. Browser Playwright 2/2: persisten setelah muat ulang, unavailable memblokir checkout, axe `<main>` bersih, tanpa error hidrasi. G2 lulus (23 file / 154 tes + build). Gerbang Fase 5 tuntas, tag v0.5.0. Semua kriteria LULUS; catatan: kontras footer di luar scope. |
 | 28 | 6 | P6-01, P6-02, P6-03 | 1 | DISETUJUI | 2026-11-04 | Kiro | P6-01: `lib/validations/checkout.ts` customer/address/checkout (telepon → `62…`, provinsi ∈ regions, kode pos 5 digit, detail 10–300, items 1–30 × qty 1–20, notes ≤ 300); field harga/total dari klien dibuang; 30 tes. P6-02: `calculateTotals` integer, melempar `RangeError` untuk non-integer/negatif/grandTotal < 0; 17 tes. P6-03: `getShippingQuote` (provinsi cocok tanpa beda huruf → `*`, hanya baris aktif) + `quoteShipping` di `actions/checkout.actions.ts`; 11 tes unit + 4 tes Supabase dev (tarif `*`, baris nonaktif diabaikan, sama dengan `shipping_cost` `create_order`). G1 lulus (27 file / 212 tes). Q-01–Q-03 belum dijawab → DEFAULT. Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 29. |
-| 29 | 6 | P6-04 | 1 | MENUNGGU | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-04: `CheckoutForm` + `AddressFields` (RHF + Zod), initialData login dari profil & default address di page.tsx, quoteShipping reaktif per provinsi, calculateTotals pratinjau, idempotencyKey per sesi/keranjang/sukses, cegah klik ganda, redirect /cart bila kosong; 9 tes unit; G2 lulus (28 file / 221 tes + build). Semua kriteria LULUS. |
-| 30 | 6 | P6-05 | 0 | BELUM | | | |
+| 29 | 6 | P6-04 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-04: `CheckoutForm` + `AddressFields` (RHF + Zod), initialData login dari profil & default address di page.tsx, quoteShipping reaktif per provinsi, calculateTotals pratinjau, idempotencyKey per sesi/keranjang/sukses, cegah klik ganda, redirect /cart bila kosong; 9 tes unit; G2 lulus (28 file / 221 tes + build). Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 30. |
+| 30 | 6 | P6-05 | 1 | MENUNGGU | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-05: `createOrderFromCheckout` (tanpa impor admin client, cek bank_accounts, RPC create_order, retry 23505 sekali), `placeOrder` (getCurrentUser, validasi Zod, publicToken hanya untuk tamu), 7 tes unit; G2 lulus (29 file / 228 tes + build). Semua kriteria LULUS. |
 | 31 | 6 | P6-06 | 0 | BELUM | | | |
 | 32 | 6 | P6-07, P6-08 | 0 | BELUM | | | |
 | 33 | 7 | P7-01 | 0 | BELUM | | | |

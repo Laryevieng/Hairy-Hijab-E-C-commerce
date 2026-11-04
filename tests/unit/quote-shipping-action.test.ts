@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+vi.mock('server-only', () => ({}))
+
 const { getShippingQuote } = vi.hoisted(() => ({ getShippingQuote: vi.fn() }))
 vi.mock('@/services/shipping.service', () => ({ getShippingQuote }))
 

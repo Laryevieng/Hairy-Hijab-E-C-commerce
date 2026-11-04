@@ -1,7 +1,10 @@
 'use server'
 
+import { getCurrentUser } from '@/lib/auth/guards'
 import { DB_ERROR_MESSAGES, UNKNOWN_ERROR } from '@/lib/errors'
-import { addressSchema } from '@/lib/validations/checkout'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { addressSchema, checkoutSchema } from '@/lib/validations/checkout'
+import { createOrderFromCheckout } from '@/services/orders.service'
 import { getShippingQuote, type ShippingQuote } from '@/services/shipping.service'
 import type { ActionResult } from '@/types/action'
 
@@ -30,18 +33,65 @@ export async function quoteShipping(province: unknown): Promise<ActionResult<Shi
 }
 
 /**
- * Aksi placeOrder dibuat lengkap pada P6-05 bersama services/orders.service.ts.
- * Kontrak standar ini dipakai CheckoutForm untuk pembuatan pesanan.
+ * Aksi Server `placeOrder` (P6-05):
+ * 1. Menentukan user_id dari sesi via getCurrentUser() (tidak pernah dari input untuk mencegah peniruan).
+ * 2. Memvalidasi payload checkout via checkoutSchema Zod.
+ * 3. Membuka admin client (diizinkan pada whitelist §10.5) dan mendelegasikan ke orders.service.ts.
+ * 4. publicToken HANYA dikembalikan untuk tamu (D-06); pengguna login melihat pesanan lewat sesi akun.
+ * Dilarang mencatat PII atau token di log.
  */
 export async function placeOrder(
-  _input?: unknown
+  input: unknown
 ): Promise<ActionResult<{ orderNumber: string; publicToken?: string }>> {
-  void _input
-  return {
-    ok: false,
-    error: {
-      code: 'NOT_IMPLEMENTED',
-      message: 'Fitur pemesanan sedang disiapkan.',
-    },
+  let user: { id: string } | null = null
+  try {
+    user = await getCurrentUser()
+  } catch {
+    user = null
+  }
+
+  const parsed = checkoutSchema.safeParse(input)
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string[]> = {}
+    for (const issue of parsed.error.issues) {
+      const path = issue.path.join('.')
+      if (!fieldErrors[path]) {
+        fieldErrors[path] = []
+      }
+      fieldErrors[path].push(issue.message)
+    }
+    return {
+      ok: false,
+      error: {
+        code: 'VALIDATION',
+        message: 'Data pesanan tidak valid. Periksa kembali formulir.',
+        fieldErrors,
+      },
+    }
+  }
+
+  try {
+    const adminClient = createAdminClient()
+    const result = await createOrderFromCheckout(adminClient, parsed.data, user?.id ?? null)
+
+    if (!result.ok) {
+      return result
+    }
+
+    return {
+      ok: true,
+      data: {
+        orderNumber: result.data.orderNumber,
+        ...(user ? {} : { publicToken: result.data.publicToken }),
+      },
+    }
+  } catch {
+    return {
+      ok: false,
+      error: {
+        code: UNKNOWN_ERROR,
+        message: 'Terjadi gangguan saat memproses pesanan. Silakan coba lagi.',
+      },
+    }
   }
 }
