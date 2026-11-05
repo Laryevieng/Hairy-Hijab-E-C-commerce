@@ -9,6 +9,8 @@ import { EmptyState } from '@/components/common/empty-state'
 import { Pagination } from '@/components/product/pagination'
 import { Button } from '@/components/ui/button'
 
+export const instant = false
+
 export const metadata: Metadata = {
   title: 'Pesanan Saya | Hairy Hijab',
   description: 'Riwayat pesanan dan status pengiriman akun Hairy Hijab Anda.',
