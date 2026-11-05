@@ -8,6 +8,7 @@ import { OrderTimeline } from '@/components/orders/order-timeline'
 import { PaymentInstructions } from '@/components/orders/payment-instructions'
 import { ProofUploader } from '@/components/orders/proof-uploader'
 import { OrderItemsList } from '@/components/orders/order-items-list'
+import { WhatsAppButton } from '@/components/common/whatsapp-button'
 import { formatDateTimeID } from '@/lib/utils/format'
 
 interface PageProps {
@@ -72,7 +73,16 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
           </p>
         </div>
 
-        {/* TODO(P7-02): Tombol WhatsApp akan ditambahkan di sini pada Prompt 34 / P7-02 */}
+        {/* Tombol WhatsApp (P7-02) */}
+        <div className="shrink-0">
+          <WhatsAppButton
+            phone={order.contactWhatsApp}
+            orderNumber={order.orderNumber}
+            className="w-full sm:w-auto"
+          >
+            Konfirmasi via WhatsApp
+          </WhatsAppButton>
+        </div>
       </div>
 
       {/* Grid Konten: Kiri (Instruksi, Bukti, Timeline) & Kanan (Rincian Produk, Alamat, Total) */}

@@ -2056,7 +2056,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] d. Tampilan status: "Menunggu verifikasi"; bila ditolak tampilkan catatan penolakan dan izinkan unggah ulang.
   - **Selesai jika:** Unggah valid → `proof_submitted`; file non-gambar, ber-ekstensi palsu, atau > 4 MB ditolak; pesanan kedaluwarsa ditolak; tanpa token/pemilik ditolak; tidak ada objek yatim saat RPC gagal (tes); G3 lulus.
 
-- [ ] **P7-02 · Tombol WhatsApp** `S` · butuh: P6-06
+- [x] **P7-02 · Tombol WhatsApp** `S` · butuh: P6-06
   - **Kerjakan:** Komponen `WhatsAppButton` memakai `buildWhatsAppLink` dan `store_settings.contact_whatsapp`; dipasang di halaman pesanan (pesan awal berisi nomor pesanan), `/contact`, dan footer.
   - **Selesai jika:** Tautan benar; bila nomor kosong, tombol tidak ditampilkan.
 
@@ -2885,7 +2885,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 30 | 6 | P6-05 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-05: `createOrderFromCheckout` (tanpa impor admin client, cek bank_accounts, RPC create_order, retry 23505 sekali), `placeOrder` (getCurrentUser, validasi Zod, publicToken hanya untuk tamu), 7 tes unit; G2 lulus (29 file / 228 tes + build). Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 31. |
 | 31 | 6 | P6-06 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-06: `getOrderForViewer` timing-safe token, halaman `/orders/[orderNumber]`, `OrderStatusBadge`, `OrderTimeline`, `PaymentInstructions`, `ExpiryCountdown`, `ProofUploaderPlaceholder`; 26 tes unit baru (total 31 file / 254 tes), G2 lulus. Disetujui pemilik lewat `/1allclear` pada Prompt 32. |
 | 32 | 6 | P6-07, P6-08 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P6-07: `/account/orders` RLS, paginasi 10, EmptyState, navigasi akun; P6-08: 6 tes integrasi `checkout.test.ts` (S3 harga manipulasi diabaikan, S6 snapshot utuh, idempotensi, stok, bank kosong, tarif `*`) dan tes E2E alur checkout tamu `checkout-guest.spec.ts`. Gerbang Fase 6 tuntas: G2 + G3 + G4 lulus; tag `v0.6.0`. Disetujui pemilik lewat `/1allclear` pada Prompt 33. |
-| 33 | 7 | P7-01 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Menunggu persetujuan pemilik. P7-01 a-d tuntas: validasi Zod + magic bytes JPEG/PNG/WebP (batas 4 MB), ProofUploader canvas resize 1600px, submitPaymentProof admin client (§10.5) dengan rollback hapus objek yatim di Storage, status proof_submitted & catatan penolakan. G1 35 file / 274 tes, G3 6 file / 59 tes lulus. Kriteria LULUS. |
+| 33 | 7 | P7-01 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P7-01 a-d tuntas: validasi Zod + magic bytes JPEG/PNG/WebP (batas 4 MB), ProofUploader canvas resize 1600px, submitPaymentProof admin client (§10.5) dengan rollback hapus objek yatim di Storage, status proof_submitted & catatan penolakan. G1 35 file / 274 tes, G3 6 file / 59 tes lulus. Kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 34. |
 | 34 | 7 | P7-02, P7-03 | 0 | BELUM | | | |
 | 35 | 8 | P8-01, P8-02 | 0 | BELUM | | | |
 | 36 | 8 | P8-03 | 0 | BELUM | | | |

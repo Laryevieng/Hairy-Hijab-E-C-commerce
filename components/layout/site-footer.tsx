@@ -1,14 +1,18 @@
 import Link from "next/link"
 import { siteConfig } from "@/config/site"
-import { buildWhatsAppLink } from "@/lib/utils/phone"
+import { WhatsAppButton } from "@/components/common/whatsapp-button"
 import { MessageCircle, Mail, MapPin, Clock } from "lucide-react"
 import type { CategoryListItem } from "@/types/domain"
 
-export function SiteFooter({ categories = [] }: { categories?: Pick<CategoryListItem, "id" | "name" | "slug">[] }) {
-  const whatsappUrl = buildWhatsAppLink(
-    siteConfig.contact.phone,
-    "Halo Hairy Hijab, saya ingin bertanya seputar produk."
-  )
+export function SiteFooter({
+  categories = [],
+  contactWhatsApp,
+}: {
+  categories?: Pick<CategoryListItem, "id" | "name" | "slug">[]
+  contactWhatsApp?: string | null
+}) {
+  const phone = contactWhatsApp !== undefined ? contactWhatsApp : siteConfig.contact.phone
+  const displayPhone = phone === siteConfig.contact.phone ? siteConfig.contact.whatsappFormatted : phone
 
   return (
     <footer
@@ -29,17 +33,17 @@ export function SiteFooter({ categories = [] }: { categories?: Pick<CategoryList
               {siteConfig.description}
             </p>
             <div className="space-y-2 text-sm text-espresso/80 pt-2">
-              {whatsappUrl && (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:text-espresso transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
-                  aria-label={`Hubungi via WhatsApp ${siteConfig.contact.whatsappFormatted}`}
+              {phone && (
+                <WhatsAppButton
+                  phone={phone}
+                  variant="ghost"
+                  isBrandColor={false}
+                  className="flex items-center justify-start gap-2 h-auto p-0 hover:bg-transparent hover:text-espresso transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm font-normal text-espresso/80"
+                  aria-label={`Hubungi via WhatsApp ${displayPhone}`}
                 >
                   <MessageCircle className="size-4 shrink-0 text-success" />
-                  <span>{siteConfig.contact.whatsappFormatted}</span>
-                </a>
+                  <span>{displayPhone}</span>
+                </WhatsAppButton>
               )}
               <a
                 href={`mailto:${siteConfig.contact.email}`}

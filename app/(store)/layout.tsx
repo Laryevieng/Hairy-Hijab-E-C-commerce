@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/layout/site-header"
 import { SiteFooter } from "@/components/layout/site-footer"
 import { Toaster } from "@/components/ui/sonner"
 import { getCategories } from "@/services/catalog.service"
+import { getStoreContactWhatsApp } from "@/services/store-settings.service"
 
 // Navigasi membaca kategori dari database pada request; izinkan layout toko memblokir render awal.
 export const instant = false
@@ -13,7 +14,10 @@ interface StoreLayoutProps {
 }
 
 export default async function StoreLayout({ children }: StoreLayoutProps) {
-  const categories = await getCategories()
+  const [categories, contactWhatsApp] = await Promise.all([
+    getCategories(),
+    getStoreContactWhatsApp(),
+  ])
   return (
     <div className="flex min-h-screen flex-col bg-ivory text-espresso">
       {/* Skip link untuk aksesibilitas keyboard dan pembaca layar */}
@@ -28,7 +32,7 @@ export default async function StoreLayout({ children }: StoreLayoutProps) {
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <SiteFooter categories={categories} />
+      <SiteFooter categories={categories} contactWhatsApp={contactWhatsApp} />
       <Toaster position="top-center" />
     </div>
   )
