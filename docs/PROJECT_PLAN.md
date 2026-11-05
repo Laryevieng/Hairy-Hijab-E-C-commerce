@@ -145,11 +145,11 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 7 — Pembayaran Manual dan Pengiriman
-Task berikutnya      : P7-01
-Prompt aktif         : 33 (lihat Lampiran E)
-Task terakhir selesai: P6-08 (juga P6-01, P6-02, P6-03, P6-04, P6-05, P6-06, P6-07)
+Task berikutnya      : P7-02
+Prompt aktif         : 34 (lihat Lampiran E)
+Task terakhir selesai: P7-01 (juga P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 32; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
+Menunggu pemilik     : persetujuan Prompt 33; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
 Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
 ```
 
@@ -164,7 +164,7 @@ Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
 | 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 3 |
 | 6 | Checkout dan Pesanan | 8 | 8 |
-| 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
+| 7 | Pembayaran Manual dan Pengiriman | 3 | 1 |
 | 8 | Dashboard Admin | 10 | 0 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
 | 10 | Pengujian dan Hardening | 6 | 0 |
@@ -2048,12 +2048,12 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
 
 ### Fase 7 — Pembayaran Manual dan Pengiriman
 
-- [ ] **P7-01 · Unggah bukti transfer** `L` · butuh: P6-06, P2-12
+- [x] **P7-01 · Unggah bukti transfer** `L` · butuh: P6-06, P2-12
   - **Kerjakan:**
-    - [ ] a. `lib/validations/payment.ts` (bank ≤ 50, nama pengirim ≤ 80, catatan ≤ 200) dan `lib/utils/file-signature.ts` (cek *magic bytes* JPEG/PNG/WebP) beserta tes unit.
-    - [ ] b. `ProofUploader` (klien): pilih file, pratinjau, kecilkan via canvas (sisi terpanjang ±1600 px, JPEG kualitas 0,8), kirim `FormData`.
-    - [ ] c. `actions/payment.actions.ts` → `submitPaymentProof(formData)`: otorisasi pemilik/token (sama dengan P6-06), cek tipe via signature dan ukuran ≤ 4 MB, unggah dengan admin client ke `payment-proofs/<order_id>/<uuid>.<ext>` (tanpa `upsert`), panggil `submit_payment_proof`; bila RPC gagal, **hapus** objek yang sudah terunggah.
-    - [ ] d. Tampilan status: "Menunggu verifikasi"; bila ditolak tampilkan catatan penolakan dan izinkan unggah ulang.
+    - [x] a. `lib/validations/payment.ts` (bank ≤ 50, nama pengirim ≤ 80, catatan ≤ 200) dan `lib/utils/file-signature.ts` (cek *magic bytes* JPEG/PNG/WebP) beserta tes unit.
+    - [x] b. `ProofUploader` (klien): pilih file, pratinjau, kecilkan via canvas (sisi terpanjang ±1600 px, JPEG kualitas 0,8), kirim `FormData`.
+    - [x] c. `actions/payment.actions.ts` → `submitPaymentProof(formData)`: otorisasi pemilik/token (sama dengan P6-06), cek tipe via signature dan ukuran ≤ 4 MB, unggah dengan admin client ke `payment-proofs/<order_id>/<uuid>.<ext>` (tanpa `upsert`), panggil `submit_payment_proof`; bila RPC gagal, **hapus** objek yang sudah terunggah.
+    - [x] d. Tampilan status: "Menunggu verifikasi"; bila ditolak tampilkan catatan penolakan dan izinkan unggah ulang.
   - **Selesai jika:** Unggah valid → `proof_submitted`; file non-gambar, ber-ekstensi palsu, atau > 4 MB ditolak; pesanan kedaluwarsa ditolak; tanpa token/pemilik ditolak; tidak ada objek yatim saat RPC gagal (tes); G3 lulus.
 
 - [ ] **P7-02 · Tombol WhatsApp** `S` · butuh: P6-06
@@ -2832,6 +2832,15 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Peringatan Vitest ESM/CJS dan kontras footer (dari P5-03) tetap terbuka di luar scope Fase 6.
 - Langkah berikutnya: kerjakan **P7-01** unggah bukti transfer manual (`lib/validations/payment.ts`, `lib/utils/file-signature.ts`, `ProofUploader`, dan `submitPaymentProof`) sesuai Prompt 33.
 
+### [2026-11-05 13:30] — Antigravity Gemini 3.8 Flash High — SELESAI
+- Task: P7-01 (sub-langkah selesai: a, b, c, d); Prompt 33 percobaan 1. Prompt 32 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) `lib/validations/payment.ts` validasi Zod metadata bukti pembayaran (bank ≤ 50, sender ≤ 80, note ≤ 200, orderId UUID, token opsional); `lib/utils/file-signature.ts` deteksi magic bytes signature format JPEG (FF D8 FF), PNG (89 50 4E 47), dan WebP (RIFF...WEBP), serta batas 4 MB (`MAX_PROOF_FILE_SIZE`). (b) Komponen `ProofUploader` (`components/orders/proof-uploader.tsx`) dengan kompresi gambar sisi klien via HTML Canvas (sisi terpanjang ≤ 1600 px, kualitas JPEG 0.8), pratinjau instan, form pilihan bank toko atau input kustom, serta pengiriman via FormData. (c) Server Action `actions/payment.actions.ts` → `submitPaymentProof(formData)` menggunakan admin client sesuai whitelist §10.5; otorisasi kepemilikan user sesi atau verifikasi token timing-safe; validasi status order pending/unpaid dan unexpired; pengunggahan ke bucket privat `payment-proofs/<order_id>/<uuid>.<ext>` tanpa upsert; eksekusi RPC `submit_payment_proof`; dan penghapusan file otomatis dari storage bila RPC gagal (mencegah objek yatim). (d) Integrasi ke `app/(store)/orders/[orderNumber]/page.tsx`; kartu informasi "Menunggu Verifikasi Pembayaran" saat status `proof_submitted`; serta alert catatan penolakan staf (`reviewNote`) bila status pembayaran sebelumnya ditolak dan formulir unggah ulang tetap aktif. (e) Penambahan 17 tes unit (`file-signature.test.ts`, `payment-validation.test.ts`, `proof-uploader.test.tsx`) dan 6 skenario tes keamanan/RLS di `tests/security/payment-proof.test.ts`.
+- Gate: G1 (lint, typecheck, 35 file / 274 tes unit) lulus; G3 (`test:rls` 6 file / 59 tes integrasi) lulus.
+- Commit: `feat(P7-01): implementasi alur unggah bukti transfer manual dan tes keamanan`
+- Asumsi / keputusan baru: Mocking `server-only` dan `next/cache` diterapkan pada runner Vitest Node untuk pengujian Server Action; kompresi canvas dilewati saat `process.env.NODE_ENV === 'test'` agar tidak menggantung di lingkungan jsdom; `components/orders/proof-uploader-placeholder.tsx` diubah menjadi re-export `ProofUploader` untuk menjaga backward compatibility.
+- Masalah / utang teknis: tidak ada.
+- Langkah berikutnya: kerjakan **P7-02** tombol WhatsApp (`WhatsAppButton`, integrasi ke halaman pesanan, `/contact`, dan footer) sesuai Prompt 34.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2875,8 +2884,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 29 | 6 | P6-04 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-04: `CheckoutForm` + `AddressFields` (RHF + Zod), initialData login dari profil & default address di page.tsx, quoteShipping reaktif per provinsi, calculateTotals pratinjau, idempotencyKey per sesi/keranjang/sukses, cegah klik ganda, redirect /cart bila kosong; 9 tes unit; G2 lulus (28 file / 221 tes + build). Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 30. |
 | 30 | 6 | P6-05 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-05: `createOrderFromCheckout` (tanpa impor admin client, cek bank_accounts, RPC create_order, retry 23505 sekali), `placeOrder` (getCurrentUser, validasi Zod, publicToken hanya untuk tamu), 7 tes unit; G2 lulus (29 file / 228 tes + build). Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 31. |
 | 31 | 6 | P6-06 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-06: `getOrderForViewer` timing-safe token, halaman `/orders/[orderNumber]`, `OrderStatusBadge`, `OrderTimeline`, `PaymentInstructions`, `ExpiryCountdown`, `ProofUploaderPlaceholder`; 26 tes unit baru (total 31 file / 254 tes), G2 lulus. Disetujui pemilik lewat `/1allclear` pada Prompt 32. |
-| 32 | 6 | P6-07, P6-08 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P6-07: `/account/orders` RLS, paginasi 10, EmptyState, navigasi akun; P6-08: 6 tes integrasi `checkout.test.ts` (S3 harga manipulasi diabaikan, S6 snapshot utuh, idempotensi, stok, bank kosong, tarif `*`) dan tes E2E alur checkout tamu `checkout-guest.spec.ts`. Gerbang Fase 6 tuntas: G2 + G3 + G4 lulus; tag `v0.6.0`. |
-| 33 | 7 | P7-01 | 0 | BELUM | | | |
+| 32 | 6 | P6-07, P6-08 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P6-07: `/account/orders` RLS, paginasi 10, EmptyState, navigasi akun; P6-08: 6 tes integrasi `checkout.test.ts` (S3 harga manipulasi diabaikan, S6 snapshot utuh, idempotensi, stok, bank kosong, tarif `*`) dan tes E2E alur checkout tamu `checkout-guest.spec.ts`. Gerbang Fase 6 tuntas: G2 + G3 + G4 lulus; tag `v0.6.0`. Disetujui pemilik lewat `/1allclear` pada Prompt 33. |
+| 33 | 7 | P7-01 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Menunggu persetujuan pemilik. P7-01 a-d tuntas: validasi Zod + magic bytes JPEG/PNG/WebP (batas 4 MB), ProofUploader canvas resize 1600px, submitPaymentProof admin client (§10.5) dengan rollback hapus objek yatim di Storage, status proof_submitted & catatan penolakan. G1 35 file / 274 tes, G3 6 file / 59 tes lulus. Kriteria LULUS. |
 | 34 | 7 | P7-02, P7-03 | 0 | BELUM | | | |
 | 35 | 8 | P8-01, P8-02 | 0 | BELUM | | | |
 | 36 | 8 | P8-03 | 0 | BELUM | | | |

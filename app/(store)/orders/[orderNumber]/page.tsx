@@ -6,7 +6,7 @@ import { getOrderForViewer } from '@/services/orders.public.service'
 import { OrderStatusBadge } from '@/components/orders/order-status-badge'
 import { OrderTimeline } from '@/components/orders/order-timeline'
 import { PaymentInstructions } from '@/components/orders/payment-instructions'
-import { ProofUploaderPlaceholder } from '@/components/orders/proof-uploader-placeholder'
+import { ProofUploader } from '@/components/orders/proof-uploader'
 import { OrderItemsList } from '@/components/orders/order-items-list'
 import { formatDateTimeID } from '@/lib/utils/format'
 
@@ -87,13 +87,15 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
             expiresAt={order.expiresAt}
           />
 
-          {/* Area Unggah Bukti Transfer */}
-          <ProofUploaderPlaceholder
+          {/* Area Unggah Bukti Transfer (P7-01) */}
+          <ProofUploader
             orderId={order.id}
             orderNumber={order.orderNumber}
+            token={token}
             status={order.status}
             paymentStatus={order.paymentStatus}
             latestPayment={order.latestPayment}
+            bankAccounts={order.bankAccounts}
           />
 
           {/* Timeline Status Pesanan */}
