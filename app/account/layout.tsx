@@ -11,6 +11,7 @@ export default async function AccountLayout({ children }: Readonly<{ children: R
         <h1 className="font-heading text-4xl text-espresso">Halo{user.email ? `, ${user.email}` : ''}</h1>
         <nav aria-label="Navigasi akun" className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <Link className="underline-offset-4 hover:underline" href="/account">Ringkasan</Link>
+          <Link className="underline-offset-4 hover:underline" href="/account/orders">Pesanan</Link>
           <Link className="underline-offset-4 hover:underline" href="/account/profile">Profil</Link>
           <Link className="underline-offset-4 hover:underline" href="/account/addresses">Alamat</Link>
         </nav>

@@ -6,6 +6,7 @@ interface PaginationProps {
   count: number
   pathname: string
   searchParams: string
+  ariaLabel?: string
 }
 
 function pageHref(pathname: string, params: URLSearchParams, page: number) {
@@ -15,12 +16,12 @@ function pageHref(pathname: string, params: URLSearchParams, page: number) {
   return `${pathname}${next.size ? `?${next}` : ''}`
 }
 
-export function Pagination({ page, pageSize, count, pathname, searchParams }: PaginationProps) {
+export function Pagination({ page, pageSize, count, pathname, searchParams, ariaLabel = "Navigasi halaman" }: PaginationProps) {
   const pageCount = Math.ceil(count / pageSize)
   if (pageCount <= 1) return null
 
   return (
-    <nav aria-label="Navigasi halaman produk" className="mt-8 flex items-center justify-center gap-2">
+    <nav aria-label={ariaLabel} className="mt-8 flex items-center justify-center gap-2">
       {page > 1 ? (
         <Link className="inline-flex min-h-11 items-center rounded-md border border-sand px-4 text-sm hover:bg-sand/30" href={pageHref(pathname, new URLSearchParams(searchParams), page - 1)}>
           Sebelumnya
