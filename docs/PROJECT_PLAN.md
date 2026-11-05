@@ -144,13 +144,13 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 6 — Checkout dan Pesanan
-Task berikutnya      : P6-07
-Prompt aktif         : 32 (lihat Lampiran E)
-Task terakhir selesai: P6-06 (juga P6-01, P6-02, P6-03, P6-04, P6-05)
+Fase aktif           : Fase 7 — Pembayaran Manual dan Pengiriman
+Task berikutnya      : P7-01
+Prompt aktif         : 33 (lihat Lampiran E)
+Task terakhir selesai: P6-08 (juga P6-01, P6-02, P6-03, P6-04, P6-05, P6-06, P6-07)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 31; jawaban §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11) sebelum Gerbang Fase 6
-Terakhir diperbarui  : 2026-11-04 oleh Antigravity Gemini 3.8 Flash High
+Menunggu pemilik     : persetujuan Prompt 32; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
+Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -163,7 +163,7 @@ Terakhir diperbarui  : 2026-11-04 oleh Antigravity Gemini 3.8 Flash High
 | 3 | Autentikasi dan Akun | 5 | 5 |
 | 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 3 |
-| 6 | Checkout dan Pesanan | 8 | 6 |
+| 6 | Checkout dan Pesanan | 8 | 8 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 0 |
 | 8 | Dashboard Admin | 10 | 0 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
@@ -2034,11 +2034,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] d. `robots: { index: false }`, `referrer: no-referrer`; tombol WhatsApp ditambahkan di P7-02.
   - **Selesai jika:** Tanpa token dan bukan pemilik → 404 (tidak membocorkan keberadaan pesanan); token benar → tampil; tes unit untuk fungsi otorisasi (pemilik, token benar, token salah, tanpa keduanya); G2 lulus.
 
-- [ ] **P6-07 · Daftar pesanan akun** `S` · butuh: P6-06, P3-04
+- [x] **P6-07 · Daftar pesanan akun** `S` · butuh: P6-06, P3-04
   - **Kerjakan:** `/account/orders` lewat klien sesi (RLS): nomor, tanggal, badge status, total, tautan ke `/orders/[nomor]`; paginasi 10.
   - **Selesai jika:** Hanya pesanan milik sendiri; keadaan kosong benar.
 
-- [ ] **P6-08 · Tes alur checkout** `M` · butuh: P6-05, P6-06
+- [x] **P6-08 · Tes alur checkout** `M` · butuh: P6-05, P6-06
   - **Kerjakan:** Tes integrasi (`tests/security/checkout.test.ts`) terhadap service `createOrderFromCheckout` (klien admin dibuat di dalam tes): field harga ekstra pada input diabaikan dan total tetap dari database (S3); setelah harga produk diubah dan produk dinonaktifkan, pesanan lama tetap menampilkan snapshot semula (S6); idempotensi; stok kurang; bank_accounts kosong ditolak; tarif default `*`. Tambahkan E2E pertama: katalog → keranjang → checkout tamu → halaman pesanan.
   - **Selesai jika:** G3 dan G4 lulus.
 
@@ -2822,6 +2822,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: Peringatan Vitest ESM/CJS dan kontras footer (dari P5-03) tetap terbuka di luar scope P6-06.
 - Langkah berikutnya: kerjakan **P6-07** daftar pesanan akun `/account/orders` sesuai Prompt 32.
 
+### [2026-11-05 12:10] — Antigravity Gemini 3.8 Flash High — SELESAI
+- Task: P6-07, P6-08; Prompt 32 percobaan 1. Prompt 31 ditandai DISETUJUI (`/1allclear`). Gerbang Fase 6 tuntas.
+- Ringkasan: (a) P6-07: Halaman `/account/orders` membaca pesanan via klien sesi ber-RLS (`orders` milik `user_id` sendiri); nomor pesanan terhubung ke rincian `/orders/[orderNumber]`, badge status (`OrderStatusBadge`), tanggal pemesanan (`formatDateTimeID`), total tagihan (`formatRupiah`), ringkasan item yang dipesan, penanganan keadaan kosong (`EmptyState`), dan paginasi 10 item per halaman (`Pagination` dengan `ariaLabel`). Navigasi header akun dan halaman ringkasan `/account` dilengkapi tautan pesanan. (b) P6-08: Tes integrasi keamanan dan aturan bisnis checkout di `tests/security/checkout.test.ts` membuktikan: field harga ekstra pada input diabaikan dan total tetap dihitung database (S3), snapshot pesanan lama utuh setelah harga produk diubah dan dinonaktifkan (S6), idempotensi dengan pengulangan key yang sama tidak mengurangi stok dua kali, penolakan stok kurang (`INSUFFICIENT_STOCK`), penolakan saat `bank_accounts` kosong (`PAYMENT_UNAVAILABLE`), dan penggunaan tarif flat default `*`. (c) P6-08: Tes E2E Playwright pertama di `tests/e2e/checkout-guest.spec.ts` memverifikasi seluruh alur belanja tamu (katalog `/products` → pilih produk tersedia → tambah ke keranjang → `/cart` → `/checkout` tamu → halaman pesanan dengan token tamu `/orders/[orderNumber]?token=...`). (d) Gerbang Fase 6: G2, G3, G4 seluruhnya lulus; keputusan D-06, D-10, D-11 tercatat berstatus DEFAULT di §19; tag `v0.6.0` disematkan.
+- File dibuat/diubah: `app/account/orders/{page,loading}.tsx`, `app/account/{layout,page}.tsx`, `components/product/pagination.tsx`, `tests/unit/account-orders.test.tsx`, `tests/security/checkout.test.ts`, `tests/e2e/checkout-guest.spec.ts`, `.gitignore`, dokumen ini.
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 32 file / 257 tes · `npm run build` ✔), G3 ✔ (`npm run test:rls` ✔ 5 file / 53 tes), G4 ✔ (`npm run test:e2e` ✔ 4 tes Playwright Chromium & Mobile).
+- Commit: `feat(P6-07): halaman daftar pesanan akun /account/orders dengan paginasi dan RLS` (`095a6bb`), `feat(P6-08): tes integrasi checkout dan tes E2E alur checkout tamu` (`8cf39f2`), dan commit penutup dokumen ini. Tag: `v0.6.0`.
+- Asumsi / keputusan baru: Selektor kartu produk pada pengujian E2E mencocokkan persis badge teks `Tersedia` agar tidak salah menangkap string "Foto produk belum tersedia"; `app/account/orders/page.tsx` disetel `export const instant = false` untuk runtime fetching sesi pengguna; `store_settings.bank_accounts` dikembalikan ke nilai awal dalam blok `finally` pada pengujian integrasi.
+- Masalah / utang teknis: Peringatan Vitest ESM/CJS dan kontras footer (dari P5-03) tetap terbuka di luar scope Fase 6.
+- Langkah berikutnya: kerjakan **P7-01** unggah bukti transfer manual (`lib/validations/payment.ts`, `lib/utils/file-signature.ts`, `ProofUploader`, dan `submitPaymentProof`) sesuai Prompt 33.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2864,8 +2874,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 28 | 6 | P6-01, P6-02, P6-03 | 1 | DISETUJUI | 2026-11-04 | Kiro | P6-01: `lib/validations/checkout.ts` customer/address/checkout (telepon → `62…`, provinsi ∈ regions, kode pos 5 digit, detail 10–300, items 1–30 × qty 1–20, notes ≤ 300); field harga/total dari klien dibuang; 30 tes. P6-02: `calculateTotals` integer, melempar `RangeError` untuk non-integer/negatif/grandTotal < 0; 17 tes. P6-03: `getShippingQuote` (provinsi cocok tanpa beda huruf → `*`, hanya baris aktif) + `quoteShipping` di `actions/checkout.actions.ts`; 11 tes unit + 4 tes Supabase dev (tarif `*`, baris nonaktif diabaikan, sama dengan `shipping_cost` `create_order`). G1 lulus (27 file / 212 tes). Q-01–Q-03 belum dijawab → DEFAULT. Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 29. |
 | 29 | 6 | P6-04 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-04: `CheckoutForm` + `AddressFields` (RHF + Zod), initialData login dari profil & default address di page.tsx, quoteShipping reaktif per provinsi, calculateTotals pratinjau, idempotencyKey per sesi/keranjang/sukses, cegah klik ganda, redirect /cart bila kosong; 9 tes unit; G2 lulus (28 file / 221 tes + build). Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 30. |
 | 30 | 6 | P6-05 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-05: `createOrderFromCheckout` (tanpa impor admin client, cek bank_accounts, RPC create_order, retry 23505 sekali), `placeOrder` (getCurrentUser, validasi Zod, publicToken hanya untuk tamu), 7 tes unit; G2 lulus (29 file / 228 tes + build). Semua kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 31. |
-| 31 | 6 | P6-06 | 1 | MENUNGGU | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-06: `getOrderForViewer` timing-safe token, halaman `/orders/[orderNumber]`, `OrderStatusBadge`, `OrderTimeline`, `PaymentInstructions`, `ExpiryCountdown`, `ProofUploaderPlaceholder`; 26 tes unit baru (total 31 file / 254 tes), G2 lulus. |
-| 32 | 6 | P6-07, P6-08 | 0 | BELUM | | | |
+| 31 | 6 | P6-06 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-06: `getOrderForViewer` timing-safe token, halaman `/orders/[orderNumber]`, `OrderStatusBadge`, `OrderTimeline`, `PaymentInstructions`, `ExpiryCountdown`, `ProofUploaderPlaceholder`; 26 tes unit baru (total 31 file / 254 tes), G2 lulus. Disetujui pemilik lewat `/1allclear` pada Prompt 32. |
+| 32 | 6 | P6-07, P6-08 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P6-07: `/account/orders` RLS, paginasi 10, EmptyState, navigasi akun; P6-08: 6 tes integrasi `checkout.test.ts` (S3 harga manipulasi diabaikan, S6 snapshot utuh, idempotensi, stok, bank kosong, tarif `*`) dan tes E2E alur checkout tamu `checkout-guest.spec.ts`. Gerbang Fase 6 tuntas: G2 + G3 + G4 lulus; tag `v0.6.0`. |
 | 33 | 7 | P7-01 | 0 | BELUM | | | |
 | 34 | 7 | P7-02, P7-03 | 0 | BELUM | | | |
 | 35 | 8 | P8-01, P8-02 | 0 | BELUM | | | |
