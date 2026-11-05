@@ -16,3 +16,24 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')        // trim "-" di awal/akhir
     .replace(/-{2,}/g, '-')         // collapse "-" berurutan
 }
+
+/**
+ * Menyarankan slug alternatif dengan akhiran angka (mulai dari -2)
+ * apabila slug yang diinginkan sudah terpakai (P8-04).
+ */
+export function suggestNextSlug(
+  slug: string,
+  existingSlugs: Iterable<string> = []
+): string {
+  const normalized = slugify(slug) || 'produk'
+  const base = normalized.replace(/-\d+$/, '') || normalized
+  const existingSet = new Set(
+    Array.from(existingSlugs, (item) => item.trim().toLowerCase())
+  )
+
+  let counter = 2
+  while (existingSet.has(`${base}-${counter}`)) {
+    counter += 1
+  }
+  return `${base}-${counter}`
+}

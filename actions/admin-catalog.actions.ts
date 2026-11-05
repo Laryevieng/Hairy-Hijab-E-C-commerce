@@ -9,11 +9,22 @@ import {
   toggleCategoryActiveSchema,
 } from '@/lib/validations/category'
 import {
+  productIdSchema,
+  productSchema,
+  toggleProductActiveSchema,
+} from '@/lib/validations/product'
+import {
   createCategoryRecord,
   updateCategoryRecord,
   setCategoryActiveStatus,
   deleteCategoryRecord,
 } from '@/services/admin/categories.service'
+import {
+  createProductRecord,
+  updateProductRecord,
+  setProductActiveStatus,
+  deleteProductRecord,
+} from '@/services/admin/products.service'
 import type { ActionResult } from '@/types/action'
 
 type Failure = Extract<ActionResult<never>, { ok: false }>
@@ -46,6 +57,23 @@ function revalidateCatalogPaths(slug?: string) {
   revalidatePath('/admin/products')
   if (slug) {
     revalidatePath(`/categories/${slug}`)
+  }
+}
+
+function revalidateProductPaths(slug?: string, productId?: string) {
+  revalidatePath('/', 'layout')
+  revalidatePath('/')
+  revalidatePath('/products')
+  revalidatePath('/sale')
+  revalidatePath('/search')
+  revalidatePath('/admin')
+  revalidatePath('/admin/products')
+  revalidatePath('/admin/categories')
+  if (slug) {
+    revalidatePath(`/products/${slug}`)
+  }
+  if (productId) {
+    revalidatePath(`/admin/products/${productId}/edit`)
   }
 }
 
@@ -170,5 +198,129 @@ export async function deleteCategory(id: unknown): Promise<ActionResult> {
   }
 
   revalidateCatalogPaths()
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Tambah produk baru (P8-04).
+ * Urutan wajib: requireAdmin() -> validasi Zod -> service (klien sesi + RLS) -> revalidatePath.
+ */
+export async function createProduct(
+  input: unknown
+): Promise<ActionResult<{ id: string; slug: string }>> {
+  await requireAdmin()
+
+  const parsed = productSchema.safeParse(input)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await createProductRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.slug, result.data.id)
+  return { ok: true, data: result.data }
+}
+
+/**
+ * Ubah produk yang sudah ada (P8-04).
+ * Mendukung pemanggilan updateProduct(id, data) maupun updateProduct({ id, ...data }).
+ */
+export async function updateProduct(
+  idOrInput: unknown,
+  inputArg?: unknown
+): Promise<ActionResult<{ id: string; slug: string }>> {
+  await requireAdmin()
+
+  let rawId: unknown = idOrInput
+  let rawData: unknown = inputArg
+
+  if (
+    inputArg === undefined &&
+    typeof idOrInput === 'object' &&
+    idOrInput !== null
+  ) {
+    const obj = idOrInput as Record<string, unknown>
+    rawId = obj.id
+    rawData = 'data' in obj && typeof obj.data === 'object' ? obj.data : obj
+  }
+
+  const idParsed = productIdSchema.safeParse(rawId)
+  if (!idParsed.success) {
+    return validationFailure(idParsed.error)
+  }
+
+  const dataParsed = productSchema.safeParse(rawData)
+  if (!dataParsed.success) {
+    return validationFailure(dataParsed.error)
+  }
+
+  const result = await updateProductRecord(idParsed.data, dataParsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.slug, result.data.id)
+  return { ok: true, data: result.data }
+}
+
+/**
+ * Aktifkan / nonaktifkan produk (P8-04).
+ */
+export async function toggleProductActive(
+  idOrInput: unknown,
+  isActiveArg?: unknown
+): Promise<ActionResult> {
+  await requireAdmin()
+
+  const payload =
+    isActiveArg === undefined &&
+    typeof idOrInput === 'object' &&
+    idOrInput !== null
+      ? {
+          id: (idOrInput as Record<string, unknown>).id,
+          is_active:
+            (idOrInput as Record<string, unknown>).is_active ??
+            (idOrInput as Record<string, unknown>).isActive,
+        }
+      : { id: idOrInput, is_active: isActiveArg }
+
+  const parsed = toggleProductActiveSchema.safeParse(payload)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await setProductActiveStatus(
+    parsed.data.id,
+    parsed.data.is_active
+  )
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.slug, result.data.id)
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Hapus keras produk (P8-04).
+ * Hanya diizinkan bila produk belum pernah dipesan (D-15).
+ */
+export async function deleteProduct(id: unknown): Promise<ActionResult> {
+  await requireAdmin()
+
+  const parsed = productIdSchema.safeParse(id)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await deleteProductRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.slug, parsed.data)
   return { ok: true, data: undefined }
 }
