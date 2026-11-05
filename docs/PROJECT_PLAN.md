@@ -145,12 +145,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 8 — Dashboard Admin
-Task berikutnya      : P8-03
-Prompt aktif         : 36 (lihat Lampiran E)
-Task terakhir selesai: P8-02, P8-01 (juga P7-03, P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
+Task berikutnya      : P8-04
+Prompt aktif         : 37 (lihat Lampiran E)
+Task terakhir selesai: P8-03 (juga P8-02, P8-01, P7-03, P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 35; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
-Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
+Menunggu pemilik     : persetujuan Prompt 36; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
+Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 4 Argon (Medium)
 ```
 
 **Progres per fase** (agent menghitung dari checkbox pada §15):
@@ -165,7 +165,7 @@ Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
 | 5 | Keranjang | 3 | 3 |
 | 6 | Checkout dan Pesanan | 8 | 8 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 3 |
-| 8 | Dashboard Admin | 10 | 2 |
+| 8 | Dashboard Admin | 10 | 3 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
 | 10 | Pengujian dan Hardening | 6 | 0 |
 | 11 | Deployment dan Peluncuran | 6 | 0 |
@@ -2076,7 +2076,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Kartu: menunggu verifikasi (`proof_submitted`), perlu dikirim (`processing`), menunggu pembayaran (`pending` + `unpaid`), stok menipis (≤ `low_stock_threshold`, varian aktif), omzet 7 dan 30 hari (jumlah `grand_total` pesanan `paid` menurut `paid_at`, tidak termasuk `cancelled`). Setiap kartu menautkan ke daftar yang sudah terfilter.
   - **Selesai jika:** Angka cocok dengan data uji; hanya staf yang dapat melihat.
 
-- [ ] **P8-03 · Kategori** `M` · butuh: P8-01
+- [x] **P8-03 · Kategori** `M` · butuh: P8-01
   - **Kerjakan:** `/admin/categories`: daftar, tambah, ubah (nama, slug unik, deskripsi, gambar, `requires_size`, `size_options`, `is_active`, `sort_order`), nonaktifkan. Hapus hanya jika belum punya produk. `requireAdmin()`, `revalidatePath`.
   - **Selesai jika:** CRUD berfungsi; slug duplikat → pesan ramah; kategori nonaktif hilang dari publik; tes validasi skema.
 
@@ -2861,6 +2861,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: tidak ada.
 - Langkah berikutnya: kerjakan **P8-03** manajemen kategori admin (`/admin/categories`, form CRUD, nonaktifkan, pencegahan hapus berkategori isi, Zod, requireAdmin) sesuai Prompt 36.
 
+### [2026-11-05 22:12] — Antigravity Gemini 4 Argon (Medium) — SELESAI
+- Task: P8-03; Prompt 36 percobaan 1. Prompt 35 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) Skema Zod `lib/validations/category.ts` (`categorySchema`, `categoryIdSchema`, `toggleCategoryActiveSchema`) memvalidasi `name` (2–80 karakter), `slug` (huruf kecil, angka, tanda hubung tunggal), `description` (≤ 500), `image_path` (≤ 255), `requires_size`, `size_options` (wajib minimal 1 opsi bila `requires_size = true`, dinormalisasi menjadi `[]` bila `false`), `is_active`, dan `sort_order` (integer 0–9999). (b) Service `services/admin/categories.service.ts` (`listAdminCategories`, `createCategoryRecord`, `updateCategoryRecord`, `setCategoryActiveStatus`, `deleteCategoryRecord`) menggunakan klien sesi dengan RLS (`categories_read`, `categories_write`, `products_read`); menghitung jumlah produk per kategori; menerjemahkan pelanggaran unik SQLSTATE `23505` menjadi kode `DUPLICATE_SLUG` dengan pesan ramah pada field `slug`; serta memblokir penghapusan kategori yang masih memiliki produk (`CATEGORY_HAS_PRODUCTS`). (c) Server Actions `actions/admin-catalog.actions.ts` (`createCategory`, `updateCategory`, `toggleCategoryActive`, `deleteCategory`) memanggil `requireAdmin()`, memvalidasi input dengan Zod, mengeksekusi service, dan memanggil `revalidatePath('/', 'layout')`, `/`, `/products`, `/sale`, `/search`, `/admin/categories`, `/admin/products`, serta `/categories/[slug]` agar menu header/footer dan katalog publik langsung diperbarui. (d) Halaman `/admin/categories` (`app/admin/categories/page.tsx` dengan `requireAdmin()` mandiri dan `loading.tsx`) serta komponen `CategoriesManager` dan `CategoryFormDialog` (auto-slug dari nama, form dialog tambah/ubah, toggle aktif/nonaktif, tombol hapus nonaktif bila `product_count > 0`, dan `ConfirmDialog` untuk hapus kategori kosong). Menambahkan `<Toaster />` ke `AdminLayoutShell`. (e) Pengujian: 3 file tes unit baru (`category-validation.test.ts`, `admin-categories-actions.test.ts`, `admin-categories-ui.test.tsx` — 16 tes baru; total 47 file / 333 tes unit lulus) dan build produksi lulus.
+- File dibuat/diubah: `lib/validations/category.ts`, `services/admin/categories.service.ts`, `actions/admin-catalog.actions.ts`, `components/admin/categories/category-form-dialog.tsx`, `components/admin/categories/categories-manager.tsx`, `app/admin/categories/page.tsx`, `app/admin/categories/loading.tsx`, `components/admin/admin-layout-shell.tsx`, `tests/unit/category-validation.test.ts`, `tests/unit/admin-categories-actions.test.ts`, `tests/unit/admin-categories-ui.test.tsx`, dokumen ini.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 47 file / 333 tes) · Build ✔ (`npm run build` ✔).
+- Commit: `feat(P8-03): manajemen kategori admin, validasi Zod, dan revalidasi katalog`
+- Asumsi / keputusan baru: `size_options` pada `categorySchema` menerima array string maupun string dipisahkan koma agar kompatibel dengan input form maupun pemanggilan programatik, serta otomatis dikosongkan (`[]`) bila `requires_size = false` sesuai struktur 8 kategori referensi §6.1.
+- Masalah / utang teknis: tidak ada.
+- Langkah berikutnya: kerjakan **P8-04** manajemen produk admin (`/admin/products`, `/admin/products/new`, `/admin/products/[id]/edit`, pencarian/filter/paginasi, hapus bersyarat D-15) sesuai Prompt 37.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2907,8 +2917,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 32 | 6 | P6-07, P6-08 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P6-07: `/account/orders` RLS, paginasi 10, EmptyState, navigasi akun; P6-08: 6 tes integrasi `checkout.test.ts` (S3 harga manipulasi diabaikan, S6 snapshot utuh, idempotensi, stok, bank kosong, tarif `*`) dan tes E2E alur checkout tamu `checkout-guest.spec.ts`. Gerbang Fase 6 tuntas: G2 + G3 + G4 lulus; tag `v0.6.0`. Disetujui pemilik lewat `/1allclear` pada Prompt 33. |
 | 33 | 7 | P7-01 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P7-01 a-d tuntas: validasi Zod + magic bytes JPEG/PNG/WebP (batas 4 MB), ProofUploader canvas resize 1600px, submitPaymentProof admin client (§10.5) dengan rollback hapus objek yatim di Storage, status proof_submitted & catatan penolakan. G1 35 file / 274 tes, G3 6 file / 59 tes lulus. Kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 34. |
 | 34 | 7 | P7-02, P7-03 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P7-02 & P7-03 tuntas: WhatsAppButton di halaman pesanan, /contact, footer; Server Actions admin pesanan (verify, reject, ship, complete, cancel, refund, signed URL 60s) dengan otorisasi staf & klien sesi. Gate G2 (38 file / 295 tes + build) & G3 (7 file / 67 tes) LULUS. Gerbang Fase 7 selesai. Tag v0.7.0. Disetujui via /1allclear pada prompt 35. |
-| 35 | 8 | P8-01, P8-02 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Menunggu persetujuan pemilik. Layout admin (requireStaff, AdminSidebar responsif, DataTable, ConfirmDialog) dan dashboard (6 kartu metrik: proof_submitted, processing, pending+unpaid, stok menipis, omzet 7d/30d terfilter) selesai. G1 (44 file / 317 tes) & Build LULUS. |
-| 36 | 8 | P8-03 | 0 | BELUM | | | |
+| 35 | 8 | P8-01, P8-02 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Layout admin (requireStaff, AdminSidebar responsif, DataTable, ConfirmDialog) dan dashboard (6 kartu metrik: proof_submitted, processing, pending+unpaid, stok menipis, omzet 7d/30d terfilter) selesai. G1 (44 file / 317 tes) & Build LULUS. Disetujui via /1allclear pada prompt 36. |
+| 36 | 8 | P8-03 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 4 Argon (Medium) | Menunggu persetujuan pemilik. CRUD `/admin/categories` selesai: daftar + jumlah produk, tambah/ubah (auto-slug, requires_size, size_options, sort_order), aktif/nonaktif, hapus hanya bila 0 produk, slug duplikat pesan ramah, requireAdmin() & revalidatePath. Gate G1 (47 file / 333 tes) & Build LULUS. |
 | 37 | 8 | P8-04 | 0 | BELUM | | | |
 | 38 | 8 | P8-05 | 0 | BELUM | | | |
 | 39 | 8 | P8-06 | 0 | BELUM | | | |

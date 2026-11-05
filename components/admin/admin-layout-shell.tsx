@@ -6,6 +6,7 @@ import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
+import { Toaster } from '@/components/ui/sonner'
 import { AdminSidebar } from './admin-sidebar'
 import type { StaffRole, CurrentUser } from '@/lib/auth/guards'
 
@@ -71,6 +72,7 @@ export function AdminLayoutShell({ user, role, children }: AdminLayoutShellProps
           {children}
         </main>
       </div>
+      <Toaster position="top-center" />
     </div>
   )
 }
