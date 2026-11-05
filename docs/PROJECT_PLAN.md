@@ -144,12 +144,12 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 
 ```text
 Versi dokumen        : 2.0
-Fase aktif           : Fase 7 — Pembayaran Manual dan Pengiriman
-Task berikutnya      : P7-02
-Prompt aktif         : 34 (lihat Lampiran E)
-Task terakhir selesai: P7-01 (juga P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
+Fase aktif           : Fase 8 — Dashboard Admin
+Task berikutnya      : P8-01
+Prompt aktif         : 35 (lihat Lampiran E)
+Task terakhir selesai: P7-03 (juga P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 33; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
+Menunggu pemilik     : persetujuan Prompt 34; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
 Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
 ```
 
@@ -164,7 +164,7 @@ Terakhir diperbarui  : 2026-11-05 oleh Antigravity Gemini 3.8 Flash High
 | 4 | Katalog Publik | 4 | 4 |
 | 5 | Keranjang | 3 | 3 |
 | 6 | Checkout dan Pesanan | 8 | 8 |
-| 7 | Pembayaran Manual dan Pengiriman | 3 | 1 |
+| 7 | Pembayaran Manual dan Pengiriman | 3 | 3 |
 | 8 | Dashboard Admin | 10 | 0 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
 | 10 | Pengujian dan Hardening | 6 | 0 |
@@ -2060,7 +2060,7 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
   - **Kerjakan:** Komponen `WhatsAppButton` memakai `buildWhatsAppLink` dan `store_settings.contact_whatsapp`; dipasang di halaman pesanan (pesan awal berisi nomor pesanan), `/contact`, dan footer.
   - **Selesai jika:** Tautan benar; bila nomor kosong, tombol tidak ditampilkan.
 
-- [ ] **P7-03 · Aksi admin untuk pesanan** `M` · butuh: P3-02, P2-12
+- [x] **P7-03 · Aksi admin untuk pesanan** `M` · butuh: P3-02, P2-12
   - **Kerjakan:** `actions/admin-orders.actions.ts`: `verifyPayment`, `rejectPayment`, `markShipped`, `completeOrder`, `cancelOrder`, `markRefunded`, `getProofSignedUrl`. Setiap action: `requireStaff()` → Zod → RPC lewat **klien sesi** (agar `auth.uid()` adalah staf) → `mapDbError` → `revalidatePath`. Signed URL 60 detik lewat klien sesi (policy staf).
   - **Selesai jika:** Tes G3: non-staf `FORBIDDEN`; staf berhasil; transisi tidak sah `INVALID_TRANSITION`; signed URL hanya untuk staf.
 
@@ -2841,6 +2841,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: tidak ada.
 - Langkah berikutnya: kerjakan **P7-02** tombol WhatsApp (`WhatsAppButton`, integrasi ke halaman pesanan, `/contact`, dan footer) sesuai Prompt 34.
 
+### [2026-11-05 18:25] — Antigravity Gemini 3.8 Flash High — SELESAI
+- Task: P7-02, P7-03; Prompt 34 percobaan 1. Prompt 33 ditandai DISETUJUI (`/1allclear`). Gerbang Fase 7 tuntas.
+- Ringkasan: (a) P7-02: Komponen `WhatsAppButton` (`components/common/whatsapp-button.tsx`) dibangun menggunakan fungsi normalisasi telepon `buildWhatsAppLink`; jika nomor kosong/tidak valid atau tidak ada, tombol aman mengembalikan `null` (tidak dirender). Terpasang di halaman pesanan (`app/(store)/orders/[orderNumber]/page.tsx`) dengan pesan otomatis memuat nomor pesanan, halaman `/contact` (`app/(store)/contact/page.tsx`), dan `SiteFooter` (`components/layout/site-footer.tsx`). Service `getStoreContactWhatsApp` membaca nomor resmi dari `store_settings.contact_whatsapp` via `createPublicClient()`. (b) P7-03: Server Actions admin pesanan di `actions/admin-orders.actions.ts` mengimplementasikan 7 aksi: `verifyPayment`, `rejectPayment`, `markShipped`, `completeOrder`, `cancelOrder`, `markRefunded`, dan `getProofSignedUrl`. Setiap aksi mewajibkan otorisasi `requireStaff()`, validasi skema Zod (`lib/validations/admin-orders.ts`), pemanggilan RPC menggunakan klien sesi Supabase (`createClient()`) agar `auth.uid()` di Postgres terekam sebagai staf, pemetaan error database via `mapDbError()`, serta `revalidatePath` untuk `/admin/orders` dan `/account/orders`. Fungsi `getProofSignedUrl` membuat signed URL privat berumur 60 detik melalui klien sesi staf. (c) Pengujian & Keamanan: 21 tes unit baru (`whatsapp-button.test.tsx`, `admin-orders-validation.test.ts`, `admin-orders-actions.test.ts`) dan 8 tes integrasi keamanan RLS di `tests/security/admin-orders.test.ts` (menguji otorisasi non-staf `FORBIDDEN`, pencegahan unduh non-staf storage, alur staf happy path, penolakan bukti pembayaran beserta catatan dan perpanjangan masa berlaku, pembatalan pesanan dan pelepasan stok, refund, penolakan transisi status ilegal `INVALID_TRANSITION`, dan signed URL storage staf). (d) Gerbang Fase 7: G2 dan G3 seluruhnya LULUS. Tag `v0.7.0` disematkan.
+- File dibuat/diubah: `components/common/whatsapp-button.tsx`, `services/store-settings.service.ts`, `app/(store)/contact/page.tsx`, `components/layout/site-footer.tsx`, `app/(store)/layout.tsx`, `app/(store)/orders/[orderNumber]/page.tsx`, `actions/admin-orders.actions.ts`, `lib/validations/admin-orders.ts`, `tests/unit/whatsapp-button.test.tsx`, `tests/unit/admin-orders-validation.test.ts`, `tests/unit/admin-orders-actions.test.ts`, `tests/security/admin-orders.test.ts`, dokumen ini.
+- Gate: G2 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 38 file / 295 tes · `npm run build` ✔), G3 ✔ (`npm run test:rls` ✔ 7 file / 67 tes).
+- Commit: `feat(P7-02): implementasi tombol WhatsApp dan integrasi halaman` (`b59679c`), `feat(P7-03): aksi admin untuk pesanan dan signed url bukti transfer` (`b97a151`), dan commit penutup gerbang Fase 7. Tag: `v0.7.0`.
+- Asumsi / keputusan baru: Aksi `rejectPayment`, `cancelOrder`, dan `markRefunded` dirancang fleksibel menerima argumen dalam bentuk objek bersarang `{ orderId, note/reason }` maupun argumen terpisah (orderId, note/reason); `validationFailure` mengekstrak pesan issue pertama dari `z.ZodError` untuk menjaga kompatibilitas tipe union `ActionResult`; `SiteFooter` menyediakan fallback ke `siteConfig.contact.phone` jika prop `contactWhatsApp` undefined untuk menjaga integritas tes layout unit sebelumnya.
+- Masalah / utang teknis: tidak ada.
+- Langkah berikutnya: kerjakan **P8-01** layout dashboard admin (`app/admin/layout.tsx`, `AdminSidebar`, `DataTable`, `ConfirmDialog`, `requireStaff()`) sesuai Prompt 35.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2886,7 +2896,7 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 31 | 6 | P6-06 | 1 | DISETUJUI | 2026-11-04 | Antigravity Gemini 3.8 Flash High | P6-06: `getOrderForViewer` timing-safe token, halaman `/orders/[orderNumber]`, `OrderStatusBadge`, `OrderTimeline`, `PaymentInstructions`, `ExpiryCountdown`, `ProofUploaderPlaceholder`; 26 tes unit baru (total 31 file / 254 tes), G2 lulus. Disetujui pemilik lewat `/1allclear` pada Prompt 32. |
 | 32 | 6 | P6-07, P6-08 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P6-07: `/account/orders` RLS, paginasi 10, EmptyState, navigasi akun; P6-08: 6 tes integrasi `checkout.test.ts` (S3 harga manipulasi diabaikan, S6 snapshot utuh, idempotensi, stok, bank kosong, tarif `*`) dan tes E2E alur checkout tamu `checkout-guest.spec.ts`. Gerbang Fase 6 tuntas: G2 + G3 + G4 lulus; tag `v0.6.0`. Disetujui pemilik lewat `/1allclear` pada Prompt 33. |
 | 33 | 7 | P7-01 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P7-01 a-d tuntas: validasi Zod + magic bytes JPEG/PNG/WebP (batas 4 MB), ProofUploader canvas resize 1600px, submitPaymentProof admin client (§10.5) dengan rollback hapus objek yatim di Storage, status proof_submitted & catatan penolakan. G1 35 file / 274 tes, G3 6 file / 59 tes lulus. Kriteria LULUS. Disetujui pemilik lewat `/1allclear` pada Prompt 34. |
-| 34 | 7 | P7-02, P7-03 | 0 | BELUM | | | |
+| 34 | 7 | P7-02, P7-03 | 1 | MENUNGGU | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Menunggu persetujuan pemilik. P7-02 & P7-03 tuntas: WhatsAppButton di halaman pesanan, /contact, footer; Server Actions admin pesanan (verify, reject, ship, complete, cancel, refund, signed URL 60s) dengan otorisasi staf & klien sesi. Gate G2 (38 file / 295 tes + build) & G3 (7 file / 67 tes) LULUS. Gerbang Fase 7 selesai. Tag v0.7.0. |
 | 35 | 8 | P8-01, P8-02 | 0 | BELUM | | | |
 | 36 | 8 | P8-03 | 0 | BELUM | | | |
 | 37 | 8 | P8-04 | 0 | BELUM | | | |
