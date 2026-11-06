@@ -20,6 +20,12 @@ import {
   toggleVariantActiveSchema,
 } from '@/lib/validations/variant'
 import {
+  productImageIdSchema,
+  createProductImageSchema,
+  updateProductImageSchema,
+  reorderProductImageSchema,
+} from '@/lib/validations/product-image'
+import {
   createCategoryRecord,
   updateCategoryRecord,
   setCategoryActiveStatus,
@@ -37,6 +43,12 @@ import {
   setVariantActiveStatus,
   deleteVariantRecord,
 } from '@/services/admin/variants.service'
+import {
+  createProductImageRecord,
+  updateProductImageRecord,
+  moveProductImageOrderRecord,
+  deleteProductImageRecord,
+} from '@/services/admin/product-images.service'
 import type { ActionResult } from '@/types/action'
 
 type Failure = Extract<ActionResult<never>, { ok: false }>
@@ -465,6 +477,132 @@ export async function deleteVariant(id: unknown): Promise<ActionResult> {
   }
 
   const result = await deleteVariantRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Simpan baris product_images setelah file diunggah ke bucket product-images (P8-06b).
+ */
+export async function createProductImage(
+  input: unknown
+): Promise<ActionResult<{ id: string }>> {
+  await requireAdmin()
+
+  const parsed = createProductImageSchema.safeParse(input)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await createProductImageRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: { id: result.data.id } }
+}
+
+/**
+ * Perbarui alt_text dan/atau variant_id pada gambar produk (P8-06c).
+ * Mendukung updateProductImage(id, altText, variantId) maupun updateProductImage({ id, alt_text, variant_id }).
+ */
+export async function updateProductImage(
+  idOrInput: unknown,
+  altTextArg?: unknown,
+  variantIdArg?: unknown
+): Promise<ActionResult<{ id: string }>> {
+  await requireAdmin()
+
+  const payload =
+    altTextArg === undefined &&
+    typeof idOrInput === 'object' &&
+    idOrInput !== null
+      ? {
+          id: (idOrInput as Record<string, unknown>).id,
+          alt_text:
+            (idOrInput as Record<string, unknown>).alt_text ??
+            (idOrInput as Record<string, unknown>).altText,
+          variant_id:
+            (idOrInput as Record<string, unknown>).variant_id ??
+            (idOrInput as Record<string, unknown>).variantId,
+        }
+      : {
+          id: idOrInput,
+          alt_text: altTextArg,
+          variant_id: variantIdArg,
+        }
+
+  const parsed = updateProductImageSchema.safeParse(payload)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await updateProductImageRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: { id: result.data.id } }
+}
+
+/**
+ * Ubah urutan gambar produk naik/turun (P8-06c).
+ * Mendukung moveProductImageOrder(id, direction) maupun moveProductImageOrder({ id, direction }).
+ */
+export async function moveProductImageOrder(
+  idOrInput: unknown,
+  directionArg?: unknown
+): Promise<ActionResult> {
+  await requireAdmin()
+
+  const payload =
+    directionArg === undefined &&
+    typeof idOrInput === 'object' &&
+    idOrInput !== null
+      ? {
+          id: (idOrInput as Record<string, unknown>).id,
+          direction: (idOrInput as Record<string, unknown>).direction,
+        }
+      : {
+          id: idOrInput,
+          direction: directionArg,
+        }
+
+  const parsed = reorderProductImageSchema.safeParse(payload)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await moveProductImageOrderRecord(
+    parsed.data.id,
+    parsed.data.direction
+  )
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Hapus gambar produk: menghapus objek di Storage product-images DAN baris di tabel product_images (P8-06c).
+ */
+export async function deleteProductImage(id: unknown): Promise<ActionResult> {
+  await requireAdmin()
+
+  const parsed = productImageIdSchema.safeParse(id)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await deleteProductImageRecord(parsed.data)
   if (!result.ok) {
     return result
   }

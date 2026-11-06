@@ -145,11 +145,11 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 8 — Dashboard Admin
-Task berikutnya      : P8-06
-Prompt aktif         : 39 (lihat Lampiran E)
-Task terakhir selesai: P8-05 (juga P8-04, P8-03, P8-02, P8-01, P7-03, P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
+Task berikutnya      : P8-07
+Prompt aktif         : 40 (lihat Lampiran E)
+Task terakhir selesai: P8-06 (juga P8-05, P8-04, P8-03, P8-02, P8-01, P7-03, P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 38; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
+Menunggu pemilik     : persetujuan Prompt 39; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
 Terakhir diperbarui  : 2026-11-06 oleh Antigravity Gemini 4 Argon (Medium)
 ```
 
@@ -165,7 +165,7 @@ Terakhir diperbarui  : 2026-11-06 oleh Antigravity Gemini 4 Argon (Medium)
 | 5 | Keranjang | 3 | 3 |
 | 6 | Checkout dan Pesanan | 8 | 8 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 3 |
-| 8 | Dashboard Admin | 10 | 5 |
+| 8 | Dashboard Admin | 10 | 6 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
 | 10 | Pengujian dan Hardening | 6 | 0 |
 | 11 | Deployment dan Peluncuran | 6 | 0 |
@@ -2095,11 +2095,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] c. Nonaktifkan varian; hapus hanya bila tidak pernah dipesan.
   - **Selesai jika:** Kombinasi duplikat (produk, ukuran, warna) → pesan ramah; `requires_size` ditegakkan; tes G3 membuktikan klien tidak dapat meng-`update` `stock_quantity` langsung.
 
-- [ ] **P8-06 · Gambar produk** `L` · butuh: P8-04, P2-08
+- [x] **P8-06 · Gambar produk** `L` · butuh: P8-04, P2-08
   - **Kerjakan:**
-    - [ ] a. `ImageUploader`: multi-file, maksimal 8 per produk, ≤ 2 MB, JPEG/PNG/WebP, kecilkan di klien (±1600 px), unggah langsung ke bucket `product-images` lewat klien sesi (policy admin) ke `<product_id>/<uuid>.<ext>`.
-    - [ ] b. Simpan baris `product_images` (`storage_path`, `alt_text` wajib dengan nilai awal nama produk, `sort_order`, `variant_id` opsional).
-    - [ ] c. Ubah urutan (tombol naik/turun yang dapat dioperasikan keyboard), ubah `alt_text`, hapus (baris dan objek).
+    - [x] a. `ImageUploader`: multi-file, maksimal 8 per produk, ≤ 2 MB, JPEG/PNG/WebP, kecilkan di klien (±1600 px), unggah langsung ke bucket `product-images` lewat klien sesi (policy admin) ke `<product_id>/<uuid>.<ext>`.
+    - [x] b. Simpan baris `product_images` (`storage_path`, `alt_text` wajib dengan nilai awal nama produk, `sort_order`, `variant_id` opsional).
+    - [x] c. Ubah urutan (tombol naik/turun yang dapat dioperasikan keyboard), ubah `alt_text`, hapus (baris dan objek).
   - **Selesai jika:** Non-admin ditolak; urutan tersimpan; gambar tampil di katalog dan detail; tidak ada objek yatim setelah hapus.
 
 - [ ] **P8-07 · Inventori** `M` · butuh: P8-05
@@ -2891,6 +2891,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: tidak ada.
 - Langkah berikutnya: kerjakan **P8-06** manajemen gambar produk (`ImageUploader` multi-file ke bucket `product-images`, kompresi klien, urutan naik/turun keyboard, `alt_text`, dan hapus bersih objek storage) sesuai Prompt 39.
 
+### [2026-11-06 14:58] — Antigravity Gemini 4 Argon (Medium) — SELESAI
+- Task: P8-06 (sub-langkah selesai: a, b, c); Prompt 39 percobaan 1. Prompt 38 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) Skema Zod `lib/validations/product-image.ts` (`createProductImageSchema`, `updateProductImageSchema`, `reorderProductImageSchema`, `normalizeProductImagePath`) memvalidasi path penyimpanan `<product_id>/<uuid>.<jpg|png|webp>`, mewajibkan `alt_text` (1–200 karakter), dan mengizinkan `variant_id` opsional. (b) Komponen `ImageUploader` (`components/admin/products/image-uploader.tsx`) mendukung pemilihan multi-file hingga maksimal 8 gambar per produk (`MAX_IMAGES_PER_PRODUCT = 8`), memeriksa magic bytes JPEG/PNG/WebP (`detectImageMime`), mengecilkan gambar di klien via HTML Canvas (±1600 px), membatasi ukuran ≤ 2 MB (`MAX_PRODUCT_IMAGE_SIZE`), mengunggah langsung ke bucket `product-images` lewat klien sesi browser (`createClient()`) ke `<product_id>/<uuid>.<ext>`, serta menyimpan baris `product_images` dengan nilai awal `alt_text` otomatis berisi nama produk. (c) Service `services/admin/product-images.service.ts` dan Server Actions di `actions/admin-catalog.actions.ts` (`createProductImage`, `updateProductImage`, `moveProductImageOrder`, `deleteProductImage`) memanggil `requireAdmin()`, membersihkan objek storage otomatis bila batas 8 gambar terlampaui atau insert DB gagal, menyimpan perubahan urutan naik/turun yang dapat dioperasikan keyboard, memperbarui `alt_text`, serta menghapus objek di Storage `product-images` sekaligus baris di `product_images` saat gambar dihapus (tanpa meninggalkan objek yatim). Diintegrasikan ke `/admin/products/[id]/edit`. (d) Pengujian: 3 file tes unit baru (`product-image-validation.test.ts`, `admin-product-images-actions.test.ts`, `admin-product-images-ui.test.tsx` — 12 tes baru; total 56 file / 371 tes unit lulus) dan build produksi lulus.
+- File dibuat/diubah: `lib/validations/product-image.ts`, `services/admin/product-images.service.ts`, `actions/admin-catalog.actions.ts`, `components/admin/products/image-uploader.tsx`, `app/admin/products/[id]/edit/page.tsx`, `tests/unit/product-image-validation.test.ts`, `tests/unit/admin-product-images-actions.test.ts`, `tests/unit/admin-product-images-ui.test.tsx`, dokumen ini.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 56 file / 371 tes) · Build ✔ (`npm run build` ✔).
+- Commit: `feat(P8-06): pengunggah gambar produk multi-file, pengatur urutan, alt text, dan hapus bersih`
+- Asumsi / keputusan baru: `normalizeProductImagePath` menormalisasi awalan opsional `product-images/` menjadi `<product_id>/<uuid>.<ext>` agar kompatibel penuh dengan view `product_listing`, `CatalogProductCard`, dan halaman detail produk `/products/[slug]`.
+- Masalah / utang teknis: tidak ada.
+- Langkah berikutnya: kerjakan **P8-07** manajemen inventori (`/admin/inventory`, filter stok menipis/habis, cari SKU, `StockAdjustDialog` → `adjust_stock`, riwayat 20 pergerakan terbaru, dan tes G3) sesuai Prompt 40.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2940,8 +2950,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 35 | 8 | P8-01, P8-02 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Layout admin (requireStaff, AdminSidebar responsif, DataTable, ConfirmDialog) dan dashboard (6 kartu metrik: proof_submitted, processing, pending+unpaid, stok menipis, omzet 7d/30d terfilter) selesai. G1 (44 file / 317 tes) & Build LULUS. Disetujui via /1allclear pada prompt 36. |
 | 36 | 8 | P8-03 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 4 Argon (Medium) | CRUD `/admin/categories` selesai: daftar + jumlah produk, tambah/ubah (auto-slug, requires_size, size_options, sort_order), aktif/nonaktif, hapus hanya bila 0 produk, slug duplikat pesan ramah, requireAdmin() & revalidatePath. Gate G1 (47 file / 333 tes) & Build LULUS. Disetujui via /1allclear pada prompt 37. |
 | 37 | 8 | P8-04 | 1 | DISETUJUI | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | P8-04 a–d selesai: daftar `/admin/products` (cari, filter kategori/status, paginasi), form tambah/ubah RHF+Zod (`specs` pasangan kunci–nilai, auto-slug & saran `-2` saat bentrok), aktif/nonaktif, hapus keras hanya bila belum pernah dipesan (D-15), redirect ke `/admin/products/[id]/edit`. Gate G1 (50 file / 346 tes) & Build LULUS. Disetujui via /1allclear pada prompt 38. |
-| 38 | 8 | P8-05 | 1 | MENUNGGU | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | Menunggu persetujuan pemilik. P8-05 a–c selesai: `VariantTable` & `VariantFormDialog` di `/admin/products/[id]/edit`, validasi `requires_size`/`size_options` per kategori, pesan ramah kombinasi/SKU duplikat, stok baca-saja, proteksi hapus D-15, dan tes G3 membuktikan klien tidak dapat update `stock_quantity` langsung. Gate G1 (53 file / 359 tes), G3 (8 file / 71 tes), & Build LULUS. |
-| 39 | 8 | P8-06 | 0 | BELUM | | | |
+| 38 | 8 | P8-05 | 1 | DISETUJUI | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | P8-05 a–c selesai: `VariantTable` & `VariantFormDialog` di `/admin/products/[id]/edit`, validasi `requires_size`/`size_options` per kategori, pesan ramah kombinasi/SKU duplikat, stok baca-saja, proteksi hapus D-15, dan tes G3 membuktikan klien tidak dapat update `stock_quantity` langsung. Gate G1 (53 file / 359 tes), G3 (8 file / 71 tes), & Build LULUS. Disetujui via /1allclear pada prompt 39. |
+| 39 | 8 | P8-06 | 1 | MENUNGGU | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | Menunggu persetujuan pemilik. P8-06 a–c selesai: `ImageUploader` (multi-file, maks 8 gambar, ≤ 2 MB, JPEG/PNG/WebP magic bytes, kompresi klien ±1600px, unggah klien sesi ke `product-images/<product_id>/<uuid>.<ext>`), simpan `product_images` (`alt_text` wajib default nama produk), ubah urutan naik/turun keyboard, ubah `alt_text`, hapus baris & objek storage tanpa objek yatim. Gate G1 (56 file / 371 tes) & Build LULUS. |
 | 40 | 8 | P8-07 | 0 | BELUM | | | |
 | 41 | 8 | P8-08 | 0 | BELUM | | | |
 | 42 | 8 | P8-09, P8-10 | 0 | BELUM | | | |
