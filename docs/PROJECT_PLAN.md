@@ -145,11 +145,11 @@ Sebelum task P0-07 selesai, script `typecheck` dan `test` belum ada. Pada masa i
 ```text
 Versi dokumen        : 2.0
 Fase aktif           : Fase 8 — Dashboard Admin
-Task berikutnya      : P8-05
-Prompt aktif         : 38 (lihat Lampiran E)
-Task terakhir selesai: P8-04 (juga P8-03, P8-02, P8-01, P7-03, P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
+Task berikutnya      : P8-06
+Prompt aktif         : 39 (lihat Lampiran E)
+Task terakhir selesai: P8-05 (juga P8-04, P8-03, P8-02, P8-01, P7-03, P7-02, P7-01, P6-08, P6-07, P6-06, P6-05, P6-04, P6-03, P6-02, P6-01)
 Blocker aktif        : tidak ada
-Menunggu pemilik     : persetujuan Prompt 37; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
+Menunggu pemilik     : persetujuan Prompt 38; konfirmasi §19 Q-01–Q-03 (sementara DEFAULT D-06, D-10, D-11)
 Terakhir diperbarui  : 2026-11-06 oleh Antigravity Gemini 4 Argon (Medium)
 ```
 
@@ -165,7 +165,7 @@ Terakhir diperbarui  : 2026-11-06 oleh Antigravity Gemini 4 Argon (Medium)
 | 5 | Keranjang | 3 | 3 |
 | 6 | Checkout dan Pesanan | 8 | 8 |
 | 7 | Pembayaran Manual dan Pengiriman | 3 | 3 |
-| 8 | Dashboard Admin | 10 | 4 |
+| 8 | Dashboard Admin | 10 | 5 |
 | 9 | Konten, SEO, Performa, Aksesibilitas | 4 | 0 |
 | 10 | Pengujian dan Hardening | 6 | 0 |
 | 11 | Deployment dan Peluncuran | 6 | 0 |
@@ -2088,11 +2088,11 @@ Cara membaca: `S/M/L` ukuran task; **butuh** = task yang harus selesai lebih dul
     - [x] d. Setelah dibuat, arahkan ke halaman edit untuk menambah varian dan gambar.
   - **Selesai jika:** Produk tanpa kategori tidak bisa dibuat; slug unik; katalog publik diperbarui (`revalidatePath`); tes validasi skema.
 
-- [ ] **P8-05 · Varian** `L` · butuh: P8-04
+- [x] **P8-05 · Varian** `L` · butuh: P8-04
   - **Kerjakan:**
-    - [ ] a. `VariantTable` di halaman edit produk dengan dialog tambah/ubah: SKU, ukuran (pilihan dari `size_options` bila `requires_size`, teks bebas opsional bila tidak), `color_name`, `color_hex`, `color_hex_2` (hanya relevan untuk Two Tone), harga (integer rupiah), harga coret (opsional, > harga), stok awal (hanya saat membuat).
-    - [ ] b. Stok pada baris ditampilkan **baca saja**; perubahan stok lewat `StockAdjustDialog` (P8-07).
-    - [ ] c. Nonaktifkan varian; hapus hanya bila tidak pernah dipesan.
+    - [x] a. `VariantTable` di halaman edit produk dengan dialog tambah/ubah: SKU, ukuran (pilihan dari `size_options` bila `requires_size`, teks bebas opsional bila tidak), `color_name`, `color_hex`, `color_hex_2` (hanya relevan untuk Two Tone), harga (integer rupiah), harga coret (opsional, > harga), stok awal (hanya saat membuat).
+    - [x] b. Stok pada baris ditampilkan **baca saja**; perubahan stok lewat `StockAdjustDialog` (P8-07).
+    - [x] c. Nonaktifkan varian; hapus hanya bila tidak pernah dipesan.
   - **Selesai jika:** Kombinasi duplikat (produk, ukuran, warna) → pesan ramah; `requires_size` ditegakkan; tes G3 membuktikan klien tidak dapat meng-`update` `stock_quantity` langsung.
 
 - [ ] **P8-06 · Gambar produk** `L` · butuh: P8-04, P2-08
@@ -2881,6 +2881,16 @@ Mulai sekarang. Laporkan singkat isi STATUS SAAT INI dan task yang akan kamu ker
 - Masalah / utang teknis: tidak ada.
 - Langkah berikutnya: kerjakan **P8-05** manajemen varian produk (`VariantTable` di halaman edit produk, validasi per kategori `requires_size`/`size_options`, stok baca-saja, dan tes G3) sesuai Prompt 38.
 
+### [2026-11-06 13:50] — Antigravity Gemini 4 Argon (Medium) — SELESAI
+- Task: P8-05 (sub-langkah selesai: a, b, c); Prompt 38 percobaan 1. Prompt 37 ditandai DISETUJUI (`/1allclear`).
+- Ringkasan: (a) Skema Zod `lib/validations/variant.ts` (`createVariantSchema`, `updateVariantDataSchema`, `validateVariantAgainstCategory`) memvalidasi `sku`, `size`, `color_name`, `color_hex`, `color_hex_2` (`#RRGGBB`), `price` (integer rupiah ≥ 0), `compare_at_price` (opsional, integer > `price`), dan `stock_quantity` awal (hanya saat membuat; dibuang pada `updateVariantDataSchema`). (b) Service `services/admin/variants.service.ts` dan Server Actions di `actions/admin-catalog.actions.ts` (`createVariant`, `updateVariant`, `toggleVariantActive`, `deleteVariant`) memanggil `requireAdmin()`, menegakkan aturan `requires_size` dan `size_options` dari kategori produk di database, memberikan pesan ramah untuk kombinasi `(product_id, size, color_name)` duplikat (`DUPLICATE_VARIANT_COMBO`) maupun `sku` duplikat (`DUPLICATE_SKU`), meng-`update` hanya kolom yang diizinkan tanpa `stock_quantity`, memblokir penghapusan varian yang pernah dipesan (`VARIANT_HAS_ORDERS`, D-15), serta memanggil `revalidatePath`. (c) Komponen `VariantTable` (`components/admin/products/variant-table.tsx`) dan `VariantFormDialog` (`components/admin/products/variant-form-dialog.tsx`) diintegrasikan ke halaman `/admin/products/[id]/edit`: memilih ukuran dari dropdown `size_options` bila `requires_size = true` atau input bebas bila `false`, menampilkan `color_hex_2` untuk kategori Two Tone, menampilkan stok secara **baca saja** pada baris tabel dan mode edit, serta menonaktifkan tombol Hapus bila varian pernah dipesan. (d) Pengujian: 3 file tes unit baru (`variant-validation.test.ts`, `admin-variants-actions.test.ts`, `admin-variants-ui.test.tsx`) dan 1 file tes keamanan database G3 (`tests/security/admin-variants.test.ts`) yang membuktikan klien `anon`, `customerA`, `staff`, maupun `admin` ditolak (`42501`) saat mencoba `UPDATE stock_quantity` langsung di `product_variants`.
+- File dibuat/diubah: `lib/validations/variant.ts`, `services/admin/variants.service.ts`, `services/admin/products.service.ts`, `actions/admin-catalog.actions.ts`, `components/admin/products/variant-form-dialog.tsx`, `components/admin/products/variant-table.tsx`, `app/admin/products/[id]/edit/page.tsx`, `tests/unit/variant-validation.test.ts`, `tests/unit/admin-variants-actions.test.ts`, `tests/unit/admin-variants-ui.test.tsx`, `tests/security/admin-variants.test.ts`, dokumen ini.
+- Gate: G1 ✔ (`npm run lint` ✔ · `npm run typecheck` ✔ · `npm run test` ✔ 53 file / 359 tes) · G3 ✔ (`npm run test:rls` ✔ 8 file / 71 tes) · Build ✔ (`npm run build` ✔).
+- Commit: `feat(P8-05): manajemen varian produk admin, validasi ukuran kategori, dan tes keamanan stok`
+- Asumsi / keputusan baru: Kolom `color_hex_2` otomatis ditampilkan pada dialog varian ketika kategori produk merupakan kategori Two Tone (slug memuat `two-tone` atau nama memuat `two tone`) atau ketika varian yang diedit sudah memiliki nilai `color_hex_2`.
+- Masalah / utang teknis: tidak ada.
+- Langkah berikutnya: kerjakan **P8-06** manajemen gambar produk (`ImageUploader` multi-file ke bucket `product-images`, kompresi klien, urutan naik/turun keyboard, `alt_text`, dan hapus bersih objek storage) sesuai Prompt 39.
+
 ---
 
 ## Lampiran E — Ledger Prompt (diperbarui agent; menunjukkan alur mana yang sering gagal)
@@ -2929,8 +2939,8 @@ Sumber prompt: `prompting-struktur.txt` (pemilik menyalin prompt berurutan dari 
 | 34 | 7 | P7-02, P7-03 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | P7-02 & P7-03 tuntas: WhatsAppButton di halaman pesanan, /contact, footer; Server Actions admin pesanan (verify, reject, ship, complete, cancel, refund, signed URL 60s) dengan otorisasi staf & klien sesi. Gate G2 (38 file / 295 tes + build) & G3 (7 file / 67 tes) LULUS. Gerbang Fase 7 selesai. Tag v0.7.0. Disetujui via /1allclear pada prompt 35. |
 | 35 | 8 | P8-01, P8-02 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 3.8 Flash High | Layout admin (requireStaff, AdminSidebar responsif, DataTable, ConfirmDialog) dan dashboard (6 kartu metrik: proof_submitted, processing, pending+unpaid, stok menipis, omzet 7d/30d terfilter) selesai. G1 (44 file / 317 tes) & Build LULUS. Disetujui via /1allclear pada prompt 36. |
 | 36 | 8 | P8-03 | 1 | DISETUJUI | 2026-11-05 | Antigravity Gemini 4 Argon (Medium) | CRUD `/admin/categories` selesai: daftar + jumlah produk, tambah/ubah (auto-slug, requires_size, size_options, sort_order), aktif/nonaktif, hapus hanya bila 0 produk, slug duplikat pesan ramah, requireAdmin() & revalidatePath. Gate G1 (47 file / 333 tes) & Build LULUS. Disetujui via /1allclear pada prompt 37. |
-| 37 | 8 | P8-04 | 1 | MENUNGGU | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | Menunggu persetujuan pemilik. P8-04 a–d selesai: daftar `/admin/products` (cari, filter kategori/status, paginasi), form tambah/ubah RHF+Zod (`specs` pasangan kunci–nilai, auto-slug & saran `-2` saat bentrok), aktif/nonaktif, hapus keras hanya bila belum pernah dipesan (D-15), redirect ke `/admin/products/[id]/edit`. Gate G1 (50 file / 346 tes) & Build LULUS. |
-| 38 | 8 | P8-05 | 0 | BELUM | | | |
+| 37 | 8 | P8-04 | 1 | DISETUJUI | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | P8-04 a–d selesai: daftar `/admin/products` (cari, filter kategori/status, paginasi), form tambah/ubah RHF+Zod (`specs` pasangan kunci–nilai, auto-slug & saran `-2` saat bentrok), aktif/nonaktif, hapus keras hanya bila belum pernah dipesan (D-15), redirect ke `/admin/products/[id]/edit`. Gate G1 (50 file / 346 tes) & Build LULUS. Disetujui via /1allclear pada prompt 38. |
+| 38 | 8 | P8-05 | 1 | MENUNGGU | 2026-11-06 | Antigravity Gemini 4 Argon (Medium) | Menunggu persetujuan pemilik. P8-05 a–c selesai: `VariantTable` & `VariantFormDialog` di `/admin/products/[id]/edit`, validasi `requires_size`/`size_options` per kategori, pesan ramah kombinasi/SKU duplikat, stok baca-saja, proteksi hapus D-15, dan tes G3 membuktikan klien tidak dapat update `stock_quantity` langsung. Gate G1 (53 file / 359 tes), G3 (8 file / 71 tes), & Build LULUS. |
 | 39 | 8 | P8-06 | 0 | BELUM | | | |
 | 40 | 8 | P8-07 | 0 | BELUM | | | |
 | 41 | 8 | P8-08 | 0 | BELUM | | | |

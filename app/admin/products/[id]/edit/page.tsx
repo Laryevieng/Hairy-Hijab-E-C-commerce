@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { Layers, Image as ImageIcon } from 'lucide-react'
+import { Image as ImageIcon } from 'lucide-react'
 import { requireAdmin } from '@/lib/auth/guards'
 import { listAdminCategories } from '@/services/admin/categories.service'
 import { getAdminProductById } from '@/services/admin/products.service'
 import { productIdSchema } from '@/lib/validations/product'
 import { ProductForm } from '@/components/admin/products/product-form'
+import { VariantTable } from '@/components/admin/products/variant-table'
 
 export const metadata: Metadata = {
   title: 'Edit Produk | Admin Hairy Hijab',
@@ -41,6 +42,16 @@ export default async function AdminEditProductPage({
     notFound()
   }
 
+  const matchedCategory =
+    product.category ??
+    categories.find((c) => c.id === product.category_id) ?? {
+      id: product.category_id,
+      name: 'Kategori',
+      slug: 'kategori',
+      requires_size: false,
+      size_options: [],
+    }
+
   return (
     <div className="space-y-8">
       <ProductForm
@@ -53,34 +64,18 @@ export default async function AdminEditProductPage({
         }))}
       />
 
-      {/* Seksi Varian Produk — akan diisi VariantTable pada P8-05 */}
-      <section
-        aria-labelledby="product-variants-heading"
-        className="rounded-lg border border-sand bg-ivory p-6 shadow-xs space-y-3"
-      >
-        <div className="flex items-center justify-between gap-2 border-b border-sand pb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sand/30 text-espresso">
-              <Layers className="h-4 w-4" />
-            </div>
-            <div>
-              <h2
-                id="product-variants-heading"
-                className="font-serif text-lg font-bold text-espresso"
-              >
-                Varian Produk ({product.variants.length})
-              </h2>
-              <p className="text-xs text-espresso/70">
-                Kelola SKU, ukuran, warna, dan harga per varian produk.
-              </p>
-            </div>
-          </div>
-        </div>
-        {/* TODO(P8-05): pasang komponen VariantTable di sini */}
-        <p className="text-xs text-espresso/70">
-          Produk ini saat ini memiliki <strong>{product.variants.length}</strong> varian terdaftar. Tabel manajemen varian lengkap akan tersedia pada tahap P8-05.
-        </p>
-      </section>
+      {/* Seksi Varian Produk (P8-05) */}
+      <VariantTable
+        productId={product.id}
+        category={{
+          id: matchedCategory.id,
+          name: matchedCategory.name,
+          slug: matchedCategory.slug,
+          requires_size: matchedCategory.requires_size,
+          size_options: matchedCategory.size_options ?? [],
+        }}
+        variants={product.variants}
+      />
 
       {/* Seksi Gambar Produk — akan diisi ImageUploader pada P8-06 */}
       <section

@@ -33,6 +33,10 @@ export interface AdminProductListItem {
   updated_at: string
 }
 
+export interface AdminVariantItem extends ProductVariantRow {
+  has_orders: boolean
+}
+
 export interface AdminProductDetail extends ProductRow {
   category: {
     id: string
@@ -41,7 +45,7 @@ export interface AdminProductDetail extends ProductRow {
     requires_size: boolean
     size_options: string[]
   } | null
-  variants: ProductVariantRow[]
+  variants: AdminVariantItem[]
   images: ProductImageRow[]
   has_orders: boolean
 }
@@ -208,7 +212,9 @@ export async function getAdminProductById(
     return null
   }
 
-  const variants = Array.isArray(data.variants) ? data.variants : []
+  const rawVariants = Array.isArray(data.variants)
+    ? [...data.variants].sort((a, b) => a.created_at.localeCompare(b.created_at))
+    : []
   const images = Array.isArray(data.images)
     ? [...data.images].sort((a, b) => a.sort_order - b.sort_order)
     : []
@@ -216,23 +222,32 @@ export async function getAdminProductById(
     ? data.category[0] ?? null
     : data.category
 
-  let hasOrders = false
-  if (variants.length > 0) {
-    const variantIds = variants.map((v) => v.id)
-    const { count } = await supabase
+  const orderedVariantIds = new Set<string>()
+  if (rawVariants.length > 0) {
+    const variantIds = rawVariants.map((v) => v.id)
+    const { data: orderItems } = await supabase
       .from('order_items')
-      .select('id', { count: 'exact', head: true })
+      .select('variant_id')
       .in('variant_id', variantIds)
 
-    hasOrders = (count ?? 0) > 0
+    for (const item of orderItems ?? []) {
+      if (item.variant_id) {
+        orderedVariantIds.add(item.variant_id)
+      }
+    }
   }
+
+  const variants: AdminVariantItem[] = rawVariants.map((v) => ({
+    ...v,
+    has_orders: orderedVariantIds.has(v.id),
+  }))
 
   return {
     ...data,
     category: categoryObj,
     variants,
     images,
-    has_orders: hasOrders,
+    has_orders: orderedVariantIds.size > 0,
   }
 }
 

@@ -14,6 +14,12 @@ import {
   toggleProductActiveSchema,
 } from '@/lib/validations/product'
 import {
+  variantIdSchema,
+  createVariantSchema,
+  updateVariantDataSchema,
+  toggleVariantActiveSchema,
+} from '@/lib/validations/variant'
+import {
   createCategoryRecord,
   updateCategoryRecord,
   setCategoryActiveStatus,
@@ -25,6 +31,12 @@ import {
   setProductActiveStatus,
   deleteProductRecord,
 } from '@/services/admin/products.service'
+import {
+  createVariantRecord,
+  updateVariantRecord,
+  setVariantActiveStatus,
+  deleteVariantRecord,
+} from '@/services/admin/variants.service'
 import type { ActionResult } from '@/types/action'
 
 type Failure = Extract<ActionResult<never>, { ok: false }>
@@ -69,6 +81,7 @@ function revalidateProductPaths(slug?: string, productId?: string) {
   revalidatePath('/admin')
   revalidatePath('/admin/products')
   revalidatePath('/admin/categories')
+  revalidatePath('/admin/inventory')
   if (slug) {
     revalidatePath(`/products/${slug}`)
   }
@@ -322,5 +335,140 @@ export async function deleteProduct(id: unknown): Promise<ActionResult> {
   }
 
   revalidateProductPaths(result.data.slug, parsed.data)
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Tambah varian produk baru (P8-05).
+ * Urutan wajib: requireAdmin() -> validasi Zod -> service (validasi kategori + klien sesi RLS) -> revalidatePath.
+ */
+export async function createVariant(
+  input: unknown
+): Promise<ActionResult<{ id: string }>> {
+  await requireAdmin()
+
+  const normalizedInput =
+    typeof input === 'object' && input !== null
+      ? {
+          ...(input as Record<string, unknown>),
+          stock_quantity:
+            (input as Record<string, unknown>).stock_quantity ??
+            (input as Record<string, unknown>).initial_stock ??
+            0,
+        }
+      : input
+
+  const parsed = createVariantSchema.safeParse(normalizedInput)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await createVariantRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: { id: result.data.id } }
+}
+
+/**
+ * Ubah varian produk yang sudah ada (P8-05).
+ * Stok TIDAK dapat diubah lewat aksi ini (hanya lewat adjust_stock di P8-07).
+ */
+export async function updateVariant(
+  idOrInput: unknown,
+  inputArg?: unknown
+): Promise<ActionResult<{ id: string }>> {
+  await requireAdmin()
+
+  let rawId: unknown = idOrInput
+  let rawData: unknown = inputArg
+
+  if (
+    inputArg === undefined &&
+    typeof idOrInput === 'object' &&
+    idOrInput !== null
+  ) {
+    const obj = idOrInput as Record<string, unknown>
+    rawId = obj.id
+    rawData = 'data' in obj && typeof obj.data === 'object' ? obj.data : obj
+  }
+
+  const idParsed = variantIdSchema.safeParse(rawId)
+  if (!idParsed.success) {
+    return validationFailure(idParsed.error)
+  }
+
+  const dataParsed = updateVariantDataSchema.safeParse(rawData)
+  if (!dataParsed.success) {
+    return validationFailure(dataParsed.error)
+  }
+
+  const result = await updateVariantRecord(idParsed.data, dataParsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: { id: result.data.id } }
+}
+
+/**
+ * Aktifkan / nonaktifkan varian produk (P8-05).
+ */
+export async function toggleVariantActive(
+  idOrInput: unknown,
+  isActiveArg?: unknown
+): Promise<ActionResult> {
+  await requireAdmin()
+
+  const payload =
+    isActiveArg === undefined &&
+    typeof idOrInput === 'object' &&
+    idOrInput !== null
+      ? {
+          id: (idOrInput as Record<string, unknown>).id,
+          is_active:
+            (idOrInput as Record<string, unknown>).is_active ??
+            (idOrInput as Record<string, unknown>).isActive,
+        }
+      : { id: idOrInput, is_active: isActiveArg }
+
+  const parsed = toggleVariantActiveSchema.safeParse(payload)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await setVariantActiveStatus(
+    parsed.data.id,
+    parsed.data.is_active
+  )
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
+  return { ok: true, data: undefined }
+}
+
+/**
+ * Hapus keras varian produk (P8-05).
+ * Hanya diizinkan bila varian belum pernah dipesan (D-15).
+ */
+export async function deleteVariant(id: unknown): Promise<ActionResult> {
+  await requireAdmin()
+
+  const parsed = variantIdSchema.safeParse(id)
+  if (!parsed.success) {
+    return validationFailure(parsed.error)
+  }
+
+  const result = await deleteVariantRecord(parsed.data)
+  if (!result.ok) {
+    return result
+  }
+
+  revalidateProductPaths(result.data.productSlug, result.data.productId)
   return { ok: true, data: undefined }
 }
